@@ -1,0 +1,108 @@
+@charset "UTF-8";
+
+@mixin clearfix() {
+	zoom: 1;
+
+	&:after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+}
+
+// * font-family
+@mixin font-family($type, $important: false) {
+	@if $important == 'important' or $important == true {
+		$important: ' !important';
+	} @else {
+		$important: '';
+	}
+	@if $type == sans-serif {
+		font-family: Helvetica, Arial, "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", Osaka, Meiryo, "ＭＳ Ｐゴシック", sans-serif#{$important};
+		@if $support-ie6 {
+			_font-family: "ＭＳ Ｐゴシック", sans-serif#{$important};
+		}
+	} @else if $type == serif {
+		font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif#{$important};
+		@if $support-ie6 {
+			_font-family: "ＭＳ Ｐゴシック", serif#{$important};
+		}
+	} @else if $type == meiryo {
+		font-family: Meiryo, "ＭＳ Ｐゴシック", sans-serif#{$important};
+	} @else if $type == helvetica {
+		font-family: Helvetica, Arial, sans-serif#{$important};
+	} @else if $type == verdana {
+		font-family: Verdana, Arial, Helvetica, sans-serif#{$important};
+	} @else if $type == tahoma {
+		font-family: Tahoma, Arial, Helvetica, sans-serif#{$important};
+	}
+}
+
+// * font-size
+@function fz( $baseSize, $newSize ) {
+	@return floor(percentage( $newSize / $baseSize ));
+}
+
+// * inline-block
+@mixin inline-block {
+	display: inline-block;
+
+	@if $support-ie6 or $support-ie7 {
+		*display: inline;
+		*zoom: 1;
+	}
+}
+
+// * min-height
+@mixin min-height($height) {
+	min-height: $height;
+
+	@if $support-ie6 {
+		height: auto !important;
+		height: $height;
+	}
+}
+
+// * min-width
+@mixin min-width($width) {
+	min-width: $width;
+
+	@if $support-ie6 {
+		width: auto !important;
+		width: $width;
+	}
+}
+
+// * max-height
+@mixin max-height($height) {
+	max-height: $height;
+
+	@if $support-ie6 {
+		height: auto !important;
+		height: $height;
+	}
+}
+
+// * max-width
+@mixin max-width($width) {
+	max-width: $width;
+
+	@if $support-ie6 {
+		width: auto !important;
+		width: $width;
+	}
+}
+
+@mixin inline-block-child() {
+	letter-spacing: -.40em;
+
+	> li {
+		@include inline-block;
+		letter-spacing: normal;
+	}
+}
+
+@mixin linear-gradient($color1,$color2){
+  background-color: $color1;
+  @include background-image(linear-gradient($color1 0%, $color2 100%));
+}

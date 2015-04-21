@@ -1,0 +1,293 @@
+@charset "UTF-8";
+
+/*
+	module:　m-box-fixed
+	- 固定幅・中央揃えのボックス
+-----------------------------------------------------------------*/
+.m-box-fixed {
+	max-width: $fixedWidth;
+	margin: 0 auto;
+}
+
+/*
+	module:　m-section
+	- コンテンツの区切りを表す基本ボックス
+-----------------------------------------------------------------*/
+.m-box-section {
+	margin-top: 60px;
+	padding-bottom: 0;
+
+	.m-box-section {
+		margin-top: 40px;
+	}
+}
+
+/*
+	module:box-imgTxt
+	- 画像とテキストの横並び
+*/
+.m-box-imgTxt1 {
+	@include clearfix;
+
+	.imgBox {
+		float: left;
+		margin-right: 20px;
+	}
+	.textBox {
+		overflow: hidden;
+	}
+}
+.m-box-imgTxt2 {
+	@include clearfix;
+
+	.imgBox {
+		float: right;
+		margin-left: 20px;
+	}
+	.txtBox {
+		overflow: hidden;
+	}
+}
+
+/*
+	module:　m-box-padding
+-----------------------------------------------------------------*/
+.m-box-padding {
+	padding: 20px;
+}
+
+.m-box-col2 {
+	@include clearfix;
+
+	.col2-left {
+		float: left;
+		width: 75%;
+		padding-right: 70px;
+		@include box-sizing(border-box);
+
+		@media #{$breakS} {
+			float: none;
+			width: auto;
+			padding-right: 0;
+		}
+	}
+
+	.col2-right {
+		float: right;
+		width: 25%;
+		@include box-sizing(border-box);
+
+		@media #{$breakS} {
+			float: none;
+			width: auto;
+			margin-top: 40px;
+		}
+	}
+}
+
+.m-box-social {
+	margin-top: 70px;
+
+	@media #{$breakS} {
+		margin-top: 35px;
+	}
+
+	.social-title {
+		margin-bottom: 20px;
+		font-weight: bold;
+		text-align: center;
+	}
+	.social-button {
+		display: table;
+		width: 100%;
+		margin: 0 -5px 0 -5px;
+		table-layout: fixed;
+
+		@media #{$breakS} {
+			margin: 0;
+			text-align: center;
+			letter-spacing: -0.4em;
+		}
+
+		> li {
+			display: table-cell;
+			padding: 0 5px;
+
+			@media #{$breakS} {
+				display: inline-block;
+				width: 45%;
+				margin-top: 10px;
+				letter-spacing: normal;
+			}
+
+			a {
+				display: block;
+				padding: 20px 0;
+				color: #fff;
+				text-align: center;
+
+				span {
+					position: relative;
+					margin-right: 10px;
+					line-height: 1;
+					vertical-align: middle;
+				}
+			}
+		}
+		.button-twitter a {
+			background: #39a9f1;
+
+			span {
+				top: -1px;
+			}
+		}
+		.button-facebook a {
+			background: #335795;
+
+			span {
+				top: -3px;
+			}
+		}
+		.button-google a {
+			background: #d34836;
+
+			span {
+				top: -1px;
+			}
+		}
+		.button-hatena a {
+			background: #2c6ebd;
+
+			span {
+				top: -2px;
+			}
+		}
+		.button-pocket a {
+			background: #EE4256;
+
+			span {
+				top: -2px;
+			}
+		}
+	}
+}
+
+.m-box-entry {
+	.entry-meta {
+		.meta-category {
+			display: inline-block;
+			width: 120px;
+			padding: 3px 10px;
+			background: #333;
+			color: #fff;
+			font-size: fz(18,12);
+			text-align: center;
+		}
+		.meta-date {
+			display: inline-block;
+			margin-left: 10px;
+			padding-left: 10px;
+			border-left: 1px solid #ccc;
+			font-size: fz(18,16);
+			vertical-align: middle;
+		}
+		.meta-title {
+			margin-top: 15px;
+			color: $siteMainColor;
+			font-size: fz(18,30);
+			font-weight: bold;
+
+			@media #{$breakS} {
+				margin-top: 10px;
+				font-size: fz(18,24);
+			}
+		}
+	}
+	.entry-body {
+		margin-top: 50px;
+
+		@media #{$breakS} {
+			margin-top: 25px;
+		}
+
+		h3 {
+			margin: 60px 0 30px 0;
+			font-size: fz(18,34);
+			font-weight: bold;
+
+			@media #{$breakS} {
+				margin-top: 30px;
+				margin-bottom: 20px;
+				font-size: fz(18,30);
+			}
+		}
+		h4 {
+			margin: 40px 0 20px 0;
+			font-size: fz(18,28);
+			font-weight: bold;
+
+			@media #{$breakS} {
+				margin-top: 25px;
+			}
+		}
+		ul {
+			margin-top: 1.2em;
+			margin-left: 6px;
+			padding-left: 15px;
+			list-style: disc;
+			line-height: 2.2;
+
+			li {
+				margin-top: 1.2em;
+
+				@media #{$breakS} {
+					margin-top: 1em;
+					line-height: 1.8;
+				}
+
+				ul {
+					list-style: circle;
+				}
+			}
+		}
+		ol {
+			margin: 1.2em 0 0 16px;
+			padding-left: 15px;
+			list-style: decimal;
+			line-height: 2.2;
+
+			li {
+				margin-top: 1.2em;
+
+				@media #{$breakS} {
+					margin-top: 1em;
+					line-height: 1.8;
+				}
+			}
+		}
+		p {
+			margin-top: 1.2em;
+			line-height: 2.2;
+
+			@media #{$breakS} {
+				margin-top: 1em;
+				line-height: 2;
+			}
+		}
+		> div {
+			margin-top: 1.8em;
+			margin-bottom: 1.8em;
+			line-height: 2.2;
+		}
+
+		blockquote {
+			margin: 0 0 0 5px;
+			padding: 0 0 0 1em;
+			border-left: 5px solid #ccc;
+		}
+
+		strong {
+			font-weight: bold;
+		}
+	}
+}

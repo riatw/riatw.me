@@ -1,0 +1,22 @@
+name: Ranking Entries
+id: Ranking_Entries
+key: ranking_entries
+version: 0.01
+author_name: <__trans phrase="Kentaro Suzuki">
+description: <__trans phrase="GoogleAnalyticsのページビューから、人気記事ランキングを出力するプラグイン">
+l10n_class: Ranking_Entries::L10N
+system_config_template: system_config.tmpl
+tags:
+    block:
+        RankingEntries: $ranking_entries::Ranking_Entries::Tags::hdlr_rankingentries
+settings:
+    ranking_entries_ga_password:
+        scope: system
+        default: 
+    ranking_entries_ga_profile_id:
+        scope: system
+        default: 
+    ranking_entries_ga_email:
+        scope: system
+        default: 
+

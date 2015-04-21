@@ -1,0 +1,206 @@
+@charset "UTF-8";
+
+// module parts
+// サイトを通じて、2回以上使用するパーツの定義(basic css not mixins)
+
+// ## NamingRule
+// - m-(cateogoryname)-(classname)
+
+// ##Rules
+// - ここに登録したスタイルは新規フェーズ後は原則変更しない
+// - ここにはサイト内で2回以上使用するパーツを定義する
+
+/*
+	module:　m-list-inline
+	- 横並びリスト
+-----------------------------------------------------------------*/
+.m-list-inline {
+	letter-spacing: -.40em;
+
+	li {
+		@include inline-block;
+		margin-right: 35px;
+		vertical-align: top;
+		letter-spacing: normal;
+
+		&.lastChild,
+		&:last-child {
+			margin-right: 0 !important;
+		}
+	}
+}
+
+/*
+	module: m-list-indent
+	- テキストの頭出し
+-----------------------------------------------------------------*/
+.m-list-indent {
+	li {
+		margin-left: 1em;
+		text-indent: -1em;
+	}
+}
+
+/*
+	module:　m-list-col2
+	- ulリストの2カラムパターン
+-----------------------------------------------------------------*/
+.m-list-col2 {
+	@include clearfix;
+
+	> li {
+		float: left;
+
+		&:last-child,
+		&.lastChild {
+			float: right;
+		}
+	}
+}
+
+.m-list-entries {
+	.entries-item {
+		margin-top: 50px;
+
+		@media #{$breakS} {
+			margin-top: 35px;
+		}
+
+		&:first-child {
+			margin-top: 0 !important;
+		}
+
+		.item-title {
+			margin-top: 15px;
+			font-size: fz(18,22);
+			font-weight: bold;
+
+			@media #{$breakS} {
+				margin-top: 10px;
+			}
+		}
+		.item-meta {
+			.meta-category {
+				display: inline-block;
+				width: 120px;
+				padding: 3px 10px;
+				background: #333;
+				color: #fff;
+				font-size: fz(18,12);
+				text-align: center;
+			}
+			.meta-date {
+				display: inline-block;
+				margin-left: 10px;
+				padding-left: 10px;
+				border-left: 1px solid #ccc;
+				font-size: fz(18,16);
+				vertical-align: middle;
+			}
+		}
+		.item-excerpt {
+			margin-top: 10px;
+
+			@media #{$breakS} {
+				margin-top: 7px;
+			}
+		}
+	}
+}
+
+.m-list-pager {
+	@include inline-block-child;
+	margin-top: 70px;
+	text-align: center;
+
+	@media #{$breakS} {
+		margin-top: 35px;
+	}
+
+	.pager-num {
+		margin: 0 10px;
+		vertical-align: middle;
+		line-height: 1;
+
+		@media #{$breakS} {
+			margin: 0 5px;
+		}
+
+		a {
+			display: block;
+			padding: 15px;
+			border: 2px solid $siteMainColor;
+			background: $siteMainColor;
+			color: #fff;
+			font-size: fz(18,16);
+
+			@media #{$breakS} {
+				padding: 10px;
+			}
+
+			&:hover {
+				background: darken($siteMainColor, 5%);
+			}
+		}
+		span {
+			display: block;
+			padding: 15px;
+			border: 2px solid $siteMainColor;
+			background: #fff;
+			font-size: fz(18,16);
+			@include box-sizing(border-box);
+		}
+	}
+}
+
+.m-list-widget {
+	.widget-item {
+		margin-top: 40px;
+
+		@media #{$breakS} {
+			margin-top: 25px;
+		}
+
+		&:first-child {
+			margin-top: 0 !important;
+		}
+
+		.widget-title {
+			padding-top: 15px;
+			border-top: 1px solid #666;
+			font-size: fz(18,20);
+			font-weight: bold;
+		}
+		.widget-content {
+			margin-top: 15px;
+		}
+	}
+
+	.widget-author {
+		.author-pic {
+			display: table-cell;
+			padding-right: 10px;
+			vertical-align: middle;
+		}
+		.author-name {
+			display: table-cell;
+			font-size: fz(18,16);
+			vertical-align: middle;
+		}
+		.author-description {
+			margin-top: 10px;
+			font-size: fz(18,16);
+			line-height: 1.8;
+		}
+	}
+
+	.widget-category {
+		ul {
+			margin-left: 5px;
+			padding-left: 15px;
+			color: #333;
+			list-style: disc;
+			line-height: 1.8;
+		}
+	}
+}

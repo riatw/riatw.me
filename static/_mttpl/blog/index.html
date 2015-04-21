@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<title><MTIf name="archive_template"><mt:archivetitle> | ブログ | </MTIf>riatw.me</title>
+	<meta name="description" content="riatwのブログ。Movable Type,JavaScript,VPSなどWeb開発系のトピック。あとは好きな音楽や旅行のことなど。ここは<MTIf name="archive_template"><mt:archivetitle>のページ。</MTIf>" />
+	<meta name="keywords" content="Web,Movable+Type,MT,CMS,MTAppjQuery,HTML,CSS,Javascript,VPS" />
+
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="" />
+	<meta property="og:site_name" content="riatw.me" />
+
+	<meta name="viewport" content="width=device-width" />
+
+	<link rel="stylesheet" href="<mt:websiteurl>css/base.css" type="text/css" />
+	<link rel="stylesheet" href="<mt:websiteurl>css/print.css" type="text/css" media="print" />
+	<link rel="shortcut icon" href="<mt:websiteurl>favicon.ico" />
+</head>
+
+<body class="index">
+	<noscript>JavascriptがOFFのため正しく表示されない可能性があります。</noscript>
+
+	<!-- [ WRAP ] -->
+	<div id="wrap">
+		<!-- [ GLOBAL HEADER ] -->
+		<div id="header">
+			<h1 class="header-title"><a href="http://riatw.me"><img src="<mt:websiteurl>images/i_logo.png" alt="riatw.me"></a></h1>
+			<p class="header-catch">
+				GIVE YOU MORE SURPRISE WITH WEB TECHNOLOGY
+			</p>
+		</div>
+		<!-- [ /GLOBAL HEADER ] -->
+
+		<!-- [ CONTENT ] -->
+		<div id="content">
+			<div class="m-box-fixed">
+				<div class="m-box-col2">
+					<div class="col2-left">
+						<div class="m-box-article">
+							<ul class="m-list-entries">
+								<MTPageContents count="20">
+									<MTEntries lastn="0">
+										<li class="entries-item">
+											<dl>
+												<dd class="item-meta">
+													<span class="meta-category">
+														<MTIf tag="entrycategory">
+															<mt:categorylabel>
+														<MTELse>
+															分類なし
+														</MTIf>
+													</span>
+													<span class="meta-date">
+														<mt:entrydate format="%Y.%m.%d">
+													</span>
+												</dd>
+												<dt class="item-title">
+													<a href="<mt:entrylink>"><mt:entrytitle></a>
+												</dt>
+												<dd class="item-excerpt">
+													<mt:entrybody remove_html="1" trim_to="100+...">
+												</dd>
+											</dl>
+										</li>
+										<MTPageSeparator>
+									</mt:Entries>
+								</MTPageContents>
+							</ul>
+						</div>
+
+						<ul class="m-list-pager">
+							<MTPagination>
+								<MTIfPaginationPrev>
+									<li class="pager-num pager-prev">
+										<a href="<mt:paginationprev>">&lt;</a>
+									</li>
+								</MTIfPaginationPrev>
+
+								<MTIfPaginationCurrent>
+									<li class="pager-num"><span><mt:paginationlink element="number"></span></li>
+								<MTElse>
+									<li class="pager-num"><a href="<mt:paginationlink>"><mt:paginationlink element="number"></a></li>
+								</MTIfPaginationCurrent>
+
+								<MTIfPaginationNext>
+									<li class="pager-num pager-next">
+										<a href="<mt:paginationnext>">&gt;</a>
+									</li>
+								</MTIfPaginationNext>
+							</MTPagination>
+						</ul>
+					</div>
+
+					<!--#include virtual="/_parts/sidebar.html" -->
+				</div>
+			</div>
+		</div>
+		<!-- [ /CONTENT ] -->
+
+		<!-- [ GLOBAL FOOTER ] -->
+		<div id="footer">
+			<div class="m-box-fixed">
+				<p class="copyright">&copy;2014 riatw.me</p>
+			</div>
+		</div>
+		<!-- [ /GLOBAL FOOTER ] -->
+
+	</div>
+	<!-- [ WRAP ] -->
+
+	<script type="text/javascript" src="<mt:websiteurl>js/vendor/jquery.js"></script>
+	<script type="text/javascript" src="<mt:websiteurl>js/common.js"></script>
+	<script type="text/javascript" src="<mt:websiteurl>js/site.js"></script>
+</body>
+</html>

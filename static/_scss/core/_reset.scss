@@ -1,0 +1,111 @@
+@charset "UTF-8";
+
+/*---------------------------- reset ----------------------------*/
+html {
+	color: $defaultTxtColor;
+	background: $defaultBgColor;
+	overflow-y: scroll;
+}
+
+body {
+	@include font-family("meiryo");
+	font-size: $defaultTxtSize;
+	height: 100%;
+	text-align: left;
+	-webkit-text-size-adjust: none;
+
+	@media #{$breakS} {
+		font-size: $defaultTxtSize * 0.8;
+	}
+}
+
+hr, legend {
+	display: none;
+}
+
+img {
+	border: none;
+	vertical-align: bottom;
+}
+
+div, dl, dt, dd, form, input, ul, ol, li, p, select, textarea, span, th, td {
+	margin: 0;
+	padding: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+address, th, caption, em, strong {
+	font-style: normal;
+	font-weight: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-size: 100%;
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+input, select, textarea {
+	font-size: 100%;
+	font-family: inherit;
+	font-weight: inherit;
+}
+
+sup {
+	vertical-align: text-top;
+	font-size: 72%;
+}
+
+sub {
+	vertical-align: text-bottom;
+	font-size: 72%;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: 100%;
+	font-size: inherit;
+}
+
+caption {
+	text-align: left;
+}
+
+fieldset {
+	border: 0;
+}
+
+a {
+	overflow: hidden;
+	outline: none;
+
+	&:link {
+		color: $defaultLinkColor;
+		text-decoration: none;
+	}
+
+	&:visited {
+		color: $defaultLinkVisitedColor;
+		text-decoration: none;
+	}
+
+	&:hover, &:active {
+		color: $defaultLinkHoverColor;
+		text-decoration: none;
+	}
+}
+
+@if $use-html5 {
+    article,aside,details,figcaption,figure,
+    footer,header,hgroup,menu,nav,section {
+        display: block;
+    }
+}

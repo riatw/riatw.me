@@ -1,0 +1,252 @@
+/*
+ $Id;
+*/
+
+/*
+ * Entry editing screen
+ */
+
+#field-convert_breaks .help-link, 
+#editor-content #editor-content-toolbar span, 
+#editor-content-enclosure, 
+#display-options, 
+#permalink-field, 
+#quickpost, 
+#feedback-field, 
+#assets-field, 
+#category-field .category-selector-header, 
+#category-field .add-category-new-link, 
+#category-field .delete, 
+.actions-bar .plugin-actions {
+  display: none;
+}
+
+#field-convert_breaks {
+  /* Hidden at first, displayed by javascript after moved. */
+  display: none;
+}
+
+#edit-entry #title-field {
+  padding: 0;
+  border: 0;
+  margin-bottom: 15px;
+}
+
+.text.title {
+  height: auto;
+  padding: 0.25em;
+  line-height: normal;
+  font-size: 150%;
+}
+
+.editor-toolbar .button {
+  margin-right: 8px;
+  min-width: 22px;
+}
+
+
+#editor-content.editor-mode-iframe #editor-content-toolbar span.edit-mode,
+#editor-content.editor-mode-textarea #editor-content-toolbar span.add-enclosure {
+  display: inline;
+}
+
+#edit-entry #entry-body-field,
+#edit-entry #text-field {
+  padding: 0;
+  border: 0;
+}
+
+#text-field, #entry-body-field {
+  margin-bottom: 0px;
+}
+
+#editor-content-textarea {
+  border-radius: 0;
+}
+
+.autosave-notification {
+  display: block ! important; /* Fix for Display Option Setting with PC View */
+  min-height: 14px;
+  margin: 0 0 15px;
+  padding: 5px;
+  border: 1px solid #c0c6c9;
+  border-top: 0;
+  background-color: #f3f3f3;
+  font-size: 85%;
+  text-align: center;
+}
+
+#edit-entry #convert_breaks-field {
+  padding-top: 0;
+}
+
+textarea#editor-content-textarea,
+#editor-content-enclosure {
+  min-height: 160px;
+  height: auto;
+}
+
+iframe#editor-content-iframe {
+  min-height: 160px;
+  height: auto;
+}
+
+
+#related-content {
+  margin-top: 30px;
+  border-radius: 3px;
+  background-color: #f3f3f3;
+}
+
+#related-content .field {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+#related-content .actions-bar {
+  margin: 30px 10px 10px;
+}
+
+#entry-status-widget .widget-content .status {
+  margin-top: 7px;
+}
+
+#edit-entry #entry-category-widget {
+  margin: 0;
+  padding: 10px 0 15px;
+  border: 0;
+  border-bottom: 1px solid #c0c6c9;
+  background: transparent;
+  border-radius: 0;
+}
+
+#entry-category-widget .widget-header {
+  padding: 0;
+  background: transparent;
+}
+
+#entry-category-widget .category-toggle-link {
+  position: relative;
+  top: 0;
+  right: 0;
+  min-width: 4em;
+  font-size: 95%;
+  text-transform: capitalize;
+}
+
+#entry-category-widget .widget-content {
+  margin-top: 5px;
+  padding: 0;
+  border: 0;
+}
+
+#edit-entry #category-field {
+  padding: 0;
+  border: 0;
+}
+
+#category-field .category-selector-list {
+  height: auto;
+  padding: 0;
+  border-radius: 2px;
+}
+
+#category-field .list-item {
+  margin: 0;
+  padding: 0 5px;
+}
+
+#category-field .list-item div {
+  white-space: nowrap;
+  width: auto !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 32px;
+}
+
+#edit-page #category-field {
+  margin-bottom: 16px;
+}
+
+#category-list, 
+#category-list li {
+  margin: 0;
+}
+
+.folder-list {
+  margin: 8px 0;
+}
+
+.folder-list li, 
+#basename-field .basename-text {
+  word-wrap: break-word;
+}
+
+#editor-header .tab {
+  padding: 0;
+}
+
+#editor-content {
+  clear: both;
+}
+
+#editor-content #editor-content-toolbar {
+  border-top-right-radius: 0px;
+}
+
+#related-content #revision-note-field {
+  border: 0;
+}
+
+.field-content select {
+  width: 100%;
+}
+
+.editor-toolbar .button {
+  display: block;
+  float: left;
+  width: 32px;
+  height: 32px;
+  margin: 0 15px 0 0 ! important;
+  border: 1px solid #c0c6c9;
+  border-radius: 3px;
+  background: none;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+
+.editor-toolbar .button.command-insert-image,
+.editor-toolbar .button.command-insert-file,
+.editor-toolbar .button.command-insert-formatted-text,
+.editor-toolbar .button.command-insert-image:hover,
+.editor-toolbar .button.command-insert-file:hover,
+.editor-toolbar .button.command-insert-formatted-text:hover,
+.editor-toolbar .button.command-insert-image:active,
+.editor-toolbar .button.command-insert-file:active,
+.editor-toolbar .button.command-insert-formatted-text:active {
+  background-position: center;
+}
+.editor-toolbar .button.command-insert-image,
+.editor-toolbar .button.command-insert-image:hover:active {
+  background-image: url("../../images/editor/icon-image@2x.png");
+}
+.editor-toolbar .button.command-insert-file,
+.editor-toolbar .button.command-insert-file:hover:active {
+  background-image: url("../../images/editor/icon-file@2x.png");
+}
+.editor-toolbar .button.command-insert-formatted-text,
+.editor-toolbar .button.command-insert-formatted-text:hover:active {
+  background-image: url("../../images/editor/icon-template@2x.png");
+}
+
+#editor-content-toolbar:before,
+#editor-content-toolbar:after {
+  display: block;
+  height: 0;
+  visibility: hidden;
+  content: "\0020";
+}
+
+#editor-content-toolbar:after {
+  clear: both;
+}

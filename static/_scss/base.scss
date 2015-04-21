@@ -1,0 +1,87 @@
+@charset "UTF-8";
+
+@import "core";
+
+//リセット
+@import "core/reset";
+
+//単機能スタイル
+@import "core/helper";
+
+//モジュール
+@import "module/_box.scss";
+@import "module/_common.scss";
+@import "module/_form.scss";
+@import "module/_icon.scss";
+@import "module/_list.scss";
+@import "module/_table.scss";
+@import "module/_text.scss";
+@import "module/_button.scss";
+
+@import "vendor/syntaxhighlighter/_shCore.scss";
+@import "vendor/syntaxhighlighter/_shCoreDefault.scss";
+@import "vendor/syntaxhighlighter/_shThemeDefault.scss";
+
+/*---------------------------- layout ----------------------------*/
+html {
+	background: $defaultBgColor;
+}
+body {
+	margin: 0 15px;
+}
+#wrap {
+
+}
+
+/* header */
+#header {
+	padding: 90px 0;
+
+	@media #{$breakS} {
+		padding: 40px 0;
+	}
+
+	.header-title {
+		text-align: center;
+		line-height: 0;
+
+		a {
+			color: inherit;
+			text-decoration: none;
+
+			img {
+				width: 282px;
+
+				@media #{$breakS} {
+					width: 70%;
+				}
+			}
+		}
+	}
+
+	.header-catch {
+		margin-top: 10px;
+		color: #999;
+		font-size: fz(18,12);
+		text-align: center;
+	}
+}
+
+/* footer */
+#footer {
+	padding: 90px 0;
+
+	@media #{$breakS} {
+		padding: 40px 0;
+	}
+
+	.m-box-fixed {
+		text-align: center;
+
+		.copyright {
+			color: #666;
+			font-family: Arial;
+			font-size: fz(18,16);
+		}
+	}
+}
