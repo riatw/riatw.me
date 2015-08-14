@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -90,7 +90,31 @@ sub _sort_cats {
         }
 
         # Sort the categories based on sort_method
-        eval("\@\$cats = sort $sort_method \@\$cats");
+        if ( $sort_method =~ /::/ ) {
+            eval("\@\$cats = sort $sort_method \@\$cats");
+        }
+        else {
+            my $safe = eval { require Safe; new Safe; }
+                or return $ctx->error(
+                "Cannot evaluate sort_method [$sort_method]: Perl 'Safe' module is required."
+                );
+            my $vars = $ctx->{__stash}{vars};
+            my $ns   = $safe->root;
+            {
+                no strict 'refs';
+                foreach my $v ( keys %$vars ) {
+                    ${ $ns . '::' . $v } = $vars->{$v};
+                }
+                ${ $ns . '::CATS' } = $cats;
+
+                $safe->permit(qw/ sort /);
+                {
+                    local $SIG{__WARN__} = sub { };
+                    $safe->reval("\@\$CATS = sort $sort_method \@\$CATS");
+                }
+                $cats = ${ $ns . '::CATS' } unless $@;
+            }
+        }
         if ( my $err = $@ ) {
             return $ctx->error(
                 MT->translate(
@@ -414,11 +438,11 @@ sub _hdlr_category_prevnext {
     # Get the sorting info
     my $sort_method = $args->{sort_method}
         || $ctx->stash('subCatsSortMethod');
-    my $sort_order 
+    my $sort_order
         = $args->{sort_order}
         || $ctx->stash('subCatsSortOrder')
         || 'ascend';
-    my $sort_by 
+    my $sort_by
         = $args->{sort_by}
         || $ctx->stash('subCatsSortBy')
         || 'user_custom';
@@ -976,11 +1000,11 @@ sub _hdlr_if_category {
     my $e             = $ctx->stash('entry');
     my $tag           = lc $ctx->stash('tag');
     my $entry_context = $tag =~ m/(entry|page)if(category|folder)/;
-    return $ctx->_no_entry_error() if $entry_context && !$e;
-    my $name = $args->{name} || $args->{label};
-    my $primary   = $args->{type} && ( $args->{type} eq 'primary' );
-    my $secondary = $args->{type} && ( $args->{type} eq 'secondary' );
+    my $name          = $args->{name} || $args->{label};
+    my $primary       = $args->{type} && ( $args->{type} eq 'primary' );
+    my $secondary     = $args->{type} && ( $args->{type} eq 'secondary' );
     $entry_context ||= ( $primary || $secondary );
+    return $ctx->_no_entry_error() if $entry_context && !$e;
     my $cat
         = $entry_context
         ? $e->category
@@ -1519,7 +1543,7 @@ sub _hdlr_category_archive {
             '<$MTCategoryArchiveLink$>'
         )
         );
-    my $curr_at 
+    my $curr_at
         = $ctx->{current_archive_type}
         || $ctx->{archive_type}
         || 'Category';

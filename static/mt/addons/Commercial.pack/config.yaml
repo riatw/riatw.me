@@ -2,7 +2,7 @@ name: Professional Pack
 author_name: Six Apart, Ltd.
 author_link: http://www.sixapart.com/
 pack_link: <__trans phrase="http://www.sixapart.com/movabletype/">pack/commercial/
-version: 1.8
+version: 1.92
 schema_version: 1.55
 l10n_class: MT::Commercial::L10N
 
@@ -166,6 +166,7 @@ applications:
             cms_pre_load_filtered_list.field: $Commercial::CustomFields::App::CMS::cms_pre_load_filtered_list
             cms_filtered_list_param.field: $Commercial::CustomFields::App::CMS::filtered_list_param
             list_template_param.field: $Commercial::CustomFields::App::CMS::list_template_param
+            cms_post_delete.field: $Commercial::CustomFields::App::CMS::CMSDelete_field
         methods:
             view_field: $Commercial::CustomFields::App::CMS::edit_field
             prep_customfields_upgrade: $Commercial::CustomFields::App::CMS::prep_customfields_upgrade
@@ -260,19 +261,132 @@ applications:
                         import_key: CF50_
                         import_handler: $Commercial::CustomFields::ImportExport::import_cf
     data_api:
+        callbacks:
+            data_api_list_permission_filter.field: $Commercial::CustomFields::DataAPI::Callback::Field::can_list
+            data_api_pre_load_filtered_list.field: $Commercial::CustomFields::DataAPI::Callback::Field::cms_pre_load_filtered_list
+            data_api_view_permission_filter.field: $Commercial::CustomFields::DataAPI::Callback::Field::can_view
+            data_api_save_permission_filter.field: $Commercial::CustomFields::App::CMS::can_save
+            data_api_save_filter.field: $Commercial::CustomFields::DataAPI::Callback::Field::save_filter
+            data_api_pre_save.field: $Commercial::CustomFields::DataAPI::Callback::Field::pre_save
+            data_api_delete_permission_filter.field: $Commercial::CustomFields::App::CMS::can_delete
+
+        endpoints:
+            - id: list_fields
+              route: /sites/:site_id/fields
+              version: 2
+              handler: $Commercial::CustomFields::DataAPI::Endpoint::v2::Field::list
+              default_params:
+                  limit: 25
+                  offset: 0
+                  sortBy: name
+                  sortOrder: ascend
+                  searchFields: name,basename,description,tag
+                  filterKeys: systemObject,type
+              error_codes:
+                  403: Do not have permission to retrieve the requested fields.
+
+#            - id: list_all_fields
+#              route: /fields
+#              version: 2
+#              handler: $Commercial::CustomFields::DataAPI::Endpoint::v2::Field::list
+#              default_params:
+#                  limit: 25
+#                  offset: 0
+#                  sortBy: name
+#                  sortOrder: ascend
+#                  searchFields: name,basename,description,tag
+#                  filterKeys: systemObject,type
+#              error_codes:
+#                  403: Do not have permission to retrieve the requested fields.
+
+            - id: get_field
+              route: /sites/:site_id/fields/:field_id
+              version: 2
+              handler: $Commercial::CustomFields::DataAPI::Endpoint::v2::Field::get
+              error_codes:
+                  403: Do not have permission to retrieve the requested field.
+              
+            - id: create_field
+              route: /sites/:site_id/fields
+              resources:
+                  - field
+              verb: POST
+              version: 2
+              handler: $Commercial::CustomFields::DataAPI::Endpoint::v2::Field::create
+              error_codes:
+                  403: Do not have permission to create a field.
+
+            - id: update_field
+              route: /sites/:site_id/fields/:field_id
+              resources:
+                  - field
+              verb: PUT
+              version: 2
+              handler: $Commmercialk::CustomFields::DataAPI::Endpoint::v2::Field::update
+              error_codes:
+                  403: Do not have permission to update a field.
+
+            - id: delete_field
+              route: /sites/:site_id/fields/:field_id
+              verb: DELETE
+              version: 2
+              handler: $Commercial::CustomFields::DataAPI::Endpoint::v2::Field::delete
+              error_codes:
+                  403: Do not have permission to delete a field.
+
         resources:
+            # version 1
             entry:
-                fields: $Commercial::CustomFields::DataAPI::fields
-                updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
-            categories:
-                fields: $Commercial::CustomFields::DataAPI::fields
-                updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
-            comments:
-                fields: $Commercial::CustomFields::DataAPI::fields
-                updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
-            trackbacks:
-                fields: $Commercial::CustomFields::DataAPI::fields
-                updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+                - version: 1
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            category:
+                - version: 1
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            comment:
+                - version: 1
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            trackback:
+                - version: 1
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+
+            # version 2
+            blog:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            website:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            template:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            folder:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            page:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            asset:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+            user:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::fields_for_user
+                  updatable_fields: $Commercial::CustomFields::DataAPI::updatable_fields
+
+            field:
+                - version: 2
+                  fields: $Commercial::CustomFields::DataAPI::Resource::v2::Field::fields
+                  updatable_fields: $Commercial::CustomFields::DataAPI::Resource::v2::Field::updatable_fields
 
 permissions:
     blog.administer_blog:
@@ -287,6 +401,8 @@ listing_screens:
         primary: name
         default_sort_key: name
         permission: administer_blog,edit_templates
+        data_api_permission: ~
+        data_api_scope_mode: strict
 
 list_properties:
     field:
@@ -304,6 +420,10 @@ list_properties:
                 sub {
                     my ( $prop, $obj, $app ) = @_;
                     my $name = MT::Util::encode_html($obj->name);
+                    $name = '' if !defined $name;
+                    $name =~ s/^\s+|\s+$//g;
+                    $name = "(" . $app->translate("No Name") . ")"
+                        if $name eq '';
                     my $tag  = MT::Util::encode_html($obj->tag);
                     my $current_blog_id = $app->param('blog_id') || 0;
                     my $blog_id = $obj->blog_id || 0;
@@ -448,6 +568,23 @@ list_properties:
                     return \@sso;
                 }
             filter_tmpl: <__trans phrase="[_1] [_3] [_2]" params="<__trans phrase="__CF_REQUIRED_VALUE__">%%<select class="<mt:var name="type">-value"><mt:loop name="single_select_options"><option value="<mt:var name="value">"><mt:var name="label" encode_html="1" encode_js="1" encode_html="1" ></option></mt:loop></select>%%<__trans phrase="__SELECT_FILTER_VERB">">
+        system_object:
+            terms: >
+                sub {
+                    my $prop = shift;
+                    my ( $args, $db_terms, $db_args ) = @_;
+                    return +{ obj_type => $args->{value} };
+                }
+            display: none
+            filter_editable: 0
+        content:
+            base: __virtual.content
+            fields:
+                - name
+                - basename
+                - description
+                - tag
+            display: none
 
 
 system_filters:
@@ -576,7 +713,7 @@ themes:
         description: <__trans phrase="Professional designed, well structured and easily adaptable web site. You can customize default pages, footer and top navigation easily.">
         author_name: Six Apart, Ltd.
         author_link: http://www.sixapart.com/
-        version: 1.1
+        version: 1.11
         class: website
         static_path: static
         l10n_class: MT::Commercial::L10N
@@ -749,7 +886,7 @@ themes:
         description: <__trans phrase="Create a blog as a part of structured website. This works best with Professional Website theme.">
         author_name: Six Apart, Ltd.
         author_link: http://www.sixapart.com/
-        version: 1.1
+        version: 1.11
         class: blog
         static_path: static
         l10n_class: MT::Commercial::L10N

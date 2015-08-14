@@ -2317,6 +2317,7 @@ ul.tabs li a {
     min-height: 100%;
 }
 #content {
+    position: relative;
     height: auto;
     margin: 0;
     padding: 15px 15px 20px;
@@ -3531,6 +3532,10 @@ ul.tabs li a {
     right: 10px;
 }
 
+#edit-page #basename-field {
+    word-break: break-all;
+}
+
 #edit-page #basename {
     width: 180px;
 }
@@ -3566,6 +3571,8 @@ ul.tabs li a {
 
 #entry-publishing-widget .basename-text {
     word-wrap: break-word;
+    word-break: break-all;
+    display: inline-block;
 }
 
 .edit-entry .date-time-fields .post-date {

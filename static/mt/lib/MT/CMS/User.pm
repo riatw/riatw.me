@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -423,7 +423,7 @@ sub set_object_status {
                 && $app->config->NewUserAutoProvisioning
                 && $obj->status == MT::Author::PENDING() ) ? 1 : 0;
         $obj->status($new_status);
-        if ( $new_status == MT::Author::ACTIVE() ) {
+        if ( $type ne 'group' and $new_status == MT::Author::ACTIVE() ) {
             my $eh = MT::ErrorHandler->new;
             if ( !save_filter( $eh, $app, $obj ) ) {
                 $app->log(
@@ -627,8 +627,6 @@ sub cfg_system_users {
     $tz =~ s!_00$!!;
     $param{ 'server_offset_' . $tz } = 1;
 
-    $param{personal_weblog_readonly}
-        = $app->config->is_readonly('NewUserAutoProvisioning');
     $param{personal_weblog} = $app->config->NewUserAutoProvisioning ? 1 : 0;
     if ( my $id = $param{new_user_theme_id} = $app->config('NewUserBlogTheme')
         || 'rainier' )
@@ -643,7 +641,7 @@ sub cfg_system_users {
             $param{new_user_theme_thumbnail_h} = $t_h;
         }
         else {
-            $app->config( 'NewUserBlogTheme', undef, 1 );
+            $app->config( 'NewUserBlogTheme', '', 1 );
             $cfg->save_config();
             delete $param{new_user_theme_id};
         }
@@ -694,12 +692,29 @@ sub cfg_system_users {
         }
     }
 
+    my @readonly_configs
+        = qw( CommenterRegistration DefaultTimeZone DefaultUserLanguage DefaultUserTagDelimiter
+        NewUserAutoProvisioning NewUserBlogTheme NewUserDefaultWebsiteId UserPasswordValidation
+        UserPasswordMinLength );
+
     my @config_warnings;
-    for my $config_directive (
-        qw( UserPasswordValidation UserPasswordMinLength ))
-    {
-        push( @config_warnings, $config_directive )
-            if $app->config->is_readonly($config_directive);
+    for my $config_directive (@readonly_configs) {
+        if ( $app->config->is_readonly($config_directive) ) {
+            push( @config_warnings, $config_directive );
+
+            if ( $config_directive eq 'DefaultUserLanguage' ) {
+                $param{default_language_readonly} = 1;
+            }
+            elsif ( $config_directive eq 'NewUserAutoProvisioning' ) {
+                $param{personal_weblog_readonly} = 1;
+            }
+            else {
+                my $snake_case = $config_directive;
+                $snake_case =~ s/^([A-Z])/\l$1/;
+                $snake_case =~ s/([A-Z])/_\l$1/g;
+                $param{ $snake_case . '_readonly' } = 1;
+            }
+        }
     }
     my $config_warning = join( ", ", @config_warnings ) if (@config_warnings);
 
@@ -1017,7 +1032,8 @@ sub dialog_select_author {
 
     my %hash = $app->param_hash();
 
-    my $entry_type = $app->param('entry_type') if $app->param('entry_type');
+    my $entry_type;
+    $entry_type = $app->param('entry_type') if $app->param('entry_type');
     $entry_type ||= 'entry';
 
     my @blog_ids;
@@ -1502,10 +1518,12 @@ sub can_delete {
             )
         );
     }
+    return 1;
 }
 
 sub save_filter {
-    my ( $eh, $app, $obj, $original ) = @_;
+    my ( $eh, $app, $obj, $original, $opts ) = @_;
+    $opts ||= {};
     my $accessor = sub {
         if ($obj) {
             my $k = shift;
@@ -1515,9 +1533,12 @@ sub save_filter {
             $app->param(@_);
         }
     };
+    my $encode_html = sub {
+        $opts->{skip_encode_html} ? $_[0] : encode_html( $_[0] );
+    };
 
     my $name = $accessor->('name');
-    if ($name) {
+    if ( $name && !$opts->{skip_validate_unique_name} ) {
         require MT::Author;
         my $existing = MT::Author->load(
             {   name => $name,
@@ -1556,7 +1577,7 @@ sub save_filter {
                 $app->translate(
                     "[_1] contains an invalid character: [_2]",
                     $app->translate("Username"),
-                    encode_html($1)
+                    $encode_html->($1)
                 )
             );
         }
@@ -1576,14 +1597,17 @@ sub save_filter {
                 $app->translate(
                     "[_1] contains an invalid character: [_2]",
                     $app->translate("Display Name"),
-                    encode_html($1)
+                    $encode_html->($1)
                 )
             );
         }
     }
 
+    my $ori_name = $app->param('name');
+    $app->param( 'name', $accessor->('name') );
     require MT::Auth;
     my $error = MT::Auth->sanity_check($app);
+    $app->param( 'name', $ori_name );
     if ($error) {
         require MT::Log;
         $app->log(
@@ -1599,7 +1623,11 @@ sub save_filter {
     return 1 if ( $pref ne 'MT' );
     if ( !$accessor->('id') ) {    # it's a new object
         return $eh->error( $app->translate("User requires password") )
-            if ( 0 == length( scalar $app->param('pass') ) );
+            if (
+            0 == length(
+                $obj ? $accessor->('password') : scalar $app->param('pass')
+            )
+            );
     }
     my $email = $accessor->('email');
     return $eh->error(
@@ -1614,7 +1642,7 @@ sub save_filter {
             $app->translate(
                 "[_1] contains an invalid character: [_2]",
                 $app->translate("Email Address"),
-                encode_html($1)
+                $encode_html->($1)
             )
         );
     }
@@ -1715,6 +1743,7 @@ sub post_save {
         my $current_session = $app->session;
 
         MT::Auth->invalidate_credentials( { app => $app } );
+        $app->user($obj);
         $app->start_session( $obj, $current_session->get('remember') || 0 );
     }
 

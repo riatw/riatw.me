@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -29,9 +29,10 @@ sub core_filters {
 }
 
 sub filter {
-    my $pkg       = shift;
-    my ($obj)     = @_;
-    my $blog      = MT::Blog->load( $obj->blog_id ) if $obj->blog_id;
+    my $pkg = shift;
+    my ($obj) = @_;
+    my $blog;
+    $blog = MT::Blog->load( $obj->blog_id ) if $obj->blog_id;
     my $threshold = $blog ? $blog->junk_score_threshold : 0;
 
     # Have the item scored by plugin tests, save any log messages:

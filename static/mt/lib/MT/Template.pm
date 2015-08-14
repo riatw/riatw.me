@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -107,6 +107,47 @@ sub class_label {
 
 sub class_label_plural {
     MT->translate("Templates");
+}
+
+sub list_props {
+    return +{
+        id      => { base => '__virtual.id', display => 'none', },
+        name    => { auto => 1,              display => 'none' },
+        blog_id => {
+            auto    => 1,
+            display => 'none',
+        },
+        type => {
+            auto  => 1,
+            terms => sub {
+                my $prop = shift;
+                my ( $args, $db_terms, $db_args ) = @_;
+                return +{ type => $args->{value} };
+            },
+            display => 'none',
+        },
+        created_on => {
+            base    => '__virtual.created_on',
+            display => 'none',
+        },
+        modified_on => {
+            base    => '__virtual.modified_on',
+            display => 'none',
+        },
+        created_by => {
+            auto    => 1,
+            display => 'none',
+        },
+        modified_by => {
+            auto    => 1,
+            display => 'none',
+        },
+        content => {
+            base    => '__virtual.content',
+            fields  => [qw( name identifier text )],
+            display => 'none',
+        },
+    };
 }
 
 sub new {
@@ -310,6 +351,21 @@ sub build {
     local $ctx->{__stash}{template} = $tmpl;
     my $tokens = $tmpl->tokens
         or return;
+
+    if ( $tmpl->{errors} && @{ $tmpl->{errors} } ) {
+        my $error = "";
+        foreach my $err ( @{ $tmpl->{errors} } ) {
+            $error .= $err->{message};
+        }
+        return $tmpl->error(
+            MT->translate(
+                "Publish error in template '[_1]': [_2]",
+                $tmpl->name || $tmpl->{__file},
+                $error
+            )
+        );
+    }
+
     my $build = $ctx->{__stash}{builder} || MT::Builder->new;
     my $page_layout;
     if ( my $blog_id = $tmpl->blog_id ) {
@@ -332,7 +388,7 @@ sub build {
             $ctx->stash( 'local_blog_id', $blog->id )
                 unless $ctx->stash('local_blog_id');
         }
-        MT->config->TimeOffset( $blog->server_offset );
+        MT->request( 'time_offset', $blog->server_offset );
         $page_layout = $blog->page_layout;
     }
     my $type = $tmpl->type;
@@ -657,7 +713,7 @@ sub _sync_from_disk {
     my ( $size, $mtime ) = ( stat _ )[ 7, 9 ];
     return
         if $size == $tmpl->linked_file_size
-            && $mtime == $tmpl->linked_file_mtime;
+        && $mtime == $tmpl->linked_file_mtime;
 
 # Use rw handle due to avoid that anyone do open unwritable file.
 # ( -w file test operator can't detect windows ACL condition, so just try to open. )
@@ -715,7 +771,8 @@ sub _sync_to_disk {
         ## Untaint. We assume that the user knows what he/she is doing,
         ## and allow anything.
         ($lfile) = $lfile =~ /(.+)/s;
-        open my $fh, '>', $lfile
+        open my $fh, '>',
+            $lfile
             or return $tmpl->error(
             MT->translate(
                 "Opening linked file '[_1]' failed: [_2]",

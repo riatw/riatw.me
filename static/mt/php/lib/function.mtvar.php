@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -178,9 +178,7 @@ function smarty_function_mtvar($args, &$ctx) {
         if ($esc == 'js') {
             $return_val = encode_js($return_val);
         } elseif ($esc == 'html') {
-            $mt = MT::get_instance();
-            $charset = $mt->config('PublishCharset');
-            $return_val = htmlentities($return_val, ENT_COMPAT, $charset);
+            $return_val = encode_html_entities($return_val, ENT_QUOTES);
         } elseif ($esc == 'url') {
             $return_val = urlencode($return_val);
             $return_val = preg_replace('/\+/', '%20', $return_val);

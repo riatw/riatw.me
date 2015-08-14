@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -670,10 +670,11 @@ sub _hdlr_comment_replies {
     my $iter = MT::Comment->load_iter( \%terms, \%args );
     my %entries;
     my $blog = $ctx->stash('blog');
-    my $so 
-        = lc( $args->{sort_order} )
-        || ( $blog ? $blog->sort_order_comments : undef )
-        || 'ascend';
+    my $so
+        = $args->{sort_order}
+        ? lc( $args->{sort_order} )
+        : ( $blog ? $blog->sort_order_comments : undef ) || 'ascend';
+
     my $n = $args->{lastn};
     my @comments;
 
@@ -1273,7 +1274,8 @@ sub _hdlr_comment_author_link {
     $name ||= MT->translate("Anonymous");
     $name = encode_html( remove_html($name) );
     my $show_email = $args->{show_email} ? 1 : 0;
-    my $show_url = 1 unless exists $args->{show_url} && !$args->{show_url};
+    my $show_url;
+    $show_url = 1 unless exists $args->{show_url} && !$args->{show_url};
 
     # Open the link in a new window if requested (with new_window="1").
     my $target = $args->{new_window} ? ' target="_blank"' : '';
@@ -1777,10 +1779,10 @@ sub _hdlr_comment_replies_recurse {
     my $iter = MT::Comment->load_iter( \%terms, \%args );
     my %entries;
     my $blog = $ctx->stash('blog');
-    my $so 
-        = lc( $args->{sort_order} )
-        || ( $blog ? $blog->sort_order_comments : undef )
-        || 'ascend';
+    my $so
+        = $args->{sort_order}
+        ? lc( $args->{sort_order} )
+        : ( $blog ? $blog->sort_order_comments : undef ) || 'ascend';
     my $n = $args->{lastn};
     my @comments;
 

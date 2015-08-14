@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -87,7 +87,7 @@ abstract class BaseObject extends ADOdb_Active_Record
         return $this->$name;
     }
 
-	public function __set($name, $value) {
+    public function __set($name, $value) {
         if (is_null($this->_prefix))
             return;
 
@@ -98,12 +98,23 @@ abstract class BaseObject extends ADOdb_Active_Record
         parent::__set($name, $value);
     }
 
+    public function __isset( $name ){
+        if (is_null($this->_prefix))
+            return false;
 
-    public function Load( $where = null, $bindarr = false ) {
+        $pattern = '/^' . $this->_prefix . "/i";
+        if (!preg_match($pattern, $name))
+            $name = $this->_prefix . $name;
+
+        $value = $this->$name;
+        return isset( $value );
+    }
+
+    public function Load( $where = null, $bindarr = false, $lock = false ) {
        if ( is_numeric( $where ) )
             $where = $this->_prefix . "id = " . $where;
 
-        $ret = parent::Load($where, $bindarr);
+        $ret = parent::Load($where, $bindarr, $lock);
         if ($ret && $this->has_meta())
             $this->load_meta($this);
 
@@ -194,6 +205,15 @@ abstract class BaseObject extends ADOdb_Active_Record
         return $this->_has_meta;
     }
 
+    public function object_type() {
+        if (isset($this->{$this->_prefix . 'class'})) {
+            return $this->{$this->_prefix . 'class'};
+        }
+        else {
+            return trim($this->_prefix, '_');
+        }
+    }
+
     public function has_column($col_name) {
         if ( empty($col_name)) return false;
 
@@ -228,6 +248,8 @@ abstract class BaseObject extends ADOdb_Active_Record
         if (!isset($meta_info) || count($meta_info) === 0)
             return $obj;
 
+        $obj_type = $obj->object_type();
+
         // Parse meta info
         foreach ($meta_info as $meta) {
             $col_name = $obj->_prefix . 'meta_type';
@@ -246,6 +268,11 @@ abstract class BaseObject extends ADOdb_Active_Record
                 }
                 
             }
+
+            if (! self::$_meta_info[$obj_type][$meta_name]) {
+                self::$_meta_info[$obj_type][$meta_name] = $col_name;
+            }
+
             $obj->$meta_name = $value;
             $obj->_original[] = $value;
         }
@@ -310,7 +337,11 @@ abstract class BaseObject extends ADOdb_Active_Record
 
 
         foreach ($objs as &$obj) {
-            $meta_info =& $obj->$meta_table;
+            if (! $obj_type) {
+                $obj_type = $obj->object_type();
+            }
+
+            $meta_info = $obj->$meta_table;
             if (! $meta_info) {
                 continue;
             }
@@ -330,6 +361,11 @@ abstract class BaseObject extends ADOdb_Active_Record
                         $value = $mt->db()->unserialize($value);
                     }
                 }
+
+                if (! self::$_meta_info[$obj_type][$meta_name]) {
+                    self::$_meta_info[$obj_type][$meta_name] = $col_name;
+                }
+
                 $obj->$meta_name = $value;
                 $obj->_original[] = $value;
             }

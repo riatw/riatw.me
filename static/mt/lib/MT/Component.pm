@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -316,10 +316,12 @@ sub needs_upgrade {
     my $c  = shift;
     my $sv = $c->schema_version;
     return 0 unless defined $sv;
-    my $key     = 'PluginSchemaVersion';
-    my $id      = $c->id;
-    my $ver     = MT->config($key);
-    my $cfg_ver = $ver->{$id} if $ver;
+    my $key = 'PluginSchemaVersion';
+    my $id  = $c->id;
+    my $ver = MT->config($key);
+    my $cfg_ver;
+    $cfg_ver = $ver->{$id} if $ver;
+
     if ( ( !defined $cfg_ver ) || ( $cfg_ver < $sv ) ) {
         return 1;
     }
@@ -453,8 +455,7 @@ sub translate {
     }
     my $str;
     eval {
-        if ($h)
-        {
+        if ($h) {
             $str = $h->maketext( $format, @args );
         }
         if ( !defined $str ) {

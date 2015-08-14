@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -9,7 +9,7 @@ package MT::PSGI;
 use strict;
 use warnings;
 use parent qw(Plack::Component);
-use Plack::Util::Accessor qw(script application url _app);
+use Plack::Util::Accessor qw(script application _app);
 use MT;
 use MT::Component;
 use Carp;
@@ -240,7 +240,8 @@ sub mount_applications {
     my (@applications) = @_;
     my $urlmap         = Plack::App::URLMap->new;
     for my $app_id (@applications) {
-        my $app = MT->registry( applications => $app_id ) unless ref $app_id;
+        my $app;
+        $app = MT->registry( applications => $app_id ) unless ref $app_id;
         Carp::croak('No application is specified') unless $app;
         my $base = $app->{cgi_path};
         if ($base) {
@@ -280,8 +281,8 @@ sub mount_applications {
     my $static = $staticpath;
     $static .= '/' unless $static =~ m!/$!;
     my $favicon = $static . 'images/favicon.ico';
-    $urlmap->map(
-        '/favicon.ico' => Plack::App::File->new( { file => $favicon } )->to_app );
+    $urlmap->map( '/favicon.ico' =>
+            Plack::App::File->new( { file => $favicon } )->to_app );
 
     $self->_app( $urlmap->to_app );
 }

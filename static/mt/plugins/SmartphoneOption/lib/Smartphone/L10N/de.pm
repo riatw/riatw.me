@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -18,7 +18,7 @@ use vars qw( %Lexicon );
 	'iPhone' => 'iPhone',
 	'iPad' => 'iPad',
 	'Android' => 'Android',
-	'Desktop' => 'Desktop', # Translate - New # OK
+	'Desktop' => 'Desktop',
 
 ## plugins/SmartphoneOption/extlib/Image/ExifTool/MIFF.pm
 
@@ -37,18 +37,18 @@ use vars qw( %Lexicon );
 	'Mobile Dashboard' => 'Mobile Übersichtsseite',
 	'Rich text editor is not supported by your browser. Continue with  HTML editor ?' => 'Der grafische Editor kann mit diesem Browser nicht verwendet werden. Zur HTML-Ansicht wechseln?',
 	'Syntax highlight is not supported by your browser. Disable to continue ?' => 'Syntax-Hervorhebung kann mit diesem Browser nicht verwendet werden. Deaktivieren und fortsetzen?',
-	'[_1] View' => '[_1] anzeigen', # Translate - New # OK
+	'[_1] View' => '[_1] anzeigen',
 
 ## plugins/SmartphoneOption/lib/Smartphone/CMS/Search.pm
 	'Search [_1]' => '[_1] suchen',
 
 ## plugins/SmartphoneOption/smartphone.yaml
-	'to [_1]' => 'an [_1]', # Translate - New # OK
+	'to [_1]' => 'an [_1]',
 	'Smartphone Main' => 'Smartphone Main',
 	'Smartphone Sub' => 'Smartphone Sub',
 
 ## plugins/SmartphoneOption/tmpl/cms/dialog/select_formatted_text.tmpl
-	'No boilerplate could be found.' => 'Kein formatierter Text gefunden', # Translate - New # OK
+	'No boilerplate could be found.' => 'Keine Textbausteine gefunden', # Translate - Improved
 
 );
 

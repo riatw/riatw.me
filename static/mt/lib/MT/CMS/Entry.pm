@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -57,10 +57,10 @@ sub edit {
                 $param->{no_snapshot}      = 1 if $q->param('no_snapshot');
                 $param->{missing_cats_rev} = 1
                     if exists( $obj->{__missing_cats_rev} )
-                        && $obj->{__missing_cats_rev};
+                    && $obj->{__missing_cats_rev};
                 $param->{missing_tags_rev} = 1
                     if exists( $obj->{__missing_tags_rev} )
-                        && $obj->{__missing_tags_rev};
+                    && $obj->{__missing_tags_rev};
             }
             $param->{rev_date} = format_ts( "%Y-%m-%d %H:%M:%S",
                 $obj->modified_on, $blog,
@@ -119,7 +119,7 @@ sub edit {
         }
         $param->{ "allow_comments_"
                 . ( $q->param('allow_comments') || $obj->allow_comments || 0 )
-            } = 1;
+        } = 1;
         $param->{'authored_on_date'} = $q->param('authored_on_date')
             || format_ts( "%Y-%m-%d", $obj->authored_on, $blog,
             $app->user ? $app->user->preferred_language : undef );
@@ -284,6 +284,7 @@ sub edit {
                         $asset_1 = {
                             asset_id   => $asset->id,
                             asset_name => $asset->file_name,
+                            asset_type => $asset->class,
                             asset_thumb =>
                                 $asset->thumbnail_url( Width => 100 )
                         };
@@ -291,7 +292,8 @@ sub edit {
                     else {
                         $asset_1 = {
                             asset_id   => $asset->id,
-                            asset_name => $asset->file_name
+                            asset_name => $asset->file_name,
+                            asset_type => $asset->class,
                         };
                     }
                     push @{$assets}, $asset_1;
@@ -461,7 +463,7 @@ sub edit {
             };
         push @sel_cats, $_->{category_id}
             if $places{ $_->{category_id} }
-                && $_->{category_id} != $cat_id;
+            && $_->{category_id} != $cat_id;
     }
     $param->{category_tree} = $cat_tree;
     unshift @sel_cats, $top_cat if defined $top_cat && $top_cat ne "";
@@ -565,12 +567,13 @@ sub edit {
                 : $param->{"disp_prefs_show_$_"},
                 field_label => $app->translate( ucfirst($_) ),
             }
-            } @ordered
+        } @ordered
     ];
 
     $param->{quickpost_js} = MT::CMS::Entry::quickpost_js( $app, $type );
+    $param->{object_label_plural} = $param->{search_label}
+        = $class->class_label_plural;
     if ( 'page' eq $type ) {
-        $param->{search_label} = $app->translate('pages');
         $param->{output}       = 'edit_entry.tmpl';
         $param->{screen_class} = 'edit-page edit-entry';
     }
@@ -1037,7 +1040,7 @@ PERMCHECK: {
         $param{screen_class} = "list-$type";
         $param{screen_class} .= " list-entry"
             if $param{object_type} eq
-                "page";    # to piggyback on list-entry styles
+            "page";    # to piggyback on list-entry styles
     }
     $param{mode} = $app->mode;
     if ( my $blog = MT::Blog->load($blog_id) ) {
@@ -1104,10 +1107,10 @@ sub _create_temp_entry {
     }
     $values{allow_comments} = 0
         if !defined( $values{allow_comments} )
-            || $app->param('allow_comments') eq '';
+        || $app->param('allow_comments') eq '';
     $values{allow_pings} = 0
         if !defined( $values{allow_pings} )
-            || $app->param('allow_pings') eq '';
+        || $app->param('allow_pings') eq '';
     $entry->set_values( \%values );
 
     return $entry;
@@ -1302,12 +1305,12 @@ sub _build_entry_preview {
             $sess_obj->start(time);
             $sess_obj->save;
 
-            # In the preview screen, in order to use the site URL of the blog,
-            # there is likely to be mixed-contents.(http and https)
-            # If MT is configured to do 'PreviewInNewWindow', MT will open preview
-            # screen on the new window/tab.
+        # In the preview screen, in order to use the site URL of the blog,
+        # there is likely to be mixed-contents.(http and https)
+        # If MT is configured to do 'PreviewInNewWindow', MT will open preview
+        # screen on the new window/tab.
             if ( $app->config('PreviewInNewWindow') ) {
-                return $app->redirect( $preview_url );
+                return $app->redirect($preview_url);
             }
         }
         else {
@@ -1335,20 +1338,20 @@ sub _build_entry_preview {
     for my $col (@$cols) {
         next
             if $col eq 'created_on'
-                || $col eq 'created_by'
-                || $col eq 'modified_on'
-                || $col eq 'modified_by'
-                || $col eq 'authored_on'
-                || $col eq 'author_id'
-                || $col eq 'unpublished_on'
-                || $col eq 'pinged_urls'
-                || $col eq 'tangent_cache'
-                || $col eq 'template_id'
-                || $col eq 'class'
-                || $col eq 'meta'
-                || $col eq 'comment_count'
-                || $col eq 'ping_count'
-                || $col eq 'current_revision';
+            || $col eq 'created_by'
+            || $col eq 'modified_on'
+            || $col eq 'modified_by'
+            || $col eq 'authored_on'
+            || $col eq 'author_id'
+            || $col eq 'unpublished_on'
+            || $col eq 'pinged_urls'
+            || $col eq 'tangent_cache'
+            || $col eq 'template_id'
+            || $col eq 'class'
+            || $col eq 'meta'
+            || $col eq 'comment_count'
+            || $col eq 'ping_count'
+            || $col eq 'current_revision';
         push @data,
             {
             data_name  => $col,
@@ -1436,7 +1439,7 @@ sub cfg_entry {
         unless $blog_id;
     return $app->permission_denied()
         unless $app->can_do('edit_config');
-    $q->param( '_type', 'blog' );
+    $q->param( '_type', $app->blog->class );
     $q->param( 'id',    scalar $q->param('blog_id') );
     $app->forward(
         "view",
@@ -1553,7 +1556,7 @@ sub save {
     }
     $values{allow_comments} = 0
         if !defined( $values{allow_comments} )
-            || $app->param('allow_comments') eq '';
+        || $app->param('allow_comments') eq '';
     delete $values{week_number}
         if ( $app->param('week_number') || '' ) eq '';
     delete $values{basename}
@@ -1563,7 +1566,7 @@ sub save {
     $obj->set_values( \%values );
     $obj->allow_pings(0)
         if !defined $app->param('allow_pings')
-            || $app->param('allow_pings') eq '';
+        || $app->param('allow_pings') eq '';
     my $ao_d = $app->param('authored_on_date');
     my $ao_t = $app->param('authored_on_time');
     my $uo_d = $app->param('unpublished_on_date');
@@ -1605,7 +1608,8 @@ sub save {
             my $p_folder = $p->folder;
             my $dup_folder_path
                 = defined $p_folder ? $p_folder->publish_path() : '';
-            my $folder = MT::Folder->load($cat_id) if $cat_id;
+            my $folder;
+            $folder = MT::Folder->load($cat_id) if $cat_id;
             my $folder_path = defined $folder ? $folder->publish_path() : '';
             return $app->error(
                 $app->translate(
@@ -1619,8 +1623,8 @@ sub save {
     if ( $type eq 'entry' ) {
         $obj->status( MT::Entry::HOLD() )
             if !$id
-                && !$perms->can_do('publish_own_entry')
-                && !$perms->can_do('publish_all_entry');
+            && !$perms->can_do('publish_own_entry')
+            && !$perms->can_do('publish_all_entry');
     }
 
     my $filter_result
@@ -1799,8 +1803,7 @@ sub save {
     {
         require MT::Util;
         MT::Util::clear_site_stats_widget_cache($blog_id)
-            or
-            return $app->error( translate('Removing stats cache failed.') );
+            or return $app->errtrans('Removing stats cache failed.');
     }
 
     ## look if any assets have been included/removed from this entry
@@ -1848,6 +1851,7 @@ sub save {
     my $error_string = MT::callback_errstr();
 
     my $placements_updated;
+    my $primary_category;
 
     ## Now that the object is saved, we can be certain that it has an
     ## ID. So we can now add/update/remove the primary placement.
@@ -1863,8 +1867,7 @@ sub save {
         }
         $place->category_id($cat_id);
         $place->save;
-        my $cat = $cat_class->load($cat_id);
-        $obj->cache_property( 'category', undef, $cat );
+        $primary_category   = $cat_class->load($cat_id);
         $placements_updated = 1;
     }
     else {
@@ -1907,33 +1910,32 @@ sub save {
         push @add_cat_obj, $cat;
     }
     if ($placements_updated) {
-        unshift @add_cat_obj, $obj->cache_property('category')
-            if $obj->cache_property('category');
+        unshift @add_cat_obj, $primary_category if $primary_category;
+        @add_cat_obj = sort { $a->label cmp $b->label } @add_cat_obj;
         $obj->cache_property( 'categories', undef, \@add_cat_obj );
     }
 
     $app->run_callbacks( 'cms_post_save.' . $type, $app, $obj, $orig_obj );
+
+    # Delete old archive files.
+    if ( $app->config('DeleteFilesAtRebuild') && $id ) {
+        my $file = archive_file_for( $obj, $blog, $archive_type );
+        if ( $file ne $orig_file || $obj->status != MT::Entry::RELEASE() ) {
+            $app->publisher->remove_entry_archive_file(
+                Entry       => $orig_obj,
+                ArchiveType => $archive_type,
+                Category    => $primary_category_old,
+            );
+        }
+    }
 
     ## If the saved status is RELEASE, or if the *previous* status was
     ## RELEASE, then rebuild entry archives, indexes, and send the
     ## XML-RPC ping(s). Otherwise the status was and is HOLD, and we
     ## don't have to do anything.
     if ( ( $obj->status || 0 ) == MT::Entry::RELEASE()
-        || $status_old eq MT::Entry::RELEASE() )
+        || $status_old == MT::Entry::RELEASE() )
     {
-        if ( $app->config('DeleteFilesAtRebuild') && $orig_obj ) {
-            my $file = archive_file_for( $obj, $blog, $archive_type );
-            if ( $file ne $orig_file || $obj->status != MT::Entry::RELEASE() )
-            {
-                $app->publisher->remove_entry_archive_file(
-                    Entry       => $orig_obj,
-                    ArchiveType => $archive_type,
-                    Category    => $primary_category_old,
-                    Force       => 0,
-                );
-            }
-        }
-
         # If there are no static pages, just rebuild indexes.
         if ( $blog->count_static_templates($archive_type) == 0
             || MT::Util->launch_background_tasks() )
@@ -2100,16 +2102,16 @@ PERMCHECK: {
                     )
                     )
                     if $s > 59
-                        || $s < 0
-                        || $5 > 59
-                        || $5 < 0
-                        || $4 > 23
-                        || $4 < 0
-                        || $2 > 12
-                        || $2 < 1
-                        || $3 < 1
-                        || ( MT::Util::days_in( $2, $1 ) < $3
-                            && !MT::Util::leap_day( $0, $1, $2 ) );
+                    || $s < 0
+                    || $5 > 59
+                    || $5 < 0
+                    || $4 > 23
+                    || $4 < 0
+                    || $2 > 12
+                    || $2 < 1
+                    || $3 < 1
+                    || ( MT::Util::days_in( $2, $1 ) < $3
+                    && !MT::Util::leap_day( $0, $1, $2 ) );
 
                 # FIXME: Should be assigning the publish_date field here
                 my $ts = sprintf "%04d%02d%02d%02d%02d%02d", $1, $2, $3, $4,
@@ -2273,7 +2275,7 @@ sub do_send_pings {
 
     return $app->permission_denied()
         unless $app->user->permissions( $entry->blog->id )
-            ->can_do( 'send_update_pings_' . $entry->class );
+        ->can_do( 'send_update_pings_' . $entry->class );
 
     ## MT::ping_and_save pings each of the necessary URLs, then processes
     ## the return value from MT::ping to update the list of URLs pinged
@@ -2340,10 +2342,11 @@ sub pinged_urls {
     my $author = $app->user;
     return $app->permission_denied()
         if $entry->class eq 'entry'
-        ? (     $entry->author_id == $author->id
-                ? !$app->can_do('edit_own_entry')
-                : !$app->can_do('edit_all_entries')
-            )
+        ? (
+        $entry->author_id == $author->id
+        ? !$app->can_do('edit_own_entry')
+        : !$app->can_do('edit_all_entries')
+        )
         : !$app->can_do('edit_all_pages');
     $param{url_loop} = [ map { { url => $_ } } @{ $entry->pinged_url_list } ];
     $param{failed_url_loop} = [ map { { url => $_ } }
@@ -2786,9 +2789,9 @@ sub can_save {
             unless $perms->can_do('create_new_entry');
         return 0
             if $obj
-                && $obj->status != MT::Entry::HOLD()
-                && !$perms->can_do('publish_own_entry')
-                && !$perms->can_do('publish_all_entry');
+            && $obj->status != MT::Entry::HOLD()
+            && !$perms->can_do('publish_own_entry')
+            && !$perms->can_do('publish_all_entry');
     }
 
     1;
@@ -2923,8 +2926,10 @@ sub post_save {
 sub post_delete {
     my ( $eh, $app, $obj ) = @_;
 
-    my $sess_obj = $app->autosave_session_obj;
-    $sess_obj->remove if $sess_obj;
+    if ( $app->can('autosave_session_obj') ) {
+        my $sess_obj = $app->autosave_session_obj;
+        $sess_obj->remove if $sess_obj;
+    }
 
     $app->log(
         {   message => $app->translate(
@@ -2962,12 +2967,12 @@ sub update_entry_status {
 
         return $app->permission_denied()
             unless $app_author->is_superuser
-                || ( ( $entry->class eq 'entry' )
-                    && $app_author->permissions( $entry->blog_id )
-                    ->can_edit_entry( $entry, $app_author, 1 ) )
-                || ( ( $entry->class eq 'page' )
-                    && $app_author->permissions( $entry->blog_id )
-                    ->can_manage_pages );
+            || ( ( $entry->class eq 'entry' )
+            && $app_author->permissions( $entry->blog_id )
+            ->can_edit_entry( $entry, $app_author, 1 ) )
+            || ( ( $entry->class eq 'page' )
+            && $app_author->permissions( $entry->blog_id )
+            ->can_manage_pages );
 
         if ( $app->config('DeleteFilesAtRebuild')
             && ( MT::Entry::RELEASE() eq $entry->status ) )
@@ -2979,7 +2984,10 @@ sub update_entry_status {
             $app->publisher->remove_entry_archive_file(
                 Entry       => $entry,
                 ArchiveType => $archive_type,
-                Force       => 0,
+                (     ( $new_status != MT::Entry::RELEASE() )
+                    ? ( Force => 1 )
+                    : ( Force => 0 )
+                ),
             );
         }
         my $original   = $entry->clone;
@@ -2996,8 +3004,7 @@ sub update_entry_status {
         {
             require MT::Util;
             MT::Util::clear_site_stats_widget_cache( $entry->blog_id )
-                or return $app->error(
-                translate('Removing stats cache failed.') );
+                or return $app->errtrans('Removing stats cache failed.');
         }
 
         my $message = $app->translate(
@@ -3127,8 +3134,7 @@ sub delete {
         # Clear cache for site stats dashboard widget.
         require MT::Util;
         MT::Util::clear_site_stats_widget_cache( $obj->blog->id )
-            or
-            return $app->error( translate('Removing stats cache failed.') );
+            or return $app->errtrans('Removing stats cache failed.');
     }
 
     $app->add_return_arg( saved_deleted => 1 );

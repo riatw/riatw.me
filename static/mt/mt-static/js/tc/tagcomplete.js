@@ -1,5 +1,5 @@
 /*
-# Movable Type (r) (C) 2004-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2004-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -152,6 +152,7 @@ TC.TagComplete.prototype.keyDown = function( evt )
         this.updateWord( String.fromCharCode(evt.keyCode).toLowerCase() );
     }
     else if ( (evt.keyCode > 47) && (evt.keyCode < 58) ) { // 0-9
+        if (evt.shiftKey) return true;
         this.updateWord( String.fromCharCode(evt.keyCode) );
     }
     else {

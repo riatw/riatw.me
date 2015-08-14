@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -14,8 +14,19 @@ sub edit {
 
     my $q       = $app->param;
     my $cfg     = $app->config;
-    my $blog    = $app->blog;
+    my $blog    = $obj || $app->blog;
     my $blog_id = $id;
+
+    # The inflow from management screen of Blogs
+    # is redirected to dashboard.
+    if ( $app->mode eq 'view' && $blog && $blog_id ) {
+        return $app->redirect(
+            $app->uri(
+                mode => 'dashboard',
+                args => { blog_id => $blog_id },
+            )
+        );
+    }
 
     if ($id) {
         my $output = $param->{output} ||= 'cfg_prefs.tmpl';
@@ -62,6 +73,9 @@ sub edit {
             my %auth = %{ $cmtauth_reg->{$auth} };
             $cmtauth{$auth} = \%auth;
             if ( my $c = $cmtauth_reg->{$auth}->{condition} ) {
+                delete $cmtauth{$auth}, next
+                    if $cmtauth_reg->{$auth}->{disable};
+
                 $c = $app->handler_to_coderef($c);
                 if ($c) {
                     my $reason;
@@ -224,6 +238,16 @@ sub edit {
                 exists( $selected_pings{$_} ) ? ( selected => 1 ) : (),
                 } foreach keys %$pings;
             $param->{pings_loop} = \@pings;
+
+            $param->{enable_data_api} = data_api_is_enabled( $app, $blog_id );
+
+            if ( $cfg->is_readonly('DataAPIDisableSite') ) {
+                $param->{'data_api_disable_site_readonly'} = 1;
+                $param->{config_warning} = $app->translate(
+                    "These setting(s) are overridden by a value in the Movable Type configuration file: [_1]. Remove the value from the configuration file in order to control the value on this page.",
+                    'DataAPIDisableSite',
+                );
+            }
         }
         elsif ( $output eq 'cfg_feedback.tmpl' ) {
             $param->{email_new_comments_1}
@@ -308,6 +332,14 @@ sub edit {
     elsif ( $param->{output} && $param->{output} eq 'cfg_web_services.tmpl' )
     {
         # System level web services settings.
+        $param->{enable_data_api} = data_api_is_enabled( $app, $blog_id );
+        if ( $app->config->is_readonly('DataAPIDisableSite') ) {
+            $param->{'data_api_disable_site_readonly'} = 1;
+            $param->{config_warning} = $app->translate(
+                "These setting(s) are overridden by a value in the Movable Type configuration file: [_1]. Remove the value from the configuration file in order to control the value on this page.",
+                'DataAPIDisableSite',
+            );
+        }
     }
     else {
         return $app->return_to_dashboard( redirect => 1 )
@@ -479,8 +511,8 @@ sub cfg_feedback {
         unless $blog_id;
     return $app->permission_denied()
         unless $app->can_do('edit_config');
-    $q->param( '_type', 'blog' );
-    $q->param( 'id',    scalar $q->param('blog_id') );
+    $q->param( '_type', $app->blog ? $app->blog->class : 'blog' );
+    $q->param( 'id', scalar $q->param('blog_id') );
     $app->forward(
         "view",
         {   output       => 'cfg_feedback.tmpl',
@@ -577,7 +609,14 @@ sub cfg_registration {
     $param{new_roles} = \@roles;
     $param{new_created_user_role} = join( ',', @role_ids );
 
-    $app->load_tmpl( 'cfg_registration.tmpl', \%param );
+    $app->param( '_type', $app->blog->class );
+    $app->param( 'id',    $blog->id );
+    $app->forward(
+        "view",
+        {   output => 'cfg_registration.tmpl',
+            %param,
+        }
+    );
 }
 
 sub cfg_web_services {
@@ -608,8 +647,8 @@ sub cfg_web_services {
             };
     }
 
-    $q->param( '_type', 'blog' );
-    $q->param( 'id',    scalar $q->param('blog_id') );
+    $q->param( '_type', $app->blog ? $app->blog->class : 'blog' );
+    $q->param( 'id', scalar $q->param('blog_id') );
     $app->forward(
         "view",
         {   output           => 'cfg_web_services.tmpl',
@@ -788,7 +827,8 @@ sub rebuild_pages {
         my $start = time;
         my $count = 0;
         my $cb    = sub {
-            my $result = time - $start > 20 ? 0 : 1;
+            my $result
+                = time - $start > $app->config->RebuildOffsetSeconds ? 0 : 1;
             $count++ if $result;
             return $result;
         };
@@ -859,7 +899,10 @@ sub rebuild_pages {
                 my $start = time;
                 my $count = 0;
                 my $cb    = sub {
-                    my $result = time - $start > 20 ? 0 : 1;
+                    my $result
+                        = time - $start > $app->config->RebuildOffsetSeconds
+                        ? 0
+                        : 1;
                     $count++ if $result;
                     return $result;
                 };
@@ -1347,11 +1390,9 @@ sub dialog_select_weblog {
     my $auth  = $app->user or return;
 
     if ($favorites) {
-        my @favs = @{ $auth->favorite_blogs || [] };
-        if (@favs) {
-            @favs = @favs[ 0 .. 4 ] if scalar @favs > 5;
-            $terms->{id} = { not => \@favs };
-        }
+
+        # Do not exclude top 5 favorite blogs from
+        #   select blog dialog list. bugid:112372
         $confirm_js = 'saveFavorite';
     }
     if (   !$auth->is_superuser
@@ -1423,7 +1464,8 @@ sub can_save {
 
         my $author = $app->user;
         return $author->permissions( $id->id )->can_do('edit_blog_config')
-            || ( $app->param('cfg_screen')
+            || ( $app->isa('MT::App::CMS')
+            && $app->param('cfg_screen')
             && $app->param('cfg_screen') eq 'cfg_publish_profile' );
     }
     else {
@@ -1636,6 +1678,30 @@ sub pre_save {
        #$obj->is_dynamic(0) unless defined $app->{query}->param('is_dynamic');
     }
 
+    # assumation: if the it is a blog and its site path is relative, then
+    # it is probably writeable.
+    if ( ( !$obj->id or ( $app->param('cfg_screen') || '' ) eq 'cfg_prefs' )
+        and ( $obj->class ne 'blog' or $obj->is_site_path_absolute() ) )
+    {
+        if ( !$obj->id and $obj->class eq 'blog' ) {
+            $obj->parent_id( $app->param('blog_id') );
+        }
+        my $site_path = $obj->site_path;
+        my $fmgr      = $obj->file_mgr;
+        unless ( $fmgr->exists($site_path) ) {
+            my @dirs = File::Spec->splitdir($site_path);
+            pop @dirs;
+            $site_path = File::Spec->catdir(@dirs);
+        }
+        return $app->errtrans(
+            "The '[_1]' provided below is not writable by the web server. Change the directory ownership or permissions and try again.",
+            $obj->class eq 'blog'
+            ? $app->translate('Blog Root')
+            : $app->translate('Website Root')
+            )
+            unless $fmgr->exists($site_path) && $fmgr->can_write($site_path);
+    }
+
     if ( ( $obj->sanitize_spec || '' ) eq '1' ) {
         $obj->sanitize_spec( scalar $app->param('sanitize_spec_manual') );
     }
@@ -1678,65 +1744,8 @@ sub _update_finfos {
     1;
 }
 
-sub post_save {
-    my $eh = shift;
+sub _post_save_cfg_screens {
     my ( $app, $obj, $original ) = @_;
-
-    my $perms = $app->permissions;
-    return 1
-        unless $app->user->is_superuser
-        || (
-          $obj->is_blog
-        ? $app->user->can_create_blog
-        : $app->user->can_create_website
-        )
-        || ( $perms && $perms->can_edit_config );
-
-    # check to see what changed and add a flag to meta_messages
-    my @meta_messages = ();
-    my %blog_fields
-        = ( %{ $obj->column_defs }, %{ $obj->properties()->{fields} } );
-    foreach my $key (
-        qw{ created_on created_by modified_on modified_by id class children_modified_on }
-        )
-    {
-        delete $blog_fields{$key};
-    }
-
-    for my $blog_field ( keys %blog_fields ) {
-
-        if ( $obj->$blog_field() ne $original->$blog_field() ) {
-            my $old
-                = $original->$blog_field()
-                ? $original->$blog_field()
-                : "none";
-            my $new = $obj->$blog_field() ? $obj->$blog_field() : "none";
-            push(
-                @meta_messages,
-                $app->translate(
-                    "[_1] changed from [_2] to [_3]",
-                    $blog_field, $old, $new
-                )
-            );
-        }
-    }
-
-    # log all of the changes we can possible log
-    my $blog_type = $obj->is_blog ? 'Blog' : 'Website';
-    if ( scalar(@meta_messages) > 0 ) {
-        my $meta_message = join( ", ", @meta_messages );
-        $app->log(
-            {   message => $app->translate(
-                    "Saved [_1] Changes", $obj->class_label
-                ),
-                metadata => $meta_message,
-                level    => MT::Log::INFO(),
-                class    => $obj->class,
-                blog_id  => $obj->id,
-                category => 'edit',
-            }
-        );
-    }
 
     my $screen = $app->param('cfg_screen') || '';
     if ( $screen eq 'cfg_publish_profile' ) {
@@ -1771,17 +1780,6 @@ sub post_save {
         cfg_publish_profile_save( $app, $obj ) or return;
     }
     if ( $screen eq 'cfg_prefs' ) {
-        my $blog_id = $obj->id;
-
-        # FIXME: Needs to exclude MT::Permission records for groups
-        $app->model('permission')
-            ->load( { blog_id => $blog_id, author_id => 0 } );
-        if ( !$perms ) {
-            $perms = $app->model('permission')->new;
-            $perms->blog_id($blog_id);
-            $perms->author_id(0);
-        }
-
         cfg_prefs_save( $app, $obj ) or return;
 
         # If either of the publishing paths changed, rebuild the fileinfos.
@@ -1839,6 +1837,86 @@ sub post_save {
             push @defaults, join( ',', $_, $blog_id ) for @role_ids;
             $app->config( 'DefaultAssignments', join( ',', @defaults ), 1 );
             $app->config->save_config;
+        }
+    }
+    if ( $screen eq 'cfg_web_services' ) {
+        save_data_api_settings($app);
+    }
+
+    return 1;
+}
+
+sub post_save {
+    my $eh = shift;
+    my ( $app, $obj, $original ) = @_;
+
+    my $perms = $app->permissions;
+    return 1
+        unless $app->user->is_superuser
+        || (
+          $obj->is_blog
+        ? $app->user->can_create_blog
+        : $app->user->can_create_website
+        )
+        || ( $perms && $perms->can_edit_config );
+
+    # check to see what changed and add a flag to meta_messages
+    my @meta_messages = ();
+    my %blog_fields
+        = ( %{ $obj->column_defs }, %{ $obj->properties()->{fields} } );
+    foreach my $key (
+        qw{ created_on created_by modified_on modified_by id class children_modified_on }
+        )
+    {
+        delete $blog_fields{$key};
+    }
+
+    for my $blog_field ( keys %blog_fields ) {
+
+        if ( $obj->$blog_field() ne $original->$blog_field() ) {
+            my $old
+                = defined $original->$blog_field()
+                ? $original->$blog_field()
+                : "none";
+            my $new
+                = defined $obj->$blog_field() ? $obj->$blog_field() : "none";
+            push(
+                @meta_messages,
+                $app->translate(
+                    "[_1] changed from [_2] to [_3]",
+                    $blog_field, $old, $new
+                )
+            );
+        }
+    }
+
+    # log all of the changes we can possible log
+    my $blog_type = $obj->is_blog ? 'Blog' : 'Website';
+    if ( scalar(@meta_messages) > 0 ) {
+        my $meta_message = join( ", ", @meta_messages );
+        $app->log(
+            {   message => $app->translate(
+                    "Saved [_1] Changes", $obj->class_label
+                ),
+                metadata => $meta_message,
+                level    => MT::Log::INFO(),
+                class    => $obj->class,
+                blog_id  => $obj->id,
+                category => 'edit',
+            }
+        );
+    }
+
+    if ( $app->isa('MT::App::CMS') ) {
+        _post_save_cfg_screens( $app, $obj, $original ) or return;
+    }
+    elsif ( $app->isa('MT::App::DataAPI') ) {
+
+        # Use eval here because decreasing dependency on Data API.
+        if ( eval { require MT::DataAPI::Callback::Blog; 1 } ) {
+            MT::DataAPI::Callback::Blog::post_save( $eh, $app, $obj,
+                $original )
+                or return;
         }
     }
 
@@ -1926,12 +2004,16 @@ sub post_save {
     else {
 
         # if settings were changed that would affect published pages:
-        if (grep { $original->column($_) ne $obj->column($_) }
-            qw(allow_unreg_comments allow_reg_comments remote_auth_token
-            allow_pings          allow_comment_html )
-            )
-        {
-            $app->add_return_arg( need_full_rebuild => 1 );
+        if ( $app->isa('MT::App::CMS') ) {
+            if (grep {
+                    ( $original->column($_) || '' ) ne
+                        ( $obj->column($_)  || '' )
+                } qw(allow_unreg_comments allow_reg_comments remote_auth_token
+                allow_pings          allow_comment_html )
+                )
+            {
+                $app->add_return_arg( need_full_rebuild => 1 );
+            }
         }
 
         my $original_set = $original->template_set;
@@ -1941,7 +2023,8 @@ sub post_save {
         if ( ( $original_set || '' ) ne ( $obj_set || '' ) ) {
             $app->run_callbacks( 'blog_template_set_change',
                 { blog => $obj } );
-            $app->add_return_arg( need_full_rebuild => 1 );
+            $app->add_return_arg( need_full_rebuild => 1 )
+                if $app->isa('MT::App::CMS');
         }
 
         ## THINK: should the theme be changed by normal save method?
@@ -2002,8 +2085,7 @@ sub save_filter {
             unless 0 < sprintf( '%d', $app->param('max_revisions_template') );
         return $eh->error(
             MT->translate("Please choose a preferred archive type.") )
-            if $app->blog->is_blog
-            && ( !$app->param('no_archives_are_active')
+            if ( !$app->param('no_archives_are_active')
             && !$app->param('preferred_archive_type') );
     }
     return 1;
@@ -2031,8 +2113,8 @@ sub make_blog_list {
     my ($blogs) = @_;
 
     my $author = $app->user;
-    my $data;
-    my $can_edit_authors = 1 if $app->can_do('edit_authors');
+    my ( $data, $can_edit_authors );
+    $can_edit_authors = 1 if $app->can_do('edit_authors');
     my @blog_ids = map { $_->id } @$blogs;
     my %counts;
     my $e_iter
@@ -2253,7 +2335,14 @@ sub cfg_prefs_save {
             $blog->archive_url("$subdomain/::/$path");
         }
         $blog->site_path( $app->param('site_path_absolute') )
-            if !$app->config->BaseSitePath
+            if (
+            !$app->config->BaseSitePath
+            || ($app->config->BaseSitePath
+                && MT::CMS::Common::is_within_base_sitepath(
+                    $app, $app->param('site_path_absolute')
+                )
+            )
+            )
             && $app->param('use_absolute')
             && $app->param('site_path_absolute');
         $blog->archive_path( $app->param('archive_path_absolute') )
@@ -3436,6 +3525,40 @@ sub can_view_blog_list {
             if $p->blog->is_blog;
     }
     return $cond ? 1 : 0;
+}
+
+sub data_api_is_enabled {
+    my ( $app, $blog_id ) = @_;
+    my $cfg = $app->config;
+
+    my @disable_site = split ',',
+        defined $cfg->DataAPIDisableSite ? $cfg->DataAPIDisableSite : '';
+    return ( grep { $blog_id == $_ } @disable_site ) ? 0 : 1;
+}
+
+sub save_data_api_settings {
+    my ($app) = @_;
+
+    my $blog_id = $app->param('id') || 0;
+    my $cfg = $app->config;
+
+    my $data_api_disable_site
+        = defined $cfg->DataAPIDisableSite ? $cfg->DataAPIDisableSite : '';
+    my %data_api_disable_site
+        = map { $_ => 1 } ( split ',', $data_api_disable_site );
+    if ( $app->param('enable_data_api') ) {
+        delete $data_api_disable_site{$blog_id};
+    }
+    else {
+        $data_api_disable_site{$blog_id} = 1;
+    }
+    my $new_data_api_disable_site = join ',',
+        ( sort { $a <=> $b } keys %data_api_disable_site );
+    $cfg->DataAPIDisableSite( $new_data_api_disable_site, 1 );
+
+    $cfg->save_config;
+
+    return 1;
 }
 
 1;

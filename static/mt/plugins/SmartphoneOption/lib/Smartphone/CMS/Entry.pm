@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -206,7 +206,6 @@ sub on_smartphone_template_param_preview_strip {
             }
             .actions-bar .button.action {
                 font-size: 36px;
-                line-height: 36px;
                 margin-top: 16px;
                 margin-bottom: 16px;
             }
@@ -217,7 +216,6 @@ sub on_smartphone_template_param_preview_strip {
                 }
                 .actions-bar .button.action {
                     font-size: 18px;
-                    line-height: 18px;
                     margin-top: 8px;
                     margin-bottom: 8px;
                 }

@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -285,7 +285,7 @@ sub iso2ts {
     my ( $ts, $target_zone ) = @_;
     return
         unless $ts
-            =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-]\d{2}:\d{2}))?)?)?)?/;
+        =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-]\d{2}:\d{2}))?)?)?)?/;
     my ( $y, $mo, $d, $h, $m, $s, $zone )
         = ( $1, $2 || 1, $3 || 1, $4 || 0, $5 || 0, $6 || 0, $7 );
     if ($zone) {
@@ -314,7 +314,7 @@ sub iso2epoch {
     my ($ts) = @_;
     return
         unless $ts
-            =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-]\d{2}:\d{2}))?)?)?)?/;
+        =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-]\d{2}:\d{2}))?)?)?)?/;
     my ( $y, $mo, $d, $h, $m, $s, $zone )
         = ( $1, $2 || 1, $3 || 1, $4 || 0, $5 || 0, $6 || 0, $7 );
 
@@ -1043,6 +1043,9 @@ sub _upload_to_asset {
     return $app->error( 400, "Invalid or empty filename" )
         if $fname =~ m!/|\.\.|\0|\|!;
 
+    my ( $base, $uploaded_path, $ext )
+        = File::Basename::fileparse( $fname, '\.[^\.]*' );
+
     if ( my $deny_exts = $app->config->DeniedAssetFileExtensions ) {
         my @deny_exts = map {
             if   ( $_ =~ m/^\./ ) {qr/$_/i}
@@ -1052,7 +1055,9 @@ sub _upload_to_asset {
         return $app->error(
             500,
             MT->translate(
-                'The file ([_1]) that you uploaded is not allowed.', $fname
+                '\'[_1]\' is not allowed to upload by system settings.: [_2]',
+                $ext,
+                $fname
             )
         ) if $ret[2];
     }
@@ -1066,7 +1071,9 @@ sub _upload_to_asset {
         return $app->error(
             500,
             MT->translate(
-                'The file ([_1]) that you uploaded is not allowed.', $fname
+                '\'[_1]\' is not allowed to upload by system settings.: [_2]',
+                $ext,
+                $fname
             )
         ) unless $ret[2];
     }
@@ -1074,8 +1081,8 @@ sub _upload_to_asset {
     my $local_relative = File::Spec->catfile( '%r',             $fname );
     my $local          = File::Spec->catfile( $blog->site_path, $fname );
     my $fmgr           = $blog->file_mgr;
-    my ( $base, $path, $ext )
-        = File::Basename::fileparse( $local, '\.[^\.]*' );
+    my $path;
+    ( $base, $path, $ext ) = File::Basename::fileparse( $local, '\.[^\.]*' );
     $ext = $MIME2EXT{$type} unless $ext;
 
     require MT::Asset::Image;
@@ -1084,13 +1091,14 @@ sub _upload_to_asset {
         my $fh;
         my $data = $content->body;
         open( $fh, "+<", \$data );
-        close($fh), return $app->error(
+        close($fh),
+            return $app->error(
             500,
             MT->translate(
                 "Saving [_1] failed: [_2]", $base,
                 MT->translate("Invalid image file format.")
             )
-        ) unless MT::Image::is_valid_image($fh);
+            ) unless MT::Image::is_valid_image($fh);
         close($fh);
     }
 
@@ -1269,8 +1277,8 @@ sub get_weblogs {
     my $uri = URI->new($base);
     if ($uri) {
         my $created
-            = MT::Util::format_ts( '%Y-%m-%d', $user->created_on, undef, 'en',
-            0 );
+            = MT::Util::format_ts( '%Y-%m-%d', $user->created_on, undef,
+            'en', 0 );
         my $id
             = 'tag:'
             . $uri->host . ','
@@ -1499,8 +1507,8 @@ sub get_blog_comments {
     my $site_uri = URI->new( $blog->site_url );
     if ($site_uri) {
         my $blog_created
-            = MT::Util::format_ts( '%Y-%m-%d', $blog->created_on, $blog, 'en',
-            0 );
+            = MT::Util::format_ts( '%Y-%m-%d', $blog->created_on, $blog,
+            'en', 0 );
         my $id
             = 'tag:'
             . $site_uri->host . ','

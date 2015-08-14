@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -278,7 +278,7 @@ sub save_config {
             my $h = $settings->{$_};
             foreach my $k ( keys %$h ) {
                 $data
-                    .= $mgr->{__settings}{$_}{key} . ' ' 
+                    .= $mgr->{__settings}{$_}{key} . ' '
                     . $k . '='
                     . $h->{$k} . "\n";
             }
@@ -362,6 +362,9 @@ sub read_config_db {
     my $cfg_class = MT->model('config') or return;
 
     $mgr->{__dbvar} = {};
+
+    my $driver = $MT::Object::DRIVER;
+    $driver->clear_cache if $driver && $driver->can('clear_cache');
 
     my ($config) = eval { $cfg_class->search };
     if ($config) {

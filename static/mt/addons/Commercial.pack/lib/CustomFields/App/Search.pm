@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -16,10 +16,10 @@ sub _search_hit {
     my $search_hit_method = $plugin->{search_hit_method};
     return 1
         if &{$search_hit_method}( $app, $entry )
-    ;    # If query matches non-CustomFields, why waste time?
+        ;    # If query matches non-CustomFields, why waste time?
     return 0
         if $app->{searchparam}{SearchElement} ne 'entries'
-    ; # If it hasn't matched and isn't searching on entries, again why waste time?
+        ; # If it hasn't matched and isn't searching on entries, again why waste time?
 
     my @text_elements = ( $entry->title, $entry->text, $entry->text_more,
         $entry->keywords );

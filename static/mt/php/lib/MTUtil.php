@@ -1,13 +1,14 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
 # $Id$
 
-function datetime_to_timestamp($dt) {
+function datetime_to_timestamp($dt, $type = 'local') {
+    $mktime = (isset($type) && $type == 'gmt') ? 'gmmktime' : 'mktime';
     $dt = preg_replace('/[^0-9]/', '', $dt);
-    $ts = mktime(substr($dt, 8, 2), substr($dt, 10, 2), substr($dt, 12, 2), substr($dt, 4, 2), substr($dt, 6, 2), substr($dt, 0, 4));
+    $ts = $mktime(substr($dt, 8, 2), substr($dt, 10, 2), substr($dt, 12, 2), substr($dt, 4, 2), substr($dt, 6, 2), substr($dt, 0, 4));
     return $ts;
 }
 
@@ -262,7 +263,13 @@ function format_ts($format, $ts, $blog, $lang = null) {
         $format = preg_replace('!%b %e!', '%e %b', $format);
     }
     if (isset($format)) {
-        $format = preg_replace('!%(\w)!e', '\$f[\'\1\']', $format);
+        $keys = array();
+        $values = array();
+        foreach ($f as $k => $v) {
+            $keys[] = '%' . $k;
+            $values[] = $v;
+        }
+        $format = str_replace($keys, $values, $format);
     }
     return $format;
 }
@@ -897,7 +904,7 @@ function html_text_transform($str = '') {
     return implode("\n\n", $paras);
 }
 
-function encode_html($str, $quote_style = ENT_COMPAT) {
+function encode_html($str, $quote_style = ENT_QUOTES) {
     if (!isset($str)) return '';
     $trans_table = get_html_translation_table(HTML_SPECIALCHARS, $quote_style);
     if( $trans_table["'"] != '&#039;' ) { # some versions of PHP match single quotes to &#39;
@@ -906,7 +913,44 @@ function encode_html($str, $quote_style = ENT_COMPAT) {
     return (strtr($str, $trans_table));
 }
 
-function decode_html($str, $quote_style = ENT_COMPAT) {
+function encode_html_entities($str, $quote_style = ENT_QUOTES) {
+    if (!$str) {
+        return '';
+    }
+
+    static $use_htmlspecialchars;
+    static $encoding;
+    static $is_old_php;
+
+    if (! isset($is_old_php)) {
+        $is_old_php = version_compare(phpversion(), '4.3.0', '<');
+    }
+
+    if ($is_old_php) {
+        return htmlentities($str, $quote_style);
+    }
+
+    if (! isset($use_htmlspecialchars)) {
+        $mt = MT::get_instance();
+        $encoding = strtolower($mt->config('PublishCharset'));
+        $use_htmlspecialchars = !in_array($encoding, array(
+            'iso-8859-1', 'iso8859-1',
+            'iso-8859-5', 'iso8859-5',
+            'iso-8859-15', 'iso8859-15',
+            'utf-8',
+            'cp866', 'ibm866', '866',
+            'cp1251', 'windows-1251', 'win-1251', '1251',
+            'cp1252', 'windows-1252', '1252',
+            'koi8-r', 'koi8-ru', 'koi8r'
+        ), true);
+    }
+
+    return $use_htmlspecialchars ?
+        htmlspecialchars($str, $quote_style, $encoding) :
+        htmlentities($str, $quote_style, $encoding);
+}
+
+function decode_html($str, $quote_style = ENT_QUOTES) {
     if (!isset($str)) return '';
     $trans_table = get_html_translation_table(HTML_SPECIALCHARS, $quote_style);
     if( $trans_table["'"] != '&#039;' ) { # some versions of PHP match single quotes to &#39;
@@ -1013,15 +1057,15 @@ function tag_split($str) {
 
 function catarray_path_length_sort($a, $b) {
 	$al = strlen($a->category_label_path);
-	$bl = strlen($bcategory_label_path);
-	return $al == $bl ? 0 : $al < $bl ? 1 : -1;
+	$bl = strlen($b->category_label_path);
+    return $al === $bl ? 0 : ($al < $bl ? 1 : -1);
 }
 
 # sorts by length of category label, from longest to shortest
 function catarray_length_sort($a, $b) {
 	$al = strlen($a->category_label);
 	$bl = strlen($b->category_label);
-	return $al == $bl ? 0 : $al < $bl ? 1 : -1;
+	return $al === $bl ? 0 : ($al < $bl ? 1 : -1);
 }
 
 function create_expr_exception($m) {
@@ -1431,11 +1475,19 @@ function asset_cleanup_cb($matches) {
     return '<span' . $attr . $inner . '</span>';
 }
 
+# sorts by length of category label, from longest to shortest
+function rolearray_length_sort(&$a, &$b) {
+    $al = strlen($a->name);
+    $bl = strlen($b->name);
+    return $al === $bl ? 0 : ($al < $bl ? 1 : -1);
+}
+
 function create_role_expr_function($expr, &$roles, $datasource = 'author') {
     $roles_used = array();
     $orig_expr = $expr;
 
     $expr = preg_replace('/,/i', ' OR ', $expr);
+    usort($roles, "rolearray_length_sort");
 
     foreach ($roles as $role) {
         $rolen = $role->role_name;
@@ -1647,7 +1699,9 @@ function normalize_language($language, $locale, $ietf) {
         $language = $real_lang[$language];
     }
     if ($locale) {
-        $language = preg_replace('/^([A-Za-z][A-Za-z])([-_]([A-Za-z][A-Za-z]))?$/e', '\'$1\' . "_" . (\'$3\' ? strtoupper(\'$3\') : strtoupper(\'$1\'))', $language);
+        if (preg_match('/^([A-Za-z][A-Za-z])([-_]([A-Za-z][A-Za-z]))?$/', $language, $matches)) {
+            $language = $matches[1] . '_' . strtoupper( $matches[3] ? $matches[3] : $matches[1] );
+        }
     } elseif ($ietf) {
         # http://www.ietf.org/rfc/rfc3066.txt
         $language = preg_replace('/_/', '-', $language);

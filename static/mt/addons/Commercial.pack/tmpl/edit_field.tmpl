@@ -249,7 +249,7 @@
 </script>
 </mt:setvarblock>
 
-<mt:include name="include/header.tmpl">
+<mt:include name="include/header.tmpl" id="header_include">
 
   <mtapp:statusmsg
      id="default-save"
@@ -376,7 +376,7 @@
     <input type="hidden" name="container_type" value="<mt:var name="container_type">" />
     <ul>
     <mt:loop name="categories">
-      <li style="margin-left: <mt:var name="category_pixel_depth">px;"><label for="<mt:var name="category_basename">"><input type="checkbox" name="show_field_<mt:var name="category_id">" id="<mt:var name="category_basename">" value="1"<mt:if name="selected"> checked="checked"</mt:if> /> <mt:var name="category_label" escape="html"></label><input type="hidden" name="selected_fields_<mt:var name="category_id">" value="<mt:var name="category_selected_fields" escape="html">" /></li>
+      <li style="margin-left: <mt:var name="category_pixel_depth">px;"><label for="category_<mt:var name="category_id">"><input type="checkbox" name="show_field_<mt:var name="category_id">" id="category_<mt:var name="category_id">" value="1"<mt:if name="selected"> checked="checked"</mt:if> /> <mt:var name="category_label" escape="html"></label><input type="hidden" name="selected_fields_<mt:var name="category_id">" value="<mt:var name="category_selected_fields" escape="html">" /></li>
     </mt:loop>
     </ul>
   </mtapp:setting>

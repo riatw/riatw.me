@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -84,7 +84,7 @@ sub upgrade_functions {
                             $cmtr->pending( $comment->blog_id );
                         }
                     }
-                    }
+                }
             }
         },
         'core_set_blog_admins' => {
@@ -221,7 +221,7 @@ sub upgrade_functions {
                         $map->save;
                     }
                     $blog->old_style_archive_links(0);
-                    }
+                }
             }
         },
         'core_set_entry_weeknumber' => {
@@ -472,7 +472,7 @@ sub _migrate_permission_to_role {
         foreach my $key ( keys %MT::Upgrade::LegacyPerms ) {
             next
                 if $MT::Upgrade::LegacyPerms{$key}
-                    =~ m/^not_/;         # skip exclusion permissions
+                =~ m/^not_/;    # skip exclusion permissions
             $full_perm_mask |= $key;
         }
     }

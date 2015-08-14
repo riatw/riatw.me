@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2004-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2004-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -10,20 +10,21 @@
  */
 require_once('lib/class.exception.php');
 
-define('VERSION', '6.0');
-define('PRODUCT_VERSION', '6.0.1');
+define('VERSION', '6.1');
+define('PRODUCT_VERSION', '6.1.2');
+define('DATA_API_DEFAULT_VERSION', '2');
 
 $PRODUCT_NAME = 'Movable Type Pro';
 if($PRODUCT_NAME == '__PRODUCT' . '_NAME__')
     $PRODUCT_NAME = 'Movable Type';
 define('PRODUCT_NAME', $PRODUCT_NAME);
 
-$RELEASE_NUMBER = '1';
+$RELEASE_NUMBER = '2';
 if ( $RELEASE_NUMBER == '__RELEASE_' . 'NUMBER__' )
-    $RELEASE_NUMBER = 1;
+    $RELEASE_NUMBER = 2;
 define('RELEASE_NUMBER', $RELEASE_NUMBER);
 
-$PRODUCT_VERSION_ID = '6.0.1';
+$PRODUCT_VERSION_ID = '6.1.2';
 if ( $PRODUCT_VERSION_ID == '__PRODUCT_' . 'VERSION_ID__' )
     $PRODUCT_VERSION_ID = PRODUCT_VERSION;
 $VERSION_STRING;
@@ -60,6 +61,9 @@ class MT {
 
     private  $cache_driver = null;
     private static $_instance = null;
+
+    static public $config_type_array = array('pluginpath', 'alttemplate', 'outboundtrackbackdomains', 'memcachedservers', 'userpasswordvalidation');
+    static public $config_type_hash  = array('pluginswitch', 'pluginschemaversion', 'commenterregistration');
 
     /***
      * Constructor for MT class.
@@ -217,7 +221,9 @@ class MT {
                 $this->config('Database'),
                 $this->config('DBHost'),
                 $this->config('DBPort'),
-                $this->config('DBSocket'));
+                $this->config('DBSocket'),
+                $this->config('DBMaxRetries'),
+                $this->config('DBRetryInterval'));
         }
         return $this->db;
     }
@@ -256,8 +262,6 @@ class MT {
         $this->cfg_file = $file;
 
         $cfg = array();
-        $type_array = array('pluginpath', 'alttemplate', 'outboundtrackbackdomains', 'memcachedservers', 'userpasswordvalidation');
-        $type_hash  = array('commenterregistration');
         if ($fp = file($file)) {
             foreach ($fp as $line) {
                 // search through the file
@@ -266,10 +270,10 @@ class MT {
                     if (preg_match('/^\s*(\S+)\s+(.*)$/', $line, $regs)) {
                         $key = strtolower(trim($regs[1]));
                         $value = trim($regs[2]);
-                        if (in_array($key, $type_array)) {
+                        if (in_array($key, self::$config_type_array)) {
                             $cfg[$key][] = $value;
                         }
-                        elseif (in_array($key, $type_hash)) {
+                        elseif (in_array($key, self::$config_type_hash)) {
                             $hash = preg_split('/\=/', $value, 2);
                             $cfg[$key][strtolower(trim($hash[0]))] = trim($hash[1]);
                         } else {
@@ -384,8 +388,6 @@ class MT {
             $cfg['xmlrpcscript'] = 'mt-xmlrpc.cgi';
         isset($cfg['searchscript']) or
             $cfg['searchscript'] = 'mt-search.cgi';
-        isset($cfg['notifyscript']) or
-            $cfg['notifyscript'] = 'mt-add-notify.cgi';
         isset($cfg['defaultlanguage']) or
             $cfg['defaultlanguage'] = 'en_US';
         isset($cfg['globalsanitizespec']) or
@@ -434,6 +436,12 @@ class MT {
             $cfg['userpasswordminlength'] = 8;
         isset($cfg['bulkloadmetaobjectslimit']) or
             $cfg['bulkloadmetaobjectslimit'] = 100;
+        isset($cfg['dbmaxretries']) or
+            $cfg['dbmaxretries'] = 3;
+        isset($cfg['dbretryintercal']) or
+            $cfg['dbretryinterval'] = 1;
+        isset($cfg['dataapiscript']) or
+            $cfg['dataapiscript'] = 'mt-data-api.cgi';
     }
 
     function configure_paths($blog_site_path) {
@@ -586,8 +594,10 @@ class MT {
             $this->cache_modified_check = true;
         }
         if ($this->conditional) {
-            $last_ts = $blog->blog_children_modified_on;
-            $last_modified = $ctx->_hdlr_date(array('ts' => $last_ts, 'format' => '%a, %d %b %Y %H:%M:%S GMT', 'language' => 'en', 'utc' => 1), $ctx);
+            $local_last_datetime = $blog->blog_children_modified_on;
+            $gmt_last_ts = datetime_to_timestamp($local_last_datetime);
+            $gmt_last_datetime = gmdate('YmdHis', $gmt_last_ts);
+            $last_modified = $ctx->_hdlr_date(array('ts' => $gmt_last_datetime, 'format' => '%a, %d %b %Y %H:%M:%S GMT', 'language' => 'en'), $ctx);
             $this->doConditionalGet($last_modified);
         }
 
@@ -805,16 +815,10 @@ class MT {
     }
 
     function error_handler($errno, $errstr, $errfile, $errline) {
-        if ($errno & (E_ALL ^ E_NOTICE)) {
+        if ($errno & (E_ALL ^ E_NOTICE ^ E_WARNING)) {
             if ( !empty( $this->db ) ) {
-                if (version_compare(phpversion(), '4.3.0', '>=')) {
-                    $charset = $this->config('PublishCharset');
-                    $errstr = htmlentities($errstr, ENT_COMPAT, $charset);
-                    $errfile = htmlentities($errfile, ENT_COMPAT, $charset);
-                } else {
-                    $errstr = htmlentities($errstr, ENT_COMPAT);
-                    $errfile = htmlentities($errfile, ENT_COMPAT);
-                }
+                $errstr = encode_html_entities($errstr, ENT_QUOTES);
+                $errfile = encode_html_entities($errfile, ENT_QUOTES);
                 $mtphpdir = $this->config('PHPDir');
                 $ctx =& $this->context();
                 $ctx->stash('blog_id', $this->blog_id);
@@ -944,9 +948,9 @@ function spam_protect($str) {
 
 function offset_time($ts, $blog = null, $dir = null) {
     if (isset($blog)) {
-        if (!is_array($blog)) {
+        if (!is_object($blog)) {
             global $mt;
-            $blog = $mt->db()->fetch_blog($blog->id);
+            $blog = $mt->db()->fetch_blog($blog);
         }
         $offset = $blog->blog_server_offset;
     } else {

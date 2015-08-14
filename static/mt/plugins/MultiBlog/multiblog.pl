@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2006-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2006-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -13,7 +13,7 @@ use warnings;
 
 use base qw( MT::Plugin );
 
-our $VERSION = '2.4';
+our $VERSION = '2.5';
 my $plugin;
 $plugin = MT::Plugin::MultiBlog->new(
     {   id   => 'multiblog',
@@ -94,7 +94,8 @@ $plugin = MT::Plugin::MultiBlog->new(
             },
             upgrade_functions => {
                 'fix_broken_trigger_cache' => {
-                    updater => {
+                    version_limit => 2.42,
+                    updater       => {
                         type  => 'blog',
                         terms => { class => '*' },
                         label => "Updating the MultiBlog trigger cache...",
@@ -146,9 +147,8 @@ sub add_trigger {
 
     return $plugin->translate("Permission denied.")
         unless $app->user->is_superuser()
-            || (   $app->blog
-                && $app->user->permissions( $app->blog->id )
-                ->can_administer_blog() );
+        || ( $app->blog
+        && $app->user->permissions( $app->blog->id )->can_administer_blog() );
 
     my $blog_id = $app->blog->id;
 
@@ -353,14 +353,7 @@ sub update_trigger_cache {
                     $scope = "system";
                 }
                 elsif ( $id eq '_blogs_in_website' ) {
-                    my $app        = MT::instance;
-                    my $website_id = $app->param('blog_id');
-                    next unless $website_id;
-                    if ( my $website
-                        = $app->model('website')->load($website_id) )
-                    {
-                        $scope = "blog:" . $website->id;
-                    }
+                    $scope = "blog:$blog_id";
                 }
                 else {
                     $scope = "blog:$id";
@@ -382,13 +375,7 @@ sub update_trigger_cache {
                 $scope = "system";
             }
             elsif ( $id eq '_blogs_in_website' ) {
-                my $app        = MT::instance;
-                my $website_id = $app->param('blog_id');
-                next unless $website_id;
-                if ( my $website = $app->model('website')->load($website_id) )
-                {
-                    $scope = "blog:" . $website->id;
-                }
+                $scope = "blog:$blog_id";
             }
             else {
                 $scope = "blog:$id";

@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -42,7 +42,7 @@ sub LoadFile {
         return MT->error( MT->translate( 'File not found: [_1]', $file ) );
     }
     my $yaml = $fmgr->get_data( $file, 'output' );
-    return MT::Util::YAML::Tiny::Load( Encode::encode_utf8($yaml) );
+    return MT::Util::YAML::Tiny::Load($yaml);
 }
 
 1;

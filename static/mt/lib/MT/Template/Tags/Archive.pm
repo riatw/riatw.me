@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -61,11 +61,11 @@ sub _hdlr_archive_set {
     foreach my $type (@at) {
         $blog->archive_type_preferred($type);
         local $ctx->{current_archive_type} = $type;
-        local $vars->{__first__}   = $i == 1;
-        local $vars->{__last__}    = $i == scalar @at;
-        local $vars->{__odd__}     = ( $i % 2 ) == 1;
-        local $vars->{__even__}    = ( $i % 2 ) == 0;
-        local $vars->{__counter__} = $i;
+        local $vars->{__first__}           = $i == 1;
+        local $vars->{__last__}            = $i == scalar @at;
+        local $vars->{__odd__}             = ( $i % 2 ) == 1;
+        local $vars->{__even__}            = ( $i % 2 ) == 0;
+        local $vars->{__counter__}         = $i;
         $i++;
         defined( my $out = $builder->build( $ctx, $tokens, $cond ) )
             or return $ctx->error( $builder->errstr );
@@ -251,7 +251,8 @@ sub _hdlr_archives {
             ( $start, $end ) = ( $curr{'start'}, $curr{'end'} );
         }
         else {
-            my $entry = $curr{entries}->[0] if exists( $curr{entries} );
+            my $entry;
+            $entry = $curr{entries}->[0] if exists( $curr{entries} );
             ( $start, $end ) = ( ref $entry ? $entry->authored_on : "" );
         }
         local $ctx->{current_timestamp}      = $start;
@@ -386,7 +387,7 @@ sub _hdlr_archive_prev_next {
     my $tag     = lc $ctx->stash('tag');
     my $is_prev = $tag eq 'archiveprevious';
     my $res     = '';
-    my $at 
+    my $at
         = ( $args->{type} || $args->{archive_type} )
         || $ctx->{current_archive_type}
         || $ctx->{archive_type};
@@ -595,15 +596,15 @@ sub _hdlr_index_list {
         { 'sort' => 'name' }
     );
     my $res = '';
-    for (my $ix = 1; $ix <= scalar @tmpls; $ix++) {
-        my $tmpl = $tmpls[$ix - 1];
+    for ( my $ix = 1; $ix <= scalar @tmpls; $ix++ ) {
+        my $tmpl = $tmpls[ $ix - 1 ];
         my $vars = $ctx->{__stash}{vars} ||= {};
         local $ctx->{__stash}{'index'} = $tmpl;
-        local $vars->{__first__}   = $ix == 1;
-        local $vars->{__last__}    = $ix == scalar @tmpls;
-        local $vars->{__odd__}     = ( $ix % 2 ) == 1;
-        local $vars->{__even__}    = ( $ix % 2 ) == 0;
-        local $vars->{__counter__} = $ix;
+        local $vars->{__first__}       = $ix == 1;
+        local $vars->{__last__}        = $ix == scalar @tmpls;
+        local $vars->{__odd__}         = ( $ix % 2 ) == 1;
+        local $vars->{__even__}        = ( $ix % 2 ) == 0;
+        local $vars->{__counter__}     = $ix;
         defined( my $out = $builder->build( $ctx, $tokens, $cond ) )
             or return $ctx->error( $builder->errstr );
         $res .= $out;
@@ -652,7 +653,7 @@ archives).
 
 sub _hdlr_archive_link {
     my ( $ctx, $args ) = @_;
-    my $at 
+    my $at
         = $args->{type}
         || $args->{archive_type}
         || $ctx->{current_archive_type}
@@ -913,9 +914,10 @@ sub _hdlr_archive_count {
         return $ctx->count_format( $count, $args );
     }
 
-    my $e       = $ctx->stash('entries');
-    my @entries = @$e if ref($e) eq 'ARRAY';
-    my $count   = scalar @entries;
+    my $e = $ctx->stash('entries');
+    my @entries;
+    @entries = @$e if ref($e) eq 'ARRAY';
+    my $count = scalar @entries;
     return $ctx->count_format( $count, $args );
 }
 

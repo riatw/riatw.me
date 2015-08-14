@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -14,7 +14,7 @@ use Exporter;
 use vars qw( @EXPORT_OK );
 @EXPORT_OK = qw( get_meta save_meta field_loop _get_tmpl _get_html
     load_meta_to_cache );
-use MT::Util qw( format_ts );
+use MT::Util qw( encode_html format_ts );
 
 sub load_meta_fields {
     my $iter = eval {
@@ -229,6 +229,11 @@ sub field_loop {
         }
     }
 
+    my $validate_magic = do {
+        local $app->{login_again};
+        $app->validate_magic;
+    };
+
     require CustomFields::Field;
     my $iter = CustomFields::Field->load_iter($terms);
     while ( my $field = $iter->() ) {
@@ -242,11 +247,26 @@ sub field_loop {
             ( $obj && $obj_class->has_column('blog_id') )
             ? $obj->blog_id
             : 0;
-        $row->{value}
-            = $pre_loaded ? $params->{ 'field.' . $field->basename }
-            : ( $meta_data && defined( $meta_data->{$basename} ) )
-            ? $meta_data->{$basename}
-            : $field->default;
+
+        if ($pre_loaded) {
+            $row->{value} = $params->{ 'field.' . $field->basename };
+        }
+        elsif ( $meta_data && defined( $meta_data->{$basename} ) ) {
+            if (  !$validate_magic
+                && $q->param("customfield_$basename")
+                && ( grep { $_ eq $field->type }
+                    qw( file audio image video ) ) )
+            {
+                # A value of asset must be html-encoded
+                $row->{value} = encode_html( $meta_data->{$basename} );
+            }
+            else {
+                $row->{value} = $meta_data->{$basename};
+            }
+        }
+        else {
+            $row->{value} = $field->default;
+        }
 
       # If an options_delimiter is present, we need to populate an option_loop
         if ( $type_obj->{options_delimiter} ) {
@@ -566,7 +586,7 @@ sub unpack_revision {
     foreach my $key ( keys %$packed ) {
         if ( my ($field) = $key =~ /^field\.(\w+)/ ) {
             $obj->column( $key, $packed->{$key}, { no_changed_flag => 1 } )
-                if $obj->has_column( $key );
+                if $obj->has_column($key);
         }
     }
 

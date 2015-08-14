@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -19,7 +19,7 @@ sub import_cf {
     my ( $piece, $entry ) = @_;
     my $prefix = PREFIX();
     my $req    = MT::Request->instance();
-    if ( $piece =~ s/^$prefix(\w+):\r?\n// ) {
+    if ( $piece =~ s/^$prefix([\w-]+):\r?\n// ) {
 
         # multi-line text
         my $field_basename = 'field.' . lc($1);
@@ -28,7 +28,7 @@ sub import_cf {
     }
     else {
         foreach my $line ( split /\r?\n/, $piece ) {
-            if ( $line =~ /^$prefix(\w+):\s+(.+)$/ ) {
+            if ( $line =~ /^$prefix([\w-]+):\s+(.+)$/ ) {
                 my $field_basename = lc($1);
                 my $val            = $2;
                 my $field = $req->cache( $field_basename . $entry->blog_id );
@@ -63,7 +63,7 @@ sub export_cf {
         qw( text textarea checkbox url datetime select radio );
     my $req = MT::Request->instance();
     foreach my $key ( keys %$meta ) {
-        if ( $key =~ /^field\.(\w+)$/ ) {
+        if ( $key =~ /^field\.([\w-]+)$/ ) {
             my $field_basename = $1;
             my $field = $req->cache( $field_basename . $entry->blog_id );
             unless ($field) {

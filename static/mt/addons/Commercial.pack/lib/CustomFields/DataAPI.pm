@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -50,17 +50,43 @@ sub fields {
     ];
 }
 
+sub fields_for_user {
+    my $field = fields()->[0];
+    [   {   name        => $field->{name},
+            from_object => sub {
+                my ($obj) = @_;
+                my $app  = MT->instance or return;
+                my $user = $app->user   or return;
+
+                return if !( $user->is_superuser || $user->id == $obj->id );
+
+                $field->{from_object}->(@_);
+            },
+            to_object => $field->{to_object},
+        },
+    ];
+}
+
 sub custom_fields {
     my ($obj) = @_;
     my $obj_type = $obj->class_type || $obj->datasource;
-    my $blog_id = $obj->can('blog_id') ? $obj->blog_id : 0;
+    my $blog_id
+        = $obj->can('blog_id') ? $obj->blog_id
+        : eval { $obj->isa('MT::Blog') } ? $obj->id
+        :                                  0;
 
-    $custom_fields_cache{$obj_type} ||= {};
-    if ( !$custom_fields_cache{$obj_type}{$blog_id} ) {
+    my $app                 = MT->instance;
+    my $custom_fields_cache = $app->request('custom_fields_cache');
+    if ( !$custom_fields_cache ) {
+        $app->request( 'custom_fields_cache', $custom_fields_cache = {} );
+        CustomFields::Util::load_meta_fields();
+    }
+
+    $custom_fields_cache->{$obj_type} ||= {};
+    if ( !$custom_fields_cache->{$obj_type}{$blog_id} ) {
         my $c = MT->component('commercial');
-        load_meta_fields() unless $c->{customfields};
 
-        $custom_fields_cache{$obj_type}{$blog_id} = [
+        $custom_fields_cache->{$obj_type}{$blog_id} = [
             grep {
                 $_->obj_type eq $obj_type
                     && ( $_->blog_id == $blog_id || $_->blog_id == 0 )
@@ -68,7 +94,7 @@ sub custom_fields {
         ];
     }
 
-    $custom_fields_cache{$obj_type}{$blog_id};
+    $custom_fields_cache->{$obj_type}{$blog_id};
 }
 
 1;

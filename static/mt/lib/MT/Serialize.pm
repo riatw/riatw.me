@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -7,7 +7,8 @@
 package MT::Serialize;
 
 use strict;
-our $VERSION = 5;
+our $VERSION            = '5';
+our $SERIALIZER_VERSION = '2';
 
 {
     my %Types = (
@@ -45,6 +46,24 @@ sub unserialize {
     $ser->{thaw}->(@_);
 }
 
+sub serializer_version {
+    my ( $ser, $frozen ) = @_;
+    return undef unless $frozen && substr( $frozen, 0, 4 ) eq 'SERG';
+    my $n = unpack 'N', substr( $frozen, 4, 4 );
+    if ( $n == 0 ) {
+        my $v = unpack 'N', substr( $frozen, 8, 4 );
+        if ( ( $v > 0 ) && ( $v <= $VERSION ) ) {
+            return $v;
+        }
+        else {
+            return undef;
+        }
+    }
+    else {
+        return 1;
+    }
+}
+
 sub _freeze_storable { require Storable; Storable::freeze(@_) }
 sub _thaw_storable   { require Storable; Storable::thaw(@_) }
 
@@ -65,7 +84,7 @@ sub _freeze_mt_1 {
         $col_val = '' unless defined $col_val;
         no_utf8($col_val);
         $frozen
-            .= pack( 'N', length($col) ) 
+            .= pack( 'N', length($col) )
             . $col
             . pack( 'N', length($col_val) )
             . $col_val;

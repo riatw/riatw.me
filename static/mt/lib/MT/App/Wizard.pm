@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -50,10 +50,10 @@ sub init_request {
 
     my $mode = $app->mode;
     return
-        unless $mode eq 'previous_step'
-            || $mode eq 'next_step'
-            || $mode eq 'retry'
-            || $mode eq 'test';
+           unless $mode eq 'previous_step'
+        || $mode eq 'next_step'
+        || $mode eq 'retry'
+        || $mode eq 'test';
 
     my $step = $app->param('step') || '';
 
@@ -89,9 +89,9 @@ sub init_request {
         $app->delete_param('test') if $app->param('test');
     }
 
-    # If mt-check.cgi exists, redirect to errro screen
+    # If mt-config.cgi exists, redirect to error screen
     my $cfg_exists = $app->is_config_exists();
-    if ( $cfg_exists && lc $step ne 'seed' && lc $mode ne 'retry' ) {
+    if ( $cfg_exists && lc $step ne 'seed' ) {
         my %param;
         $param{cfg_exists} = 1;
         $app->mode('pre_start');
@@ -193,7 +193,7 @@ sub init_core_registry {
             'IO::Socket::SSL' => {
                 link => 'http://search.cpan.org/dist/IO-Socket-SSL/',
                 label =>
-                    'IO::Socket::SSL is required to use SMTP Auth over an SSL connection, or to use it with a STARTTLS command.',
+                    'IO::Socket::SSL is required to use SMTP Auth over an SSL connection, or to use it with a STARTTLS command. Also, this module is required for Google Analytics site statistics.',
             },
             'Net::SSLeay' => {
                 link => 'http://search.cpan.org/dist/Net-SSLeay/',
@@ -226,11 +226,6 @@ sub init_core_registry {
                 label =>
                     'List::Util is optional; It is needed if you want to use the Publish Queue feature.',
             },
-            'Scalar::Util' => {
-                link => 'http://search.cpan.org/dist/Scalar-List-Utils',
-                label =>
-                    'Scalar::Util is optional; It is needed if you want to use the Publish Queue feature.',
-            },
             'Image::Magick' => {
                 link => 'http://www.imagemagick.org/script/perl-magick.php',
                 label =>
@@ -252,6 +247,7 @@ sub init_core_registry {
                     'This module is needed if you would like to be able to use NetPBM as the image driver for MT.',
             },
             'Storable' => {
+
                 link => 'http://search.cpan.org/dist/Storable',
                 label =>
                     'This module is required by certain MT plugins available from third parties.',
@@ -264,7 +260,7 @@ sub init_core_registry {
             'Crypt::SSLeay' => {
                 link => 'http://search.cpan.org/dist/Crypt-SSLeay',
                 label =>
-                    'This module and its dependencies are required to permit commenters to authenticate via OpenID providers such as AOL and Yahoo! that require SSL support.',
+                    'This module and its dependencies are required to permit commenters to authenticate via OpenID providers such as AOL and Yahoo! that require SSL support. Also this module is required for Google Analytics site statistics.',
             },
             'Cache::File' => {
                 link => 'http://search.cpan.org/dist/Cache/lib/Cache/File.pm',
@@ -333,6 +329,39 @@ sub init_core_registry {
                 link  => 'http://search.cpan.org/dist/XML-Parser',
                 label => 'This module required for action streams.',
             },
+            'XML::SAX::ExpatXS' => {
+                link => 'http://search.cpan.org/dist/XML-SAX-ExpatXS',
+                label =>
+                    'XML::SAX::ExpatXS is optional; It is one of the modules required to restore a backup created in a backup/restore operation.',
+                version => 1.30,
+            },
+            'XML::SAX::Expat' => {
+                link => 'http://search.cpan.org/dist/XML-SAX-Expat',
+                label =>
+                    'XML::SAX::Expat is optional; It is one of the modules required to restore a backup created in a backup/restore operation.',
+                version => 0.37,
+            },
+            'XML::LibXML::SAX' => {
+                link => 'http://search.cpan.org/dist/XML-LibXML-SAX',
+                label =>
+                    'XML::LibXML::SAX is optional; It is one of the modules required to restore a backup created in a backup/restore operation.',
+                version => 1.70,
+            },
+            'Time::HiRes' => {
+                link => 'http://search.cpan.org/dist/Time-HiRes/',
+                label =>
+                    'This module is required for executing run-periodic-tasks.',
+            },
+            'Mozilla::CA' => {
+                link => 'http://search.cpan.org/dist/Mozilla-CA/',
+                label =>
+                    'This module is required for Google Analytics site statistics.',
+            },
+            'YAML::Syck' => {
+                link => 'http://search.cpan.org/dist/YAML-Syck',
+                label =>
+                    'YAML::Syck is optional; It is a better, fast and lightweight alternative to YAML::Tiny for YAML file handling.',
+            },
         },
         required_packages => {
             'Image::Size' => {
@@ -366,6 +395,11 @@ sub init_core_registry {
                 link => 'http://search.cpan.org/dist/libwww-perl/',
                 label =>
                     'LWP::UserAgent is required for creating Movable Type configuration files using the installation wizard.',
+            },
+            'Scalar::Util' => {
+                link => 'http://search.cpan.org/dist/Scalar-List-Utils',
+                label =>
+                    'Scalar::Util is required for initializing Movable Type application.',
             },
         },
         database_options => {
@@ -542,7 +576,9 @@ sub start {
     $static_path =~ s#(^\s+|\s+$)##;
     $static_path .= '/' unless $static_path =~ m!/$!;
 
-    unless ( $app->is_valid_static_path($static_path) ) {
+    unless ( $app->param('uri_valid')
+        || $app->is_valid_static_path($static_path) )
+    {
         $param{uri_invalid}       = 1;
         $param{set_static_uri_to} = $app->param('set_static_uri_to');
         return $app->build_page( "start.tmpl", \%param );
@@ -578,6 +614,17 @@ sub start {
             $key, $pkg->{link}
             ];
     }
+
+# bugid: 111277
+# Performance improvement of 'Requirements Check' screen on Windows environment.
+    if ( $^O eq 'MSWin32' ) {
+        eval {
+            require Net::SSLeay;
+            no warnings;
+            *Net::SSLeay::RAND_poll = sub () {1};
+        };
+    }
+
     my ($needed) = $app->module_check( \@REQ );
     if (@$needed) {
         $param{package_loop} = $needed;
@@ -982,6 +1029,17 @@ sub optional {
     $param{mail_loop}                        = $transfer;
     $param{config}                           = $app->serialize_config(%param);
 
+    # bugid:111277
+    # Performance improvement of sending test mail on Windows environment.
+    if ( $^O eq 'MSWin32' ) {
+        eval {
+            require Net::SSLeay;
+            Net::SSLeay::RAND_poll();
+            no warnings 'redefine';
+            *Net::SSLeay::RAND_poll = sub () {1};
+        };
+    }
+
     require MT::Mail;
     $param{has_net_smtp}      = MT::Mail->can_use_smtp         ? 1 : 0;
     $param{has_net_smtp_auth} = MT::Mail->can_use_smtpauth     ? 1 : 0;
@@ -1002,8 +1060,8 @@ sub optional {
                 if $param{mail_transfer};
             $cfg->SendMailPath( $param{sendmail_path} )
                 if $param{mail_transfer}
-                    && ( $param{mail_transfer} eq 'sendmail' )
-                    && $param{sendmail_path};
+                && ( $param{mail_transfer} eq 'sendmail' )
+                && $param{sendmail_path};
             $cfg->EmailAddressMain( $param{email_address_main} )
                 if $param{email_address_main};
 
@@ -1251,7 +1309,11 @@ sub unserialize_config {
     if ($data) {
         $data = pack 'H*', $data;
         require MT::Serialize;
-        my $ser    = MT::Serialize->new('MT');
+        my $ser     = MT::Serialize->new('MT');
+        my $ser_ver = $ser->serializer_version($data);
+        if ( !$ser_ver || $ser_ver != $MT::Serialize::SERIALIZER_VERSION ) {
+            die $app->translate('Invalid parameter.');
+        }
         my $thawed = $ser->unserialize($data);
         if ($thawed) {
             my $saved_cfg = $$thawed;

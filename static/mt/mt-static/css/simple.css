@@ -1,4 +1,4 @@
-/* Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved
+/* Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved
  * This file is combined from multiple sources.  Consult the source files for their
  * respective licenses and copyrights.
  */html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}body{margin:0;}h1,
@@ -53,10 +53,10 @@ input[type=radio]{padding:0;}input[type=file]{background:#ffffff;}.text,
 .col.head.first-visible-child{border-left:0;}.col.head a{display:block;position:relative;width:100%;color:#1A1A1A;text-decoration:none;}.col.head a:hover{background-color:#eeefef;background-image:-moz-linear-gradient(#f7f7f7, #eeefef);background-image:-webkit-linear-gradient(#f7f7f7, #eeefef);background-image:linear-gradient(#f7f7f7, #eeefef);}.col.head.sorted{background:#e3f3fc;}.col.head.sorted:hover,
 .col.head.sorted a:hover{background:#cae5f8;}.col-label{display:block;width:80%;margin-left:5px;padding:7px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.col.head a:hover .col-label{color:#1A1A1A;}.sorted .col-label{color:#1A1A1A;}.sm{position:absolute;top:50%;right:5px;width:7px;height:10px;margin-top:-5px;background:transparent center no-repeat;background-image:url(../images/arrow/arrow-sort-both.gif);}.sm.asc{background-image:url(../images/arrow/arrow-sort-top.gif);}.sm.desc{background-image:url(../images/arrow/arrow-sort-bottom.gif);}.col .description{margin:0.75em 0 0;font-size:90%;}.col .user-info{overflow:hidden;}.col .user-info-item{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.col .content-text{overflow:hidden;}.col .icon{display:inline-block;min-width:15px;margin-right:3px;text-align:center;}.col .comment.status{float:left;margin-right:5px;}.col .picture{margin-bottom:0;}.col .userpic .icon{margin:0;}.col .item-ctrl .action-link{margin-right:5px;}.col .role-item{list-style-type:disc;list-style-position:inside;margin:0 0 0 1.2em;}.col .archive-path-item{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-wrap:normal;}.col .log-metadata pre{white-space:normal;}.list-entry .col.author_name,
 .list-page .col.author_name{width:10%;}.list-entry .col.category,
-.list-page .col.category{width:10%;}.list-entry .col.folder,
+.list-page .col.category{width:13%;}.list-entry .col.folder,
 .list-page .col.folder{width:9%;}.list-entry .col.date,
 .list-page .col.date{width:11%;}.list-entry .col.comment_count,
-.list-page .col.comment_count{width:6%;}.list-actions{float:left;}.listing .actions-bar{min-height:22px;}.listing .button-actions,
+.list-page .col.comment_count{width:8%;}.list-actions{float:left;}.listing .actions-bar{min-height:22px;}.listing .button-actions,
 .listing .plugin-actions{float:left;margin:8px 10px 8px 0;}.pagination,
 .indicator{font-family:Arial, sans-serif;font-size:12px;}.pagination,
 .actions-bar .indicator{float:right;height:22px;margin:8px 0;line-height:22px;}.actions-bar .indicator img{margin-bottom:0.2em;vertical-align:bottom;}.pagenav,

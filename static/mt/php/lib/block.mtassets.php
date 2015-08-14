@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -23,6 +23,13 @@ function smarty_block_mtassets($args, $content, &$ctx, &$repeat) {
             if ($entry) $args['entry_id'] = $entry->entry_id;
         }
         $args['exclude_thumb'] = 1;
+
+        $ts = $ctx->stash('current_timestamp');
+        $tse = $ctx->stash('current_timestamp_end');
+        if ($ts && $tse) {
+            $args['current_timestamp'] = $ts;
+            $args['current_timestamp_end'] = $tse;
+        }
 
         $assets = $ctx->mt->db()->fetch_assets($args);
         $ctx->stash('_assets', $assets);

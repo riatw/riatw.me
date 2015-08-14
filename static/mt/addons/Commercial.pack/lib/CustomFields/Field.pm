@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -160,8 +160,8 @@ BASE:
             my $conflict
                 = !$dup_field->blog_id            ? 1
                 : $dup_field->blog_id == $blog_id ? 1
-                : $dup_field->type ne $type ? 1
-                :                             0;
+                : $dup_field->type ne $type       ? 1
+                :                                   0;
             if ($conflict) {
                 return if $check_only;
                 $base = $base_stem . '_' . $i++;
@@ -262,7 +262,7 @@ sub validates_uniqueness_of_tag {
     my ( $eh, $values ) = @_;
     if ( ref $class ) {
         $values = $class->get_values;
-        $class = ref $class;
+        $class  = ref $class;
     }
     my $tag = lc $values->{tag};
 
@@ -389,5 +389,8 @@ sub validates_uniqueness_of_tag {
         );
     }
 }
+
+#hint for l10n
+#trans('__CF_REQUIRED_VALUE__')
 
 1;

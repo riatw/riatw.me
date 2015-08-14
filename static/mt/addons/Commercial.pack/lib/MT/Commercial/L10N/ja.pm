@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -61,7 +61,6 @@ use utf8;
 	'Blog Activity' => 'アクティビティ',
 	'Professional Blog' => 'プロフェッショナルブログ',
 	'Blog Archives' => 'アーカイブ',
-	'__CF_REQUIRED_VALUE__' => q{値},
 
 ## addons/Commercial.pack/lib/CustomFields/App/CMS.pm
 	'Show' => '表示項目',
@@ -100,12 +99,20 @@ use utf8;
 	'Restoring asset associations found in custom fields ( [_1] ) ...' => 'カスタムフィールド([_1])に含まれるアイテムとの関連付けを復元しています...',
 	'Restoring url of the assets associated in custom fields ( [_1] )...' => 'カスタムフィールド([_1])に含まれるアイテムのURLを復元しています...',
 
+## addons/Commercial.pack/lib/CustomFields/DataAPI/Callback/Field.pm
+	'The type "[_1]" is invalid.' => '不正な種類です: [_1]',
+	'The systemObject "[_1]" is invalid.' => '不正なシステムオブジェクトです: [_1]',
+
+## addons/Commercial.pack/lib/CustomFields/DataAPI/Endpoint/v2/Field.pm
+	'Invalid includeShared parameter provided: [_1]' => '無効なincludeSharedパラメータが指定されました: [_1]',
+
 ## addons/Commercial.pack/lib/CustomFields/Field.pm
 	'The template tag \'[_1]\' is already in use in the system level' => '[_1]というタグは既にシステムに存在します。',
 	'The template tag \'[_1]\' is already in use in [_2]' => '[_1]というタグは既に[_2]に存在します。',
 	'The template tag \'[_1]\' is already in use in this blog' => '[_1]というタグは既にこのブログに存在します。',
 	'The \'[_1]\' of the template tag \'[_2]\' that is already in use in [_3] is [_4].' => '\'[_2]\'というテンプレートタグが[_3]に既に存在していますが、[_1]が異なるため、重複して作成する事が出来ません。テンプレートタグ名を変えるか、[_1]を同じにする必要があります。([_1]: [_4])',
 	'_CF_BASENAME' => 'ベースネーム',
+	'__CF_REQUIRED_VALUE__' => '値',
 
 ## addons/Commercial.pack/lib/CustomFields/Template/ContextHandlers.pm
 	'Are you sure you have used a \'[_1]\' tag in the correct context? We could not find the [_2]' => '[_2]が見つかりませんでした。[_1]タグを正しいコンテキストで使用しているか確認してください。',
@@ -339,7 +346,6 @@ use utf8;
 	'click to %toggle% this box' => '%toggle%ときはクリックします。',
 	'use the arrow keys to move this box' => '矢印キーでボックスを移動します。',
 	', or press the enter key to %toggle% it' => '%toggle%ときはENTERキーを押します。',
-
 );
 
 1;

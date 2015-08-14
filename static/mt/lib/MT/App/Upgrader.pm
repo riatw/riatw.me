@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -319,8 +319,8 @@ sub init_user {
                 return $app->build_page( 'install.tmpl', \%param );
             }
             else {
-                $initial_email    = $app->param('email')    || '';
-                $initial_nickname = $app->param('nickname') || '';
+                $initial_email = $app->param('email') || '';
+                $initial_nickname = $app->param('nickname');
                 $initial_external_id
                     = MT::Author->unpack_external_id(
                     $app->param('external_id') )
@@ -358,6 +358,33 @@ sub init_user {
         if ( !MT::Util::is_valid_email($initial_email) ) {
             $param{error} = $app->translate( "Invalid email address '[_1]'",
                 $initial_email );
+            return $app->build_page( 'install.tmpl', \%param );
+        }
+    }
+
+    {
+        my $eh   = MT::ErrorHandler->new;
+        my $user = MT::Author->new;
+        $user->set_values(
+            {   name        => $initial_user,
+                nickname    => $initial_nickname,
+                email       => $initial_email,
+                lang        => $initial_lang,
+                external_id => $initial_external_id,
+            }
+        );
+        $user->set_password($initial_password);
+        require MT::CMS::User;
+        if (!MT::CMS::User::save_filter(
+                $eh, $app, $user,
+                $user->clone,
+                {   skip_encode_html          => 1,
+                    skip_validate_unique_name => 1,
+                }
+            )
+            )
+        {
+            $param{error} = $eh->errstr;
             return $app->build_page( 'install.tmpl', \%param );
         }
     }
@@ -415,6 +442,9 @@ sub init_website {
         $b_path = File::Spec->catdir( $b_path, "PATH" );
         $b_path =~ s/PATH$//;
         $param{'sitepath_limited_trail'} = $b_path;
+    }
+    if ( !-w $app->support_directory_path() ) {
+        $param{'support_unwritable'} = 1;
     }
 
     if ( $app->param('back') ) {
@@ -706,7 +736,11 @@ sub unserialize_config {
     if ($data) {
         $data = pack 'H*', $data;
         require MT::Serialize;
-        my $ser    = MT::Serialize->new('MT');
+        my $ser     = MT::Serialize->new('MT');
+        my $ser_ver = $ser->serializer_version($data);
+        if ( !$ser_ver || $ser_ver != $MT::Serialize::SERIALIZER_VERSION ) {
+            die $app->translate('Invalid parameter.');
+        }
         my $thawed = $ser->unserialize($data);
         if ($thawed) {
             my $saved_cfg = $$thawed;
@@ -794,8 +828,8 @@ sub main {
                 category => 'upgrade',
             }
         );
-        $app->config->MTVersion( $cur_version, 1 );
-        $app->config->MTReleaseNumber( $cur_rel, 1 );
+        $app->config( 'MTVersion',       $cur_version, 1 );
+        $app->config( 'MTReleaseNumber', $cur_rel,     1 );
         $app->config->save_config;
     }
 

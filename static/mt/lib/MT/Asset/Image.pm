@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -10,6 +10,7 @@ use strict;
 use base qw( MT::Asset );
 use MT::Blog;
 use MT::Website;
+use POSIX qw( floor );
 
 __PACKAGE__->install_properties(
     {   class_type  => 'image',
@@ -260,13 +261,13 @@ sub _get_dimension {
 
         # scale by height
         $n_h = $h;
-        $n_w = int( $i_w * $h / $i_h );
+        $n_w = floor( ( $i_w * $h / $i_h ) + 0.5 );
     }
     elsif ( $scale eq 'w' ) {
 
         # scale by width
         $n_w = $w;
-        $n_h = int( $i_h * $w / $i_w );
+        $n_h = floor( ( $i_h * $w / $i_w ) + 0.5 );
     }
     $n_h = 1 unless $n_h;
     $n_w = 1 unless $n_w;
@@ -363,11 +364,11 @@ sub as_html {
                 )
                 : MT->translate('View image');
             $text = sprintf(
-                q|<a href="%s" onclick="window.open('%s','popup','width=%d,height=%d,scrollbars=no,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">%s</a>|,
+                q|<a href="%s" onclick="window.open('%s','popup','width=%d,height=%d,scrollbars=yes,resizable=no,toolbar=no,directories=no,location=no,menubar=no,status=no,left=0,top=0'); return false">%s</a>|,
                 MT::Util::encode_html( $popup->url ),
                 MT::Util::encode_html( $popup->url ),
                 $asset->image_width,
-                $asset->image_height,
+                $asset->image_height + 1,
                 $link,
             );
         }

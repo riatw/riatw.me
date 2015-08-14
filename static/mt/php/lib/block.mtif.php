@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -11,6 +11,8 @@ function smarty_block_mtif($args, $content, &$ctx, &$repeat) {
         $name = isset($args['name'])
           ? $args['name'] : $args['var'];
         if (isset($name)) {
+            unset($ctx->__stash['__cond_tag__']);
+
             # pick off any {...} or [...] from the name.
             if (preg_match('/^(.+)([\[\{])(.+)[\]\}]$/', $name, $matches)) {
                 $name = $matches[1];

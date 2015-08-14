@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -11,6 +11,7 @@ use utf8;
 use base 'Exporter';
 use MT::I18N qw( const );
 use Time::Local qw( timegm );
+use List::Util qw( sum );
 
 our @EXPORT_OK
     = qw( start_end_day start_end_week start_end_month start_end_year
@@ -29,7 +30,7 @@ our @EXPORT_OK
     sax_parser expat_parser libxml_parser trim ltrim rtrim asset_cleanup caturl multi_iter
     weaken log_time make_string_csv browser_language sanitize_embed
     extract_url_path break_up_text dir_separator deep_do deep_copy
-    realpath canonicalize_path clear_site_stats_widget_cache );
+    realpath canonicalize_path clear_site_stats_widget_cache check_fast_cgi is_valid_ip );
 
 {
     my $Has_Weaken;
@@ -88,7 +89,7 @@ sub iso2ts {
     my ( $blog, $iso ) = @_;
     return undef
         unless $iso
-            =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})?)?)?)?/;
+        =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d\d?)(?:T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})?)?)?)?/;
     my ( $y, $mo, $d, $h, $m, $s, $offset )
         = ( $1, $2 || 1, $3 || 1, $4 || 0, $5 || 0, $6 || 0, $7 );
     if ( $offset && !MT->config->IgnoreISOTimezones ) {
@@ -119,7 +120,9 @@ sub ts2iso {
             $blog = MT::Blog->load($blog);
         }
         my $offset
-            = ref $blog ? $blog->server_offset : MT->config->TimeOffset;
+            = ref $blog
+            ? $blog->server_offset
+            : MT->current_time_offset;
 
         my ( $off_hour, $off_min ) = split( /\./, $offset );
         $off_min = int( 6 * ( $off_min || 0 ) );
@@ -639,14 +642,9 @@ sub offset_time {
             $offset
                 = $blog && $blog->server_offset ? $blog->server_offset : 0;
         }
-        else {
-            $offset = MT->config->TimeOffset;
-        }
-    }
-    else {
-        $offset = MT->config->TimeOffset;
     }
 
+    $offset = MT->current_time_offset unless defined $offset;
     $offset += 1 if $blog && ( localtime $ts )[8];
     $offset *= -1 if $dir && $dir eq '-';
     $ts += $offset * 3600;
@@ -780,7 +778,8 @@ sub decode_url {
                 $html =~ s/&(?!#?[xX]?(?:[0-9a-fA-F]+|\w{1,8});)/&amp;/g;
 
             }
-            $html =~ s!"!&quot;!g;    #"
+            $html =~ s!"!&quot;!g;
+            $html =~ s!'!&#039;!g;
             $html =~ s!<!&lt;!g;
             $html =~ s!>!&gt;!g;
         }
@@ -800,7 +799,8 @@ sub decode_url {
             $html = HTML::Entities::decode_entities($html);
         }
         else {
-            $html =~ s!&quot;!"!g;    #"
+            $html =~ s!&quot;!"!g;
+            $html =~ s!&#039;!'!g;
             $html =~ s!&lt;!<!g;
             $html =~ s!&gt;!>!g;
             $html =~ s!&amp;!&!g;
@@ -891,7 +891,8 @@ sub remove_html {
         defined $1 ? $1 : ''
         /geisx;
     $text =~ s/<(?!\!\[CDATA\[)/&lt;/gis;
-    $text = Encode::decode_utf8($text);
+    $text = Encode::decode_utf8($text)
+        unless Encode::is_utf8($text);
     return $text;
 }
 
@@ -1139,7 +1140,8 @@ sub xliterate_utf8 {
     );
 
     $str =~ s/([\200-\377]{2})/$utf8_table{$1}||''/ge;
-    $str = Encode::decode_utf8($str);
+    $str = Encode::decode_utf8($str)
+        unless Encode::is_utf8($str);
     $str;
 }
 
@@ -1438,14 +1440,14 @@ sub discover_tb {
                 my ( $data, $res, $po ) = @_;
                 die
                     unless $c ne ''
-                        or $res->header('Content-Type') =~ m!^text/!;
+                    or $res->header('Content-Type') =~ m!^text/!;
                 $c .= $data;
             },
             16384
         );
         return unless $res->is_success;
     }
-    ( my $url_no_anchor = $url )           =~ s/#.*$//;
+    ( my $url_no_anchor = $url ) =~ s/#.*$//;
     ( my $url_no_host   = $url_no_anchor ) =~ s!^https?://.*/!!i;
     my (@items);
     while ( $c =~ m!(<rdf:RDF.*?</rdf:RDF>)!sg ) {
@@ -1456,13 +1458,13 @@ sub discover_tb {
         $perm_url_no_host =~ s/#.*$//;
         next
             unless $find_all
-                || $perm_url         eq $url
-                || $perm_url         eq $url_no_anchor
-                || $perm_url_no_host eq $url_no_host;
+            || $perm_url eq $url
+            || $perm_url eq $url_no_anchor
+            || $perm_url_no_host eq $url_no_host;
         ( my $inner = $rdf ) =~ s!^.*?<rdf:Description!!s;
         my $item = { permalink => $perm_url };
 
-        while ( $inner =~ /([\w:]+)="([^"]*)"/gs ) {            #"
+        while ( $inner =~ /([\w:]+)="([^"]*)"/gs ) {    #"
             $item->{$1} = $2;
         }
         $item->{ping_url} = $item->{'trackback:ping'};
@@ -2093,9 +2095,8 @@ sub start_background_task {
             my ( $a, $b, $c, $d, $e ) = @A;
             for ( 0 .. 79 ) {
                 $t = M(
-                      ( $F->( int( $_ / 20 ), $a, $b, $c, $d ) ) 
-                    + $e 
-                        + $W[$_]
+                      ( $F->( int( $_ / 20 ), $a, $b, $c, $d ) )
+                    + $e + $W[$_]
                         + $K[ $_ / 20 ]
                         + L $a,
                     5
@@ -2251,7 +2252,8 @@ sub escape_unicode {
                 (?:(?:\xf0[\x90-\xbf])|
                    (?:[\xf1-\xf3][\x80-\xbf])|
                    (?:\xf4[\x80-\x8f])[\x80-\xbf]{2}))/
-                       my $s = Encode::decode_utf8( $1 ) unless Encode::is_utf8( $1 );
+                       my $s;
+                       $s = Encode::decode_utf8( $1 ) unless Encode::is_utf8( $1 );
                 '&#'.hex(unpack("H*", Encode::encode('ucs2', $s))).';'
             /egx;
     $text;
@@ -2817,6 +2819,57 @@ sub clear_site_stats_widget_cache {
     return 1;
 }
 
+{
+    my $is_fast_cgi;
+
+    sub check_fast_cgi {
+        my ($param) = shift;
+
+        return $is_fast_cgi if defined $is_fast_cgi;
+        return $is_fast_cgi = $ENV{FAST_CGI} if defined $ENV{FAST_CGI};
+
+        my $not_fast_cgi = 0;
+        $not_fast_cgi ||= exists $ENV{$_}
+            for qw(HTTP_HOST GATEWAY_INTERFACE SCRIPT_FILENAME SCRIPT_URL);
+        $is_fast_cgi = defined $param ? $param : ( !$not_fast_cgi );
+        if ($is_fast_cgi) {
+            eval 'require CGI::Fast;';
+            $is_fast_cgi = 0 if $@;
+        }
+
+        return $is_fast_cgi;
+    }
+}
+
+sub is_valid_ip {
+    my ($str) = @_;
+
+    my ( $ip, $cidr ) = split /\//, $str;
+    my @ips = split /\./, $ip;
+
+    # xxx.xxx.xxx.xxx
+    if (@ips) {
+        my $num = @ips;
+        return 0 if $num < 4;
+    }
+
+    # 0-255
+    foreach my $num (@ips) {
+        return 0 unless $num =~ /^\d+$/;
+        return 0 if ( $num < 0 || $num > 255 );
+    }
+
+    # 0.0.0.0 255.255.255.255
+    return 0 if ( sum(@ips) == 0 || sum(@ips) == 1020 );
+
+    # CIDR
+    if ( defined $cidr ) {
+        return 0 if ( $cidr < 1 || $cidr > 32 );
+    }
+
+    return $str;
+}
+
 package MT::Util::XML::SAX::LexicalHandler;
 
 sub start_dtd {
@@ -3070,6 +3123,18 @@ it to the IETF RFC # 3066.
 =head2 clear_site_stats_widget_cache($site_id, $user_id)
 
 Clear caches for site stats dashboard widget.
+
+=head2 check_fast_cgi($param)
+
+Check whether MT runs under FastCGI. The result is kept while the process runs. If $ENV{FAST_CGI}
+is defined, the result is determined based on this value. If $param is defined, the result is
+determined by reference to this value.
+
+=head2 is_valid_ip($ip_address)
+
+Checks the IP address I<$ip_address> for syntax validity; if the
+IP address is valid, I<is_valid_ip> returns the valid
+the IP address. Otherwise, it returns C<0>.
 
 =back
 

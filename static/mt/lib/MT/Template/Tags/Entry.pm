@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -382,7 +382,9 @@ sub _hdlr_entries {
             # class types do not match; we can't use stashed entries
             undef $entries;
         }
-        elsif ( $blog_id != $entry->blog_id ) {
+        elsif ( ( $tag eq 'entries' || $tag eq 'pages' )
+            && $blog_id != $entry->blog_id )
+        {
 
             # Blog ID do not match; we can't use stashed entries
             undef $entries;
@@ -580,7 +582,8 @@ sub _hdlr_entries {
                     fetchonly   => ['tag_id'],
                     no_triggers => 1
                 };
-                my @ot_ids = MT::ObjectTag->load( $terms, $args ) if @tag_ids;
+                my @ot_ids;
+                @ot_ids = MT::ObjectTag->load( $terms, $args ) if @tag_ids;
                 $map{ $_->tag_id } = 1 for @ot_ids;
                 \%map;
             };
@@ -1135,12 +1138,13 @@ sub _hdlr_entries {
                         : sort { $b->$col() cmp $a->$col() } @entries;
                 }
             }
-            if ( $post_sort_limit && ( scalar @entries ) > $post_sort_limit )
-            {
-                @entries
-                    = @entries[ $post_sort_offset .. $post_sort_offset
-                    + $post_sort_limit
-                    - 1 ];
+            if ($post_sort_limit) {
+                @entries = splice @entries, $post_sort_offset,
+                    $post_sort_limit;
+            }
+            elsif ($post_sort_offset) {
+                splice @entries, 0, $post_sort_offset;
+
             }
         }
         else {
@@ -1282,8 +1286,8 @@ sub _hdlr_entry_nextprev {
     my $e = $ctx->stash('entry')
         or return $ctx->_no_entry_error();
     my $terms = { status => MT::Entry::RELEASE() };
-    $terms->{by_author}   = 1 if $args->{by_author};
-    $terms->{by_category} = 1 if $args->{by_category};
+    $terms->{by_author} = 1 if $args->{by_author};
+    $terms->{by_category} = 1 if $args->{by_category} || $args->{by_folder};
     my $entry = $e->$meth($terms);
     my $res   = '';
     if ($entry) {
@@ -1702,9 +1706,8 @@ sub _hdlr_entry_excerpt {
         or return $ctx->_no_entry_error();
     if ( my $excerpt = $e->excerpt ) {
         return $excerpt unless $args->{convert_breaks};
-        my $filters = $e->text_filters;
-        push @$filters, '__default__' unless @$filters;
-        return MT->apply_text_filters( $excerpt, $filters, $ctx );
+        my @filters = ('__default__');
+        return MT->apply_text_filters( $excerpt, \@filters, $ctx );
     }
     elsif ( $args->{no_generate} ) {
         return '';
@@ -2181,7 +2184,8 @@ sub _hdlr_entry_author_link {
 
     my $displayname = encode_html( remove_html( $a->nickname || '' ) );
     my $show_email = $args->{show_email} ? 1 : 0;
-    my $show_url = 1 unless exists $args->{show_url} && !$args->{show_url};
+    my $show_url;
+    $show_url = 1 unless exists $args->{show_url} && !$args->{show_url};
 
     # Open the link in a new window if requested (with new_window="1").
     my $target = $args->{new_window} ? ' target="_blank"' : '';

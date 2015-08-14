@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -9,7 +9,7 @@ key: Smartphone
 author_link: http://www.sixapart.com/
 author_name: Six Apart, Ltd.
 description: <MT_TRANS phrase='Provides an iPhone, iPad and Android touch-friendly UI for Movable Type. Once enabled, navigate to your MT installation from your mobile to use this interface.'>
-version: 2.3
+version: 2.4
 l10n_class: Smartphone::L10N
 
 object_types:

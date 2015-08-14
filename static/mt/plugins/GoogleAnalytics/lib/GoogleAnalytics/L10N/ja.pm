@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2006-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2006-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -44,14 +44,14 @@ use vars qw( %Lexicon );
 	'OAuth2 settings' => 'OAuth2の設定',
 	'This [_2] is using the settings of [_1].' => 'この[_2]は、[_1]の設定を利用しています。',
 	'Other Google account' => '別のアカウントを利用する',
-	q{Create an OAuth2 application's Client ID for web applications with this redirect URI via <a href="https://code.google.com/apis/console" target="_blank">Google APIs Console</a> before selecting profile.} => q{プロファイルを選択するために、<a href="https://code.google.com/apis/console" target="_blank">Google APIs Console</a>でウェブアプリケーション向けのClient IDを作成してください。},
+	q{Create an OAuth2 application's Client ID for web applications with this redirect URI via <a href="https://cloud.google.com/console" target="_blank">Google Cloud Console</a> before selecting profile.} => q{プロファイルを選択するために、<a href="https://cloud.google.com/console" target="_blank">Google Cloud Console</a>でウェブアプリケーション向けのClient IDを作成してください。},
 	'Redirect URI of the OAuth2 application' => 'Authorized URI',
 	'Client ID of the OAuth2 application' => 'Client ID',
 	'Client secret of the OAuth2 application' => 'Client secret',
 	'Google Analytics profile' => '使用するGoogle Analyticsのプロファイル',
 	'Select Google Analytics profile' => 'Google Analyticsのプロファイルを選択する',
 	'(No profile selected)' => '（プロファイルが選択されていません）',
-	'Client ID or client secret for Google Analytics was changed, but profile was not updated. Are you sure you want to save these settings?' => 'Client IDあるいはClient secretが更新されていますが、プロファイルを選択し直していませんが。設定を保存してもよろしいですか？',
+	'Client ID or client secret for Google Analytics was changed, but profile was not updated. Are you sure you want to save these settings?' => 'Client IDあるいはClient secretが更新されていますが、プロファイルを選択し直していません。設定を保存してもよろしいですか？',
 
 );
 

@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -189,7 +189,7 @@ sub list_props {
             terms   => sub {
                 my $prop = shift;
                 my ( $args, $db_terms, $db_args ) = @_;
-                my $val      = $args->{value};
+                my $val      = $prop->normalized_value(@_);
                 my %statuses = (
                     active   => ACTIVE(),
                     disabled => INACTIVE(),
@@ -199,9 +199,18 @@ sub list_props {
                 return { status => $val };
             },
             single_select_options => [
-                { label => MT->translate('Active'),   value => 'active', },
-                { label => MT->translate('Disabled'), value => 'disabled', },
-                { label => MT->translate('Pending'),  value => 'pending', },
+                {   label => MT->translate('Active'),
+                    value => 'active',
+                    text  => 'Active'
+                },
+                {   label => MT->translate('Disabled'),
+                    value => 'disabled',
+                    text  => 'Disabled'
+                },
+                {   label => MT->translate('Pending'),
+                    value => 'pending',
+                    text  => 'Pending'
+                },
             ],
         },
         url => {
@@ -254,7 +263,7 @@ sub list_props {
             terms   => sub {
                 my $prop = shift;
                 my ( $args, $db_terms, $db_args ) = @_;
-                my $val = $args->{value};
+                my $val = $prop->normalized_value(@_);
                 require MT::Lockout;
                 my %statuses = (
                     not_locked_out =>
@@ -274,7 +283,12 @@ sub list_props {
                 },
             ],
         },
-        id => { view => [] },
+        id      => { view => [] },
+        content => {
+            base    => '__virtual.content',
+            fields  => [qw( name nickname email url )],
+            display => 'none',
+        },
     };
 }
 
@@ -771,7 +785,7 @@ sub set_password {
 
         # Can use SHA512
         $crypt_sha
-            = '$6$' 
+            = '$6$'
             . $salt . '$'
             . Digest::SHA::sha512_base64( $salt . $pass );
     }
@@ -779,7 +793,7 @@ sub set_password {
 
         # Use SHA-1 algorism
         $crypt_sha
-            = '{SHA}' 
+            = '{SHA}'
             . $salt . '$'
             . MT::Util::perl_sha1_digest_hex( $salt . $pass );
     }
@@ -866,8 +880,8 @@ sub commenter_status {
     }
     return APPROVED
         if MT->config->SingleCommunity
-            && ( AUTHOR() == $this->type )
-            && $this->is_active();
+        && ( AUTHOR() == $this->type )
+        && $this->is_active();
     return PENDING;
 }
 
@@ -1333,7 +1347,8 @@ sub to_hash {
     my $author = shift;
     my $hash   = $author->SUPER::to_hash(@_);
     my $app    = MT->instance;
-    my $blog   = $app->blog if $app->can('blog');
+    my $blog;
+    $blog = $app->blog if $app->can('blog');
     if ($blog) {
         require MT::Permission;
         if (my $perms = MT::Permission->load(
@@ -1483,8 +1498,8 @@ sub userpic_url {
     return if !$asset;
 
     my @info
-        = $asset->thumbnail_url( $author->userpic_thumbnail_options(), %param,
-        );
+        = $asset->thumbnail_url( $author->userpic_thumbnail_options(),
+        %param, );
     if ( ( $info[0] || '' ) !~ m!^https?://! ) {
         my $static_host = MT->instance->static_path;
         if ( $static_host =~ m!^https?://! ) {
@@ -1553,6 +1568,29 @@ sub anonymous {
 sub is_anonymous {
     my $self = shift;
     $self->id == 0;
+}
+
+sub get_status_text {
+    my $self = shift;
+    my $text
+        = $self->status == ACTIVE()  ? 'Active'
+        : $self->status == PENDING() ? 'Pending'
+        :                              'Disabled';
+    return $text;
+}
+
+sub set_status_by_text {
+    my $self   = shift;
+    my $status = lc $_[0];
+    if ( $status eq 'active' ) {
+        $self->status( ACTIVE() );
+    }
+    elsif ( $status eq 'pending' ) {
+        $self->status( PENDING() );
+    }
+    else {
+        $self->status( INACTIVE() );
+    }
 }
 
 1;

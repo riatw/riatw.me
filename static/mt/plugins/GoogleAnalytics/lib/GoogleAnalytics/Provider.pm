@@ -47,8 +47,8 @@ sub _name {
 
 sub _normalize_date {
     my ($str) = @_;
-    if ($str =~ m/(\d+)\D+(\d+)\D+(\d+)/) {
-        sprintf('%04d-%02d-%02d', $1, $2, $3);
+    if ( $str =~ m/(\d+)\D+(\d+)\D+(\d+)/ ) {
+        sprintf( '%04d-%02d-%02d', $1, $2, $3 );
     }
     else {
         $str;
@@ -58,15 +58,14 @@ sub _normalize_date {
 sub _extract_default_params {
     my ($params) = @_;
 
-    (   'start-date' => _normalize_date($params->{startDate}),
-        'end-date' => _normalize_date($params->{endDate}),
+    (   'start-date'  => _normalize_date( $params->{startDate} ),
+        'end-date'    => _normalize_date( $params->{endDate} ),
         'start-index' => ( $params->{offset} || 0 ) + 1,
         (   defined( $params->{limit} )
             ? ( 'max-results' => $params->{limit} )
             : ()
         ),
-        (   $params->{path}
-            ? ( filters => 'ga:pagePath=~' . $params->{path} )
+        (   $params->{path} ? ( filters => 'ga:pagePath=~' . $params->{path} )
             : ()
         ),
     );
@@ -90,12 +89,13 @@ sub _request {
     my $ua  = new_ua();
     my $res = $ua->request(
         GET($uri,
-            Authorization => "$token->{data}{token_type} $token->{data}{access_token}"
+            Authorization =>
+                "$token->{data}{token_type} $token->{data}{access_token}"
         )
     );
 
-    if ($res->code == 401 && ! $retry_count) {
-        return $self->_request(@_ ,1);
+    if ( $res->code == 401 && !$retry_count ) {
+        return $self->_request( @_, 1 );
     }
 
     return $app->error(
@@ -132,7 +132,10 @@ sub _request {
                 +{ map { $headers[$_] => $row[$_], } ( 0 .. $#headers ) }
             } @{ $data->{rows} }
         ],
-        ( $MT::DebugMode ? ( debug => { query => $params, rawData => $data }, ) : () )
+        (   $MT::DebugMode
+            ? ( debug => { query => $params, rawData => $data }, )
+            : ()
+        )
     };
 }
 
@@ -142,9 +145,11 @@ sub pageviews_for_path {
 
     $self->_request(
         $app,
-        {   dimensions => 'ga:pagePath,ga:pageTitle',
-            metrics    => 'ga:Pageviews',
-            sort       => '-ga:Pageviews',
+        {   dimensions => $app->param('uniquePath')
+            ? 'ga:pagePath'
+            : 'ga:pagePath,ga:pageTitle',
+            metrics => 'ga:Pageviews',
+            sort    => '-ga:Pageviews',
             _extract_default_params($params),
         }
     );
@@ -156,9 +161,11 @@ sub visits_for_path {
 
     $self->_request(
         $app,
-        {   dimensions => 'ga:pagePath,ga:pageTitle',
-            metrics    => 'ga:visits',
-            sort       => '-ga:visits',
+        {   dimensions => $app->param('uniquePath')
+            ? 'ga:pagePath'
+            : 'ga:pagePath,ga:pageTitle',
+            metrics => 'ga:visits',
+            sort    => '-ga:visits',
             _extract_default_params($params),
         }
     );

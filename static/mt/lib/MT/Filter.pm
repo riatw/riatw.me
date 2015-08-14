@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -85,19 +85,32 @@ sub list_props {
             order   => 200,
             display => 'force',
             raw     => sub {
-                MT::Util::encode_html( $_[1]->label );
+                my $prop = shift;
+                my ( $obj, $app ) = @_;
+                my $label = $obj->label;
+                $label = '' if !defined $label;
+                $label =~ s/^\s+|\s+$//g;
+                $label = "(" . $app->translate("No Label") . ")"
+                    if $label eq '';
+                MT::Util::encode_html($label);
             },
             html_link => sub {
                 my $prop = shift;
                 my ( $obj, $app ) = @_;
-                return $app->uri(
-                    mode => 'list',
-                    args => {
-                        _type      => $obj->object_ds,
-                        blog_id    => $obj->blog_id,
-                        filter_key => $obj->id,
-                    }
-                );
+                my $class = MT->model( $obj->object_ds );
+                if ($class) {
+                    return $app->uri(
+                        mode => 'list',
+                        args => {
+                            _type      => $obj->object_ds,
+                            blog_id    => $obj->blog_id,
+                            filter_key => $obj->id,
+                        }
+                    );
+                }
+                else {
+                    return;
+                }
             },
         },
         author_name => {
@@ -130,12 +143,13 @@ sub list_props {
                         ? MT::Author::ACTIVE()
                         : MT::Author::INACTIVE();
                     $db_args->{joins} ||= [];
-                    push @{ $db_args->{joins} }, MT->model('author')->join_on(
+                    push @{ $db_args->{joins} },
+                        MT->model('author')->join_on(
                         undef,
                         {   id     => \'= filter_author_id',
                             status => $status,
                         },
-                    );
+                        );
                 }
             },
         },
@@ -151,9 +165,11 @@ sub list_props {
                 my $label = $reg->{label} || $reg->{object_label};
                 if ( !$label ) {
                     my $class = $reg->{object_type} || $screen_id;
+                    my $cls = MT->model($class);
                     $label
                         = $class
-                        ? MT->model($class)->class_label
+                        ? (
+                        $cls ? $cls->class_label : MT->translate('Deleted') )
                         : $prop->class;
                 }
                 return ref $label ? $label->() : $label;
@@ -272,9 +288,15 @@ sub load_objects {
         my $prop = $item->{prop};
         $prop->has('terms') or next;
         my $filter_terms
-            = $prop->terms( $item->{args}, $terms, $args, \%options );
-        if ( $filter_terms
-            && ( 'HASH'  eq ref $filter_terms && scalar %$filter_terms )
+            = $prop->terms( $item->{args}, $terms, $args, \%options )
+            or next;
+        if ( ( $item->{args}{option} || q{} ) eq 'not_contains'
+            && $class->has_column( $item->{type} ) )
+        {
+            $filter_terms
+                = [ $filter_terms, '-or', { $item->{type} => \'IS NULL' } ];
+        }
+        if (   ( 'HASH' eq ref $filter_terms && scalar %$filter_terms )
             || ( 'ARRAY' eq ref $filter_terms && scalar @$filter_terms ) )
         {
             push @additional_terms, ( '-and', $filter_terms );
@@ -282,7 +304,7 @@ sub load_objects {
     }
     if ( scalar @additional_terms ) {
         if (   !$terms
-            || ( 'HASH'  eq ref $terms && !scalar %$terms )
+            || ( 'HASH' eq ref $terms  && !scalar %$terms )
             || ( 'ARRAY' eq ref $terms && !scalar @$terms ) )
         {
             shift @additional_terms;
@@ -422,7 +444,7 @@ sub count_objects {
             my $filter_terms
                 = $prop->terms( $item->{args}, $terms, $args, \%options );
             if ( $filter_terms
-                && ( 'HASH'  eq ref $filter_terms && scalar %$filter_terms )
+                && ( 'HASH' eq ref $filter_terms  && scalar %$filter_terms )
                 || ( 'ARRAY' eq ref $filter_terms && scalar @$filter_terms ) )
             {
                 push @additional_terms, ( '-and', $filter_terms );
@@ -430,7 +452,7 @@ sub count_objects {
         }
         if ( scalar @additional_terms ) {
             if (   !$terms
-                || ( 'HASH'  eq ref $terms && !scalar %$terms )
+                || ( 'HASH' eq ref $terms  && !scalar %$terms )
                 || ( 'ARRAY' eq ref $terms && !scalar @$terms ) )
             {
                 shift @additional_terms;
@@ -505,7 +527,7 @@ sub pack_terms {
             = $prop->terms( $item->{args}, $load_terms, $load_args,
             $options );
         if ( $filter_terms
-            && ( 'HASH'  eq ref $filter_terms && scalar %$filter_terms )
+            && ( 'HASH' eq ref $filter_terms  && scalar %$filter_terms )
             || ( 'ARRAY' eq ref $filter_terms && scalar @$filter_terms ) )
         {
             push @terms, $op if scalar @terms > 0;

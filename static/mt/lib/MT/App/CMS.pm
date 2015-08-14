@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -84,7 +84,7 @@ sub core_methods {
                 my $app = shift;
                 return 0 unless $app->param('dialog_view');
                 return 1;
-                }
+            }
         },
         'list_theme' => "${pkg}Theme::list",
 
@@ -185,6 +185,7 @@ sub core_methods {
         'upload_file'        => "${pkg}Asset::upload_file",
         'upload_userpic'     => "${pkg}User::upload_userpic",
         'complete_insert'    => "${pkg}Asset::complete_insert",
+        'cancel_upload'      => "${pkg}Asset::cancel_upload",
         'complete_upload'    => "${pkg}Asset::complete_upload",
         'start_upload_entry' => "${pkg}Asset::start_upload_entry",
         'logout'             => {
@@ -509,8 +510,21 @@ sub init_plugins {
                 "${pfx}Entry::cms_pre_load_filtered_list",
             $pkg . 'view_permission_filter.entry' => "${pfx}Entry::can_view",
 
+            # page callbacks
+            $pkg
+                . 'pre_load_filtered_list.page' =>
+                "${pfx}Page::cms_pre_load_filtered_list",
+            $pkg . 'view_permission_filter.page' => "${pfx}Page::can_view",
+
             # user callbacks
+            $pkg . 'pre_load_filtered_list.author' => sub {
+                my ( $cb, $app, $filter, $opts, $cols ) = @_;
+                my $terms = $opts->{terms};
+                $terms->{type} = MT::Author::AUTHOR();
+            },
             $pkg . 'view_permission_filter.author' => "${pfx}User::can_view",
+            $pkg . 'save_filter.author' => "${pfx}User::save_filter",
+            $pkg . 'pre_save.author'    => "${pfx}User::pre_save",
 
             # comment callbacks
             $pkg
@@ -530,6 +544,42 @@ sub init_plugins {
 
             # blog callbacks
             $pkg . 'view_permission_filter.blog' => "${pfx}Blog::can_view",
+            $pkg . 'save_filter.blog'            => "${pfx}Blog::save_filter",
+            $pkg
+                . 'pre_load_filtered_list.blog' =>
+                "${pfx}Blog::cms_pre_load_filtered_list",
+
+            # category callbacks
+            $pkg
+                . 'view_permission_filter.category' =>
+                "${pfx}Category::can_view",
+            $pkg . 'save_filter.category' => "${pfx}Category::save_filter",
+            $pkg
+                . 'pre_load_filtered_list.category' =>
+                "${pfx}Category::pre_load_filtered_list",
+
+            # folder callbacks
+            $pkg
+                . 'view_permission_filter.folder' => "${pfx}Folder::can_view",
+
+            # asset callbacks
+            $pkg . 'view_permission_filter.asset' => "${pfx}Asset::can_view",
+            $pkg . 'save_filter.asset' => "${pfx}Asset::cms_save_filter",
+            $pkg . 'pre_save.asset'    => "${pfx}Asset::pre_save",
+            $pkg
+                . 'pre_load_filtered_list.asset' =>
+                "${pfx}Asset::cms_pre_load_filtered_list",
+
+            # tag callbacks
+            $pkg
+                . 'pre_load_filtered_list.tag' =>
+                "${pfx}Tag::cms_pre_load_filtered_list",
+            $pkg . 'delete_permission_filter.tag' => "${pfx}Tag::can_delete",
+
+            # template callbacks
+            $pkg
+                . 'view_permission_filter.template' =>
+                "${pfx}Template::can_view",
         }
     );
 
@@ -613,6 +663,13 @@ sub init_request {
     if ( $app->{upgrade_required} ) {
         $app->{requires_login} = 0;
         $app->mode('upgrade');
+    }
+
+    # Check ImageDriver here because GD cannot be loaded
+    # when using IIS and FastCGI.
+    eval { require MT::Image; MT::Image->new or die; };
+    if ($@) {
+        $app->request( 'image_driver_error', 1 );
     }
 }
 
@@ -763,7 +820,7 @@ sub core_content_actions {
                 permission  => 'export_addressbook',
                 condition   => sub {
                     MT->app && MT->app->param('blog_id');
-                    }
+                }
             },
         },
     };
@@ -817,7 +874,7 @@ sub core_list_actions {
                 condition => sub {
                     return 0 if $app->mode eq 'view';
                     return 1;
-                    }
+                }
             },
             'open_batch_editor' => {
                 label         => "Batch Edit Entries",
@@ -1156,7 +1213,7 @@ sub core_list_actions {
                             : 1
                         : $app->blog ? 1
                         :              0;
-                    }
+                }
             },
             'untrust_commenter' => {
                 label => "Untrust Commenter(s)",
@@ -1176,7 +1233,7 @@ sub core_list_actions {
                             : 1
                         : $app->blog ? 1
                         :              0;
-                    }
+                }
             },
             'ban_commenter' => {
                 label         => "Ban Commenter(s)",
@@ -1196,7 +1253,7 @@ sub core_list_actions {
                             : 1
                         : $app->blog ? 1
                         :              0;
-                    }
+                }
             },
             'unban_commenter' => {
                 label         => "Unban Commenter(s)",
@@ -1216,7 +1273,7 @@ sub core_list_actions {
                             : 1
                         : $app->blog ? 1
                         :              0;
-                    }
+                }
             },
             'publish' => {
                 label         => 'Publish',
@@ -1232,7 +1289,7 @@ sub core_list_actions {
                 condition => sub {
                     return 0 if $app->mode eq 'view';
                     return 1;
-                    }
+                }
             },
             'delete' => {
                 label      => 'Delete',
@@ -1462,7 +1519,7 @@ sub core_list_actions {
 
                     my $count = MT->model('website')->count();
                     $count > 1 ? 1 : 0;
-                    }
+                }
             },
             clone_blog => {
                 label         => "Clone Blog",
@@ -2317,7 +2374,7 @@ sub core_menus {
             condition => sub {
                 require MT::CMS::Search;
                 return MT::CMS::Search::can_search_replace($app);
-                }
+            }
         },
         'tools:plugins' => {
             label             => "Plugins",
@@ -2979,7 +3036,8 @@ sub build_blog_selector {
     return if exists $param->{load_selector_data};
 
     my $blog = $app->blog;
-    my $blog_id = $blog->id if $blog;
+    my $blog_id;
+    $blog_id = $blog->id if $blog;
     $param->{dynamic_all} = $blog->custom_dynamic_templates eq 'all' if $blog;
 
     my $blog_class    = $app->model('blog');
@@ -3021,7 +3079,8 @@ sub build_blog_selector {
 
         # This user can access over 6 blogs.
         if (@fav_blogs) {
-            @blogs = $blog_class->load( { id => \@fav_blogs } );
+            @blogs
+                = $blog_class->load( { class => 'blog', id => \@fav_blogs } );
         }
         else {
             @blogs = ();
@@ -3382,7 +3441,8 @@ sub build_menus {
             }
 
             if ( $menu->{mode} ) {
-                my $sys_only = 1 if $menu->{id} eq 'system';
+                my $sys_only;
+                $sys_only = 1 if $menu->{id} eq 'system';
                 $menu->{link} = $app->uri(
                     mode => $menu->{mode},
                     args => {
@@ -4213,9 +4273,10 @@ sub preview_object_basename {
     my $app = shift;
     my $q   = $app->param;
     my @parts;
-    my $blog    = $app->blog;
-    my $blog_id = $blog->id if $blog;
-    my $id      = $q->param('id');
+    my $blog = $app->blog;
+    my $blog_id;
+    $blog_id = $blog->id if $blog;
+    my $id = $q->param('id');
     push @parts, $app->user->id;
     push @parts, $blog_id || 0;
     push @parts, $id || 0;
@@ -4232,7 +4293,8 @@ sub object_edit_uri {
     die "no such object $type" unless $class;
     my $obj = $class->load($id)
         or die "object_edit_uri could not find $type object $id";
-    my $blog_id = $obj->column('blog_id') if $obj->has_column('blog_id');
+    my $blog_id;
+    $blog_id = $obj->column('blog_id') if $obj->has_column('blog_id');
     return $app->uri(
         'mode' => 'view',
         args   => {
@@ -4372,7 +4434,8 @@ sub rebuild_these {
                     or return $app->publish_error();
             }
             my $blog_id = int( $app->param('blog_id') );
-            my $this_blog = MT::Blog->load($blog_id) if $blog_id;
+            my $this_blog;
+            $this_blog = MT::Blog->load($blog_id) if $blog_id;
             $app->run_callbacks( 'rebuild', $this_blog );
             $app->run_callbacks('post_build');
         }
@@ -4448,10 +4511,17 @@ sub remove_preview_file {
 
     # Clear any preview file that may exist (returning from
     # a preview using the 'reedit', 'cancel' or 'save' buttons)
-    if ( my $preview = $app->param('_preview_file') ) {
+    my $preview_basename = $app->param('_preview_file');
+
+    # Clear any preview file when saving entry,
+    # if PreviewInNewWindow is ON.
+    $preview_basename = $app->preview_object_basename
+        if ( !$preview_basename && $app->config('PreviewInNewWindow') );
+
+    if ($preview_basename) {
         require MT::Session;
         if (my $tf = MT::Session->load(
-                {   id   => $preview,
+                {   id   => $preview_basename,
                     kind => 'TF',
                 }
             )
@@ -4721,9 +4791,10 @@ sub _load_child_blog_ids {
 }
 
 sub view {
-    my $app     = shift;
-    my $blog    = $app->blog;
-    my $blog_id = $blog->id if $blog;
+    my $app  = shift;
+    my $blog = $app->blog;
+    my $blog_id;
+    $blog_id = $blog->id if $blog;
 
     return
           $blog_id
@@ -4850,6 +4921,7 @@ sub setup_editor_param {
                 $tmpls->{config}
                     = { %{ $tmpls->{config} }, %{ $reg->{'config'} } }
                     if $reg->{'config'};
+                delete $tmpls->{config}{plugin};
             }
         }
 
@@ -4881,7 +4953,9 @@ sub setup_editor_param {
 
     if ( !$param->{editors} ) {
         my $rte;
-        if ( $param->{convert_breaks} =~ m/richtext/ ) {
+        if ( defined $param->{convert_breaks}
+            && $param->{convert_breaks} =~ m/richtext/ )
+        {
             ## Rich Text editor
             $rte = lc( $app->config('RichTextEditor') );
         }
@@ -4937,6 +5011,15 @@ sub pre_run {
     $app->SUPER::pre_run(@_) or return;
     my $user = $app->user;
 
+    # Return if setting nortification dashboard is unnecessary.
+    my $method_info = MT->request('method_info') || {};
+    return
+        if ( exists $method_info->{requires_login}
+        && $method_info->{requires_login} == 0 )
+        or $app->param('xhr')
+        or ( $method_info->{app_mode} || '' ) eq 'JSON'
+        or $app->request('already_set_notification_dashboard');
+
     # Message Center
     my @messages;
 
@@ -4981,8 +5064,7 @@ sub pre_run {
         push @messages, $message;
     }
 
-    eval { require MT::Image; MT::Image->new or die; };
-    if ($@) {
+    if ( $app->request('image_driver_error') ) {
         my $message = {
             level => 'warning',
             text  => $app->translate('ImageDriver is not configured.'),
@@ -5028,7 +5110,8 @@ sub pre_run {
 
     $app->run_callbacks( 'set_notification_dashboard', \@messages );
 
-    $app->request( 'loop_notification_dashboard', \@messages );
+    $app->request( 'loop_notification_dashboard',        \@messages );
+    $app->request( 'already_set_notification_dashboard', 1 );
 }
 
 sub validate_request_params {

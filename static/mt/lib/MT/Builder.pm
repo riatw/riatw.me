@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -51,6 +51,11 @@ sub compile {
     }
 
     my $mods;
+
+    # At first, remove MTIgnore blocks.
+    if ( $depth <= 0 && $text =~ m/^<\$?MT:?Ignore/i ) {
+        _remove_ignore_blocks( \$text );
+    }
 
     # Translate any HTML::Template markup into native MT syntax.
     if (   $depth <= 0
@@ -318,6 +323,41 @@ sub compile {
     return $state->{tokens};
 }
 
+sub _remove_ignore_blocks {
+    my $text = shift;
+
+    # Search MTIgnore start tag.
+    while ( $$text
+        =~ m!(<\$?(MT:?)(Ignore(?:<[^>]+?>|"(?:<[^>]+?>|.)*?"|'(?:<[^>]+?>|.)*?'|.)*?)[\$/]?>)!gis
+        )
+    {
+        my ( $whole_tag, $prefix, $tag ) = ( $1, $2, $3 );
+        ( $tag, my ($args) ) = split /\s+/, $tag, 2;
+
+        next if lc($tag) ne 'ignore';
+
+        my $sec_start = pos $$text;
+        my $tag_start = $sec_start - length $whole_tag;
+
+        if ( $whole_tag !~ m|/>$| ) {
+
+            # Search MTIgnore end tag.
+            my ( $sec_end, $tag_end )
+                = _consume_up_to( undef, $text, $sec_start, 'ignore' );
+            last unless $sec_end;
+
+            # Remove MTIgnore block.
+            my $remove_text = substr $$text, $tag_start,
+                ( $tag_end - $tag_start );
+            $remove_text = quotemeta $remove_text;
+            $$text =~ s/$remove_text//;
+
+            # Set search position.
+            ( pos $$text ) = $tag_start;
+        }
+    }
+}
+
 sub translate_html_tmpl {
     $_[0] =~ s!<(/?)tmpl_(if|loop|unless|else|var|include)\b!<$1mt:$2!ig;
     $_[0] =~ s!<MT_TRANS\b!<__trans!ig;
@@ -327,20 +367,24 @@ sub translate_html_tmpl {
 sub _consume_up_to {
     my ( $ctx, $text, $start, $stoptag ) = @_;
     my $whole_tag;
+
+    # check only ignore tag when searching close ignore tag.
+    my $tag_regex = $stoptag eq 'ignore' ? 'Ignore' : '[^\s\$>]+';
+
     ( pos $$text ) = $start;
-    while (
-        $$text =~ m!(<([\$/]?)MT:?([^\s\$>]+)(?:<[^>]+?>|[^>])*?[\$/]?>)!gi )
+    while ( $$text
+        =~ m!(<([\$/]?)MT:?($tag_regex)(?:(?:<[^>]+?>|"(?:<[^>]+?>|.)*?"|'(?:<[^>]+?>|.)*?'|.)*?)[\$/]?>)!gis
+        )
     {
         $whole_tag = $1;
         my ( $prefix, $tag ) = ( $2, lc($3) );
+        next
+            if lc $tag ne lc $stoptag
+            && $stoptag ne 'else'
+            && $stoptag ne 'elseif';
 
-        if ( $stoptag eq 'ignore' ) {
-
-            # check only ignore tag when searching close ignore tag.
-            next if $tag ne 'ignore';
-        }
-        else {
-            # check only container tag.
+        # check only container tag.
+        if ( $stoptag ne 'ignore' ) {
             my $hdlr = $ctx->handler_for($tag);
             next if !( $hdlr && $hdlr->type );
         }
@@ -488,9 +532,9 @@ sub build {
                     ? bless $tokens_else, 'MT::Template::Tokens'
                     : undef;
                 local ( $ctx->{__stash}{uncompiled} ) = $uncompiled;
-                my %args = %{ $t->attributes } if defined $t->attributes;
-                my @args = @{ $t->attribute_list }
-                    if defined $t->attribute_list;
+                my ( %args, @args );
+                %args = %{ $t->attributes }     if defined $t->attributes;
+                @args = @{ $t->attribute_list } if defined $t->attribute_list;
 
                 # process variables
                 foreach my $v ( keys %args ) {

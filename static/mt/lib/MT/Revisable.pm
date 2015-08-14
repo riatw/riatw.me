@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -61,6 +61,8 @@ sub install_properties {
 
     # Callbacks: clean list of changed columns to only
     # include versioned columns
+    MT->add_callback( 'data_api_pre_save.' . $datasource,
+        9, undef, \&mt_presave_obj );
     MT->add_callback( 'api_pre_save.' . $datasource,
         9, undef, \&mt_presave_obj );
     MT->add_callback( 'cms_pre_save.' . $datasource,
@@ -69,6 +71,8 @@ sub install_properties {
     # Callbacks: object-level callbacks could not be
     # prioritized and thus caused problems with plugins
     # registering a post_save and saving
+    MT->add_callback( 'data_api_post_save.' . $datasource,
+        9, undef, \&mt_postsave_obj );
     MT->add_callback( 'api_post_save.' . $datasource,
         9, undef, \&mt_postsave_obj );
     MT->add_callback( 'cms_post_save.' . $datasource,
@@ -188,8 +192,8 @@ sub gather_changed_cols {
         next if $orig && $obj_col eq $orig_col;
         next
             if $orig
-                && exists $date_cols{$col}
-                && $orig_col eq MT::Object::_db2ts($obj_col);
+            && exists $date_cols{$col}
+            && $orig_col eq MT::Object::_db2ts($obj_col);
 
         push @changed_cols, $col;
     }
@@ -464,6 +468,8 @@ C<load_revision> should return an/array of arrayref(s) of:
 =item 1. An array ref of the changed columns that triggered the revision
 
 =item 2. The revision number
+
+=item 3. The revision class object
 
 =back
 

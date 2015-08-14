@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -273,9 +273,9 @@ sub ping {
     return $app->_response(
         Error => $app->translate("This TrackBack item is disabled.") )
         if $tb->is_disabled
-            || !$cfg->AllowPings
-            || !$blog
-            || !$blog->allow_pings;
+        || !$cfg->AllowPings
+        || !$blog
+        || !$blog->allow_pings;
 
     if ( $tb->passphrase && ( !$pass || $pass ne $tb->passphrase ) ) {
         return $app->_response(
@@ -336,7 +336,7 @@ sub ping {
     }
 
     $ping->save
-        or return $app->_response( Error => "An internal error occured" );
+        or return $app->_response( Error => "An internal error occurred" );
     if ( $ping->id && !$ping->is_junk ) {
         my $msg = 'New TrackBack received.';
         if ($entry) {
@@ -530,7 +530,7 @@ sub _send_ping_notification {
                        $author->is_superuser()
                     || $author->permissions( $blog->id )
                     ->can_do('edit_trackback_status_via_notify_mail')
-                ) ? 1 : 0,
+            ) ? 1 : 0,
         );
         $param{entry}    = $entry if $entry;
         $param{category} = $cat   if $cat;

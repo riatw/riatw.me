@@ -1,10 +1,8 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
 # $Id$
-
-# Original Copyright (c) 2005-2007 Arvind Satyanarayan
 
 package CustomFields::Upgrade;
 

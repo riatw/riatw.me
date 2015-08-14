@@ -248,6 +248,7 @@ a:hover {
     text-decoration: none;
     padding: 7px 15px 7px 16px;
     border-left: 1px solid #ccc;
+    line-height: 20px;
 }
 
 #main-navigation ul li a:hover {

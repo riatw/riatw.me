@@ -1,5 +1,5 @@
 /*
- * Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+ * Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
  * This code cannot be redistributed without permission from www.sixapart.com.
  * For more information, consult your Movable Type license.
  *
@@ -214,7 +214,8 @@ $.extend(MT.Editor.TinyMCE.prototype, MT.Editor.prototype, {
     },
 
     setFormat: function(format, calledInInit) {
-        var mode = MT.EditorManager.toMode(format);
+        var self = this,
+            mode = MT.EditorManager.toMode(format);
 
         if (calledInInit && mode != 'source') {
             return;
@@ -247,9 +248,11 @@ $.extend(MT.Editor.TinyMCE.prototype, MT.Editor.prototype, {
                     });
                 }
 
-                this.$editorIframe.hide();
-                this.$editorPathRow.hide();
-                this.$editorTextarea.show();
+                setTimeout(function() {
+                    self.$editorTextarea.show();
+                    self.$editorIframe.hide();
+                    self.$editorPathRow.hide();
+                }, 0);
 
                 this.editor = this.source;
                 this.$editorElement = this.$editorTextarea;
@@ -278,8 +281,11 @@ $.extend(MT.Editor.TinyMCE.prototype, MT.Editor.prototype, {
     },
 
     _fullScreenFitToWindow: function() {
-        this.tinymce.execCommand('mtFullScreenUpdateFitToWindow');
-        this.tinymce.execCommand('mtFullScreenFitToWindow');
+        var self = this;
+        setTimeout(function() {
+            self.tinymce.execCommand('mtFullScreenUpdateFitToWindow');
+            self.tinymce.execCommand('mtFullScreenFitToWindow');
+        }, 0);
     },
 
     setContent: function(content) {
@@ -296,9 +302,22 @@ $.extend(MT.Editor.TinyMCE.prototype, MT.Editor.prototype, {
             this.source.insertContent(value);
         }
         else {
+            var selection = this.editor.selection,
+                node, originalIsCollapsed;
+
             this.editor.focus();
             this.editor.execCommand('mtRestoreBookmark');
-            this.editor.execCommand('mceInsertContent', false, value);
+
+            node = selection.getNode();
+            if (node && node.nodeName === 'IMG') {
+                originalIsCollapsed = selection.isCollapsed;
+                selection.isCollapsed = function(){ return true; };
+                this.editor.execCommand('mceInsertContent', false, value);
+                selection.isCollapsed = originalIsCollapsed;
+            }
+            else {
+                this.editor.execCommand('mceInsertContent', false, value);
+            }
         }
     },
 
@@ -313,8 +332,8 @@ $.extend(MT.Editor.TinyMCE.prototype, MT.Editor.prototype, {
 
     getHeight: function() {
         return (this.editor === this.source) ?
-            this.$editorTextarea.outerHeight() :
-            this.$editorIframe.outerHeight();
+            this.$editorTextarea.height() :
+            this.$editorIframe.innerHeight();
     },
 
     setHeight: function(height) {

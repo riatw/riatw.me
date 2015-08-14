@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -452,13 +452,13 @@ sub rebuild_deleted_entry {
             my $categories = $entry->categories();
             for my $cat (@$categories) {
                 if (!$archiver->does_publish_file(
-                    {   Blog        => $blog,
-                        ArchiveType => $at,
-                        Entry       => $entry,
-                        Category    => $cat,
-                    }
-                )
-                )
+                        {   Blog        => $blog,
+                            ArchiveType => $at,
+                            Entry       => $entry,
+                            Category    => $cat,
+                        }
+                    )
+                    )
                 {
                     $mt->remove_fileinfo(
                         ArchiveType => $at,
@@ -655,8 +655,8 @@ sub rebuild_entry {
 
     return 1
         unless $param{BuildDependencies}
-            || $param{BuildIndexes}
-            || $param{BuildArchives};
+        || $param{BuildIndexes}
+        || $param{BuildArchives};
 
     if ( $param{BuildDependencies} ) {
         ## Rebuild previous and next entry archive pages.
@@ -711,7 +711,8 @@ sub rebuild_entry {
                 my $archiver = $mt->archiver($at);
                 if ( $archiver->category_based ) {
                     for my $cat (@$categories_for_rebuild) {
-                        if (my $prev_arch = $archiver->previous_archive_entry(
+                        if (my $prev_arch
+                            = $archiver->previous_archive_entry(
                                 {   entry    => $entry,
                                     category => $cat,
                                 }
@@ -1112,8 +1113,9 @@ sub rebuild_file {
     # is greater than the start_time, then we shouldn't need to build this
     # file again
     my $fmgr = $blog->file_mgr;
-    if ( my $mod_time = $fmgr->file_mod_time($file) ) {
-        return 1 if $mod_time >= $mt->start_time;
+    if ( UNIVERSAL::isa( MT->instance, 'MT::App' ) ) {
+        my $mod_time = $fmgr->file_mod_time($file);
+        return 1 if $mod_time && $mod_time >= $mt->start_time;
     }
 
     if ( $archiver->category_based ) {
@@ -1398,7 +1400,7 @@ sub rebuild_file {
                 (   $category ? MT->translate(
                         "An error occurred publishing [_1] '[_2]': [_3]",
                         lc( $category->class_label ),
-                        $category->id,
+                        $category->label,
                         $tmpl->errstr
                         )
                     : $entry ? MT->translate(
@@ -1921,6 +1923,11 @@ sub publish_future_posts {
         }
     );
     foreach my $blog (@blogs) {
+
+        # Clear cache
+        MT->instance->request( '__published:' . $blog->id, undef )
+            if MT->instance->request( '__published:' . $blog->id );
+
         my @ts = MT::Util::offset_time_list( time, $blog );
         my $now = sprintf "%04d%02d%02d%02d%02d%02d", $ts[5] + 1900,
             $ts[4] + 1,
@@ -1976,8 +1983,7 @@ sub publish_future_posts {
             my %rebuilt_okay;
             my $rebuilt;
             eval {
-                foreach my $id ( keys %rebuild_queue )
-                {
+                foreach my $id ( keys %rebuild_queue ) {
                     my $entry = $rebuild_queue{$id};
                     $mt->rebuild_entry( Entry => $entry, Blog => $blog )
                         or die $mt->errstr;
@@ -1992,7 +1998,7 @@ sub publish_future_posts {
             };
             if ( my $err = $@ ) {
 
-                # a fatal error occured while processing the rebuild
+                # a fatal error occurred while processing the rebuild
                 # step. LOG the error and revert the entry/entries:
                 require MT::Log;
                 $mt->log(
@@ -2031,6 +2037,11 @@ sub unpublish_past_entries {
     my @blogs         = MT->model('blog')->load();
     push @sites, @blogs;
     foreach my $site (@sites) {
+
+        # Clear cache
+        MT->instance->request( '__published:' . $site->id, undef )
+            if MT->instance->request( '__published:' . $site->id );
+
         my @ts = MT::Util::offset_time_list( time, $site );
         my $now = sprintf "%04d%02d%02d%02d%02d%02d", $ts[5] + 1900,
             $ts[4] + 1,
@@ -2076,7 +2087,6 @@ sub unpublish_past_entries {
                     Entry       => $entry,
                     ArchiveType => $archive_type,
                     Category    => $primary_category,
-                    Force       => 0,
                 );
             }
 
@@ -2098,8 +2108,7 @@ sub unpublish_past_entries {
             my %rebuilt_okay;
             my $rebuilt;
             eval {
-                foreach my $id ( keys %rebuild_queue )
-                {
+                foreach my $id ( keys %rebuild_queue ) {
                     my $entry = $rebuild_queue{$id};
                     $mt->rebuild_entry( Entry => $entry, Blog => $site )
                         or die $mt->errstr;
@@ -2111,7 +2120,7 @@ sub unpublish_past_entries {
             };
             if ( my $err = $@ ) {
 
-                # a fatal error occured while processing the rebuild
+                # a fatal error occurred while processing the rebuild
                 # step. LOG the error and revert the entry/entries:
                 require MT::Log;
                 $mt->log(
@@ -2409,7 +2418,7 @@ sub queue_build_file_filter {
     }
 
     $job->priority($priority);
-    $job->coalesce( ( $fi->blog_id || 0 ) . ':' 
+    $job->coalesce( ( $fi->blog_id || 0 ) . ':'
             . $$ . ':'
             . $priority . ':'
             . ( time - ( time % 10 ) ) );

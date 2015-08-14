@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -70,7 +70,8 @@ sub import_contents {
     my ( %authors, %categories );
 
     my $blog_id = $blog->id;
-    my $author_id = $author->id if $author;
+    my $author_id;
+    $author_id = $author->id if $author;
 
     my $importer        = MT::Import->importer('import_mt');
     my $additional_keys = $importer->{additional_keys};
@@ -420,7 +421,7 @@ sub import_contents {
                                     $handler
                                         = MT->handler_to_coderef($handler);
                                     my $import_key = $add_key->{import_key};
-                                    if ( $piece =~ /^$import_key\w+:/ ) {
+                                    if ( $piece =~ /^$import_key[\w-]+:/ ) {
                                         $handler->( $piece, $entry );
                                     }
                                 }

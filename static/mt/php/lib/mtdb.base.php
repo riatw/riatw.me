@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -38,9 +38,20 @@ abstract class MTDatabase {
 
 
     // Construction
-    public function __construct($user, $password = '', $dbname = '', $host = '', $port = '', $sock = '') {
+    public function __construct($user, $password = '', $dbname = '', $host = '', $port = '', $sock = '', $retry = 3, $retry_int = 1) {
         $this->id = md5(uniqid('MTDatabase',true));
-        $this->connect($user, $password, $dbname, $host, $port, $sock);
+        $retry_cnt = 0;
+        while ( ( empty($this->conn) || ( !empty($this->conn) && !$this->conn->IsConnected() ) ) && $retry_cnt++ < $retry ) {
+            try {
+                $this->connect($user, $password, $dbname, $host, $port, $sock);
+            } catch (Exception $e ) {
+                sleep( $retry_int );
+            }
+        }
+        if ( empty($this->conn) || ( !empty($this->conn) && !$this->conn->IsConnected() ) ) {
+            throw new MTDBException( $this->conn->ErrorMsg() , 0);
+        }
+
         ADOdb_Active_Record::SetDatabaseAdapter($this->conn);
 #        $this->conn->debug = true;
     }
@@ -493,6 +504,9 @@ abstract class MTDatabase {
             require_once('class.mt_fileinfo.php');
             $finfo = new FileInfo;
             $finfos = $finfo->Find($where);
+            if (empty($finfos))
+                return null;
+
             $found = false;
             foreach($finfos as $fi) {
                 $tmap = $fi->TemplateMap();
@@ -810,6 +824,9 @@ abstract class MTDatabase {
             $blog_ctx_arg = isset($args['include_blogs']) ?
                 array('include_blogs' => $args['include_blogs']) :
                 array('exclude_blogs' => $args['exclude_blogs']);
+            if (isset($args['include_blogs']) && isset($args['include_with_website'])) {
+                $blog_ctx_arg = array_merge($blog_ctx_arg, array('include_with_website' => $args['include_with_website']));
+            }
         }
 
         # a context hash for filter routines
@@ -919,6 +936,9 @@ abstract class MTDatabase {
                     # this category have no entries (or pages)
                     return null;
                 }
+            } else {
+                # this category have no entries (or pages)
+                return null;
             }
         }
         if ((0 == count($filters)) && (isset($args['show_empty']) && (1 == $args['show_empty']))) {
@@ -939,7 +959,7 @@ abstract class MTDatabase {
                 }
             }
             if (isset($blog_ctx_arg))
-                $tags = $this->fetch_entry_tags(array($blog_ctx_arg, 'tag' => $tag_arg, 'include_private' => $include_private, 'class' => $args['class']));
+                $tags = $this->fetch_entry_tags(array_merge($blog_ctx_arg, array('tag' => $tag_arg, 'include_private' => $include_private, 'class' => $args['class'])));
             else
                 $tags = $this->fetch_entry_tags(array('blog_id' => $blog_id, 'tag' => $tag_arg, 'include_private' => $include_private, 'class' => $args['class']));
             if (!is_array($tags)) $tags = array();
@@ -952,7 +972,7 @@ abstract class MTDatabase {
                     $tag_list[] = $tag->tag_id;
                 }
                 if (isset($blog_ctx_arg))
-                    $ot = $this->fetch_objecttags(array('tag_id' => $tag_list, 'datasource' => 'entry', $blog_ctx_arg));
+                    $ot = $this->fetch_objecttags(array_merge($blog_ctx_arg, array('tag_id' => $tag_list, 'datasource' => 'entry')));
                 else
                     $ot = $this->fetch_objecttags(array('tag_id' => $tag_list, 'datasource' => 'entry', 'blog_id' => $blog_id));
 
@@ -1024,30 +1044,19 @@ abstract class MTDatabase {
             $extras['join']['mt_author'] = array(
                     'condition' => "entry_author_id = author_id"
                     );
+        } elseif (isset($args['author_id']) && preg_match('/^\d+$/', $args['author_id']) && $args['author_id'] > 0) {
+            $author_filter = "and entry_author_id = '" . $args['author_id'] . "'";
         }
 
-        $start = isset($args['current_timestamp'])
-            ? $args['current_timestamp'] : null;
-        $end = isset($args['current_timestamp_end'])
-            ? $args['current_timestamp_end'] : null;
-        if ($start and $end) {
-            $start = $this->ts2db($start);
-            $end = $this->ts2db($end);
-            $date_filter = "and entry_authored_on between '$start' and '$end'";
-        } elseif ($start) {
-            $start = $this->ts2db($start);
-            $date_filter = "and entry_authored_on >= '$start'";
-        } elseif ($end) {
-            $end = $this->ts2db($end);
-            $date_filter = "and entry_authored_on <= '$end'";
-        } else {
-            $date_filter = '';
+        if (isset($args['current_timestamp']) || isset($args['current_timestamp_end'])) {
+            $timestamp_field = ($args['class'] == 'page') ? 'entry_modified_on' : 'entry_authored_on';
         }
+        $date_filter = $this->build_date_filter($args, $timestamp_field);
 
-        if (isset($args['lastn'])) {
-            if (!isset($args['entry_id'])) $limit = $args['lastn'];
-        } elseif (isset($args['days']) && !$date_filter) {
+        if (isset($args['days']) && !$date_filter) {
             $day_filter = 'and ' . $this->limit_by_day_sql('entry_authored_on', intval($args['days']));
+        } elseif (isset($args['lastn'])) {
+            if (!isset($args['entry_id'])) $limit = $args['lastn'];
         } else {
             $found_valid_args = 0;
             foreach ( array(
@@ -1121,7 +1130,7 @@ abstract class MTDatabase {
         if (isset($args['offset']))
             $offset = $args['offset'];
 
-        if (isset($args['limit'])) {
+        if (isset($args['limit']) || isset($args['offset'])) {
             if (isset($args['sort_by'])) {
                 if ($args['sort_by'] == 'title') {
                     $sort_field = 'entry_title';
@@ -1157,20 +1166,21 @@ abstract class MTDatabase {
                 }
             }
             else {
-                $sort_field ='entry_authored_on';
-            }
-            if ($sort_field) {
-                $base_order = ($args['sort_order'] == 'ascend' ? 'asc' : 'desc');
-                $base_order or $base_order = 'desc';
+                $sort_field = isset($timestamp_field) ? $timestamp_field : 'entry_authored_on'; 
             }
         } else {
-            $base_order = 'desc';
-            if (isset($args['base_sort_order'])) {
-                if ($args['base_sort_order'] == 'ascend')
-                    $base_order = 'asc';
-            }
-            $sort_field ='entry_authored_on'; 
+            $sort_field = isset($timestamp_field) ? $timestamp_field : 'entry_authored_on'; 
             $no_resort = 0;
+        }
+
+        if ($sort_field) {
+            $base_order = (
+                isset( $args['sort_order'] )
+                    ? $args['sort_order']
+                    : ( isset( $args['base_sort_order'] )
+                            ? $args['base_sort_order']
+                            : '' )
+            ) === 'ascend' ? 'asc' : 'desc';
         }
 
         if (count($filters) || !is_null($total_count)) {
@@ -1402,12 +1412,32 @@ abstract class MTDatabase {
                 } elseif ($sort_field == 'entry_authored_on') {
                     // already double-sorted by the DB
                 } else {
-                    if (($sort_field == 'entry_status') || ($sort_field == 'entry_author_id') || ($sort_field == 'entry_id')
-                          || ($sort_field == 'entry_comment_count') || ($sort_field == 'entry_ping_count')) {
-                        $sort_fn = "if (\$a->$sort_field == \$b->$sort_field) return 0; return \$a->$sort_field < \$b->$sort_field ? -1 : 1;";
-                    } else {
-                        $sort_fn = "\$f = '" . addslashes($sort_field) . "'; return strcmp(\$a->\$f,\$b->\$f);";
+                    if (preg_match('/^entry_(field\..*)/', $sort_field, $match)) {
+                        if (! $entry_meta_info) {
+                            if ($class === '*') {
+                                $entry_meta_info = array_merge(
+                                    BaseObject::get_meta_info('entry'),
+                                    BaseObject::get_meta_info('page')
+                                );
+                            }
+                            else {
+                                $entry_meta_info = Entry::get_meta_info($class);
+                            }
+                        }
+                        $sort_by_numeric =
+                            preg_match('/integer|float/', $entry_meta_info[$match[1]]);
                     }
+                    else {
+                        $sort_by_numeric =
+                            ($sort_field == 'entry_status') || ($sort_field == 'entry_author_id') || ($sort_field == 'entry_id')
+                            || ($sort_field == 'entry_comment_count') || ($sort_field == 'entry_ping_count');
+                    }
+
+                    $sort_fn = "\$f = '" . addslashes($sort_field) . "'; " .
+                        ($sort_by_numeric
+                            ? 'if ($a->$f == $b->$f) return 0; return $a->$f < $b->$f ? -1 : 1;'
+                            : 'return strcmp($a->$f,$b->$f);');
+
                     $sorter = create_function(
                         $order == 'asc' ? '$a,$b' : '$b,$a',
                         $sort_fn);
@@ -2680,13 +2710,14 @@ abstract class MTDatabase {
 
         $where = "objecttag_tag_id = $tag_id";
 
-        if ($class == 'entry') {
-            $where .= "and entry_status = 2 and entry_class = '$class'";
+        if ($class == 'entry' or $class == 'page') {
+            $where .= " and entry_status = 2 and entry_class = '$class'";
         }
 
+        $ds = $class == 'page' ? 'entry' : $ds;
         $join['mt_objecttag'] = 
             array(
-                "condition" => "${class}_id = objecttag_object_id and objecttag_object_datasource='$class'"
+                "condition" => "${ds}_id = objecttag_object_id and objecttag_object_datasource='$ds'"
                 );
 
         require_once("class.mt_$class.php");
@@ -3243,7 +3274,7 @@ abstract class MTDatabase {
             $type_filter = "and asset_class ='" . $args['type'] . "'";
         }
 
-        $where = "1 = 1
+        $where = "asset_parent is NULL
                   $blog_filter
                   $type_filter";
 
@@ -3344,6 +3375,9 @@ abstract class MTDatabase {
             $ext_filter = "and asset_file_ext ='" . $args['file_ext'] . "'";
         }
 
+        $date_filter = $args['ignore_archive_context']
+            ? '' : $this->build_date_filter( $args, 'asset_created_on' );
+
         # Adds a score or rate filter to the filters list.
         if (isset($args['namespace'])) {
             require_once("MTUtil.php");
@@ -3431,6 +3465,7 @@ abstract class MTDatabase {
                 $type_filter
                 $ext_filter
                 $thumb_filter
+                $date_filter
             order by
                 $sort_by $order
         ";
@@ -3766,6 +3801,27 @@ abstract class MTDatabase {
             $tmpl = $tmpls[0];
 
         return $tmpl;
+    }
+
+    private function build_date_filter($args, $field) {
+        $start = isset($args['current_timestamp'])
+            ? $args['current_timestamp'] : null;
+        $end = isset($args['current_timestamp_end'])
+            ? $args['current_timestamp_end'] : null;
+
+        if ($start and $end) {
+            $start = $this->ts2db($start);
+            $end = $this->ts2db($end);
+            return "and $field between '$start' and '$end'";
+        } elseif ($start) {
+            $start = $this->ts2db($start);
+            return "and $field >= '$start'";
+        } elseif ($end) {
+            $end = $this->ts2db($end);
+            return "and $field <= '$end'";
+        } else {
+            return '';
+        }
     }
 }
 ?>

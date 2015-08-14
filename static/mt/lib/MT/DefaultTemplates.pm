@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -201,7 +201,6 @@ BEGIN {
             'new-ping'          => { label => 'New Ping', },
             'notify-entry'      => { label => 'Entry Notify', },
             'recover-password'  => { label => 'Password Recovery', },
-            'verify-subscribe'  => { label => 'Subscribe Verify', },
             'lockout-user'      => { label => 'User Lockout', },
             'lockout-ip'        => { label => 'IP Address Lockout', },
         },

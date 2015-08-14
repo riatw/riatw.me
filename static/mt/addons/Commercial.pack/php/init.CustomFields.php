@@ -1,5 +1,5 @@
 <?php
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -398,7 +398,7 @@ function customfield_html_textarea(&$ctx, $param) {
     $field_name = encode_html($field_name);
     $field_value = encode_html($field_value);
     return <<<EOT
-<div class="textarea-wrapper"><textarea name="$field_name" id="$field_id" class="full-width ta" rows="3" cols="72">$field_value</textarea></div>
+<textarea name="$field_name" id="$field_id" class="text high">$field_value</textarea>
 EOT;
 }
 
@@ -408,17 +408,7 @@ function customfield_html_embed(&$ctx, $param) {
     $field_name = encode_html($field_name);
     $field_value = encode_html($field_value);
     return <<<EOT
-<div class="textarea-wrapper"><textarea name="$field_name" id="$field_id" class="full-width ta" rows="3" cols="72">$field_value</textarea></div>
-EOT;
-}
-
-function customfield_html_textarea_author(&$ctx, $param) {
-    extract($param);
-    require_once("MTUtil.php");
-    $field_name = encode_html($field_name);
-    $field_value = encode_html($field_value);
-    return <<<EOT
-<textarea name="$field_name" id="$field_id" class="half-width" rows="3" cols="72">$field_value</textarea>
+<textarea name="$field_name" id="$field_id" class="text high">$field_value</textarea>
 EOT;
 }
 
@@ -428,19 +418,7 @@ function customfield_html_text(&$ctx, $param) {
     $field_name = encode_html($field_name);
     $field_value = encode_html($field_value);
     return <<<EOT
-<div class="textarea-wrapper">
-<input type="text" name="$field_name" id="$field_id" value="$field_value" class="full-width ti" />
-</div>
-EOT;
-}
-
-function customfield_html_text_author(&$ctx, $param) {
-    extract($param);
-    require_once("MTUtil.php");
-    $field_name = encode_html($field_name);
-    $field_value = encode_html($field_value);
-    return <<<EOT
-<input type="text" name="$field_name" id="$field_id" value="$field_value" class="half-width" />
+<input type="text" name="$field_name" id="$field_id" class="text" value="$field_value" />
 EOT;
 }
 
@@ -464,19 +442,7 @@ function customfield_html_url(&$ctx, $param) {
     $field_name = encode_html($field_name);
     $field_value = encode_html($field_value);
     return <<<EOT
-<div class="textarea-wrapper">
-    <input type="text" name="$field_name" id="$field_id" value="$field_value" class="full-width ti" />
-</div>
-EOT;
-}
-
-function customfield_html_url_author(&$ctx, $param) {
-    extract($param);
-    require_once("MTUtil.php");
-    $field_name = encode_html($field_name);
-    $field_value = encode_html($field_value);
-    return <<<EOT
-    <input type="text" name="$field_name" id="$field_id" value="$field_value" class="half-width" />
+<input type="text" name="$field_name" id="$field_id" class="text" value="$field_value" />
 EOT;
 }
 
@@ -495,7 +461,7 @@ function customfield_html_datetime(&$ctx, $param) {
 
     if ($field_options != 'time') {
         $html1 = <<<EOT
-<input id="d_$field_name" class="entry-date" name="d_$field_name" tabindex="10" value="$date" />
+<input type="text" id="d_$field_name" class="entry-date text-date" name="d_$field_name" value="$date" />
 EOT;
     } else {
         $html1 = <<<EOT
@@ -504,7 +470,7 @@ EOT;
     }
     if ($field_options != 'date') {
         $html2 = <<<EOT
-<input class="entry-time" name="t_$field_name" tabindex="11" value="$time" />
+<input type="text" class="entry-time" name="t_$field_name" value="$time" />
 EOT;
     } else {
         $html2 = <<<EOT
@@ -535,8 +501,10 @@ function customfield_html_select(&$ctx, $param) {
             $selected = '';
         $loop .= <<<EOT
     <option value="$opt"$selected>$opt</option>
+
 EOT;
     }
+
 
     return <<<EOT
 <select name="$field_name" id="$field_id" class="se" mt:watch-change="1">
@@ -554,7 +522,7 @@ function customfield_html_radio(&$ctx, $param) {
 
     $html = '';
     $i = 0;
-    $html = '<ul class="custom-field-radio-list">';
+    $html = '<ul class="custom-field-radio-list">' . "\n";
 
     foreach ($option_loop as $option) {
         $i++;
@@ -565,6 +533,7 @@ function customfield_html_radio(&$ctx, $param) {
             $selected = '';
         $html .= <<<EOT
 <li><input type="radio" name="$field_name" value="$opt" id="${field_id}_{$i}"$selected class="rb" /> <label for="${field_id}_${i}">$opt</label></li>
+
 EOT;
     }
     $html .= '</ul>';
@@ -602,17 +571,11 @@ EOT;
 function init_core_customfield_types() {
     global $customfield_types;
     $customfield_types['text'] = array(
-        'field_html' => array (
-            'default' => 'customfield_html_text',
-            'author' => 'customfield_html_text_author',
-        ),
+        'field_html' => 'customfield_html_text',
         'column_def' => 'vchar_idx',
     );
     $customfield_types['textarea'] = array(
-        'field_html' => array (
-            'default' => 'customfield_html_textarea',
-            'author' => 'customfield_html_textarea_author',
-        ),
+        'field_html' => 'customfield_html_textarea',
         'column_def' => 'vclob',
     );
     $customfield_types['checkbox'] = array(
@@ -620,10 +583,7 @@ function init_core_customfield_types() {
         'column_def' => 'vinteger_idx',
     );
     $customfield_types['url'] = array(
-        'field_html' => array (
-            'default' => 'customfield_html_url',
-            'author' => 'customfield_html_url_author',
-        ),
+        'field_html' => 'customfield_html_url',
         'column_def' => 'vchar',
     );
     $customfield_types['datetime'] = array(
@@ -640,19 +600,19 @@ function init_core_customfield_types() {
         'options_delimiter' => ',',
         'column_def' => 'vchar_idx',
     );
-    $customfield_types['asset'] = array(
+    $customfield_types['file'] = $customfield_types['asset'] = array(
         'field_html' => 'customfield_html_file',
         'column_def' => 'vclob',
     );
-    $customfield_types['asset.image'] = array(
+    $customfield_types['image'] = $customfield_types['asset.image'] = array(
         'field_html' => 'customfield_html_image',
         'column_def' => 'vclob',
     );
-    $customfield_types['asset.audio'] = array(
+    $customfield_types['audio'] = $customfield_types['asset.audio'] = array(
         'field_html' => 'customfield_html_audio',
         'column_def' => 'vclob',
     );
-    $customfield_types['asset.video'] = array(
+    $customfield_types['video'] = $customfield_types['asset.video'] = array(
         'field_html' => 'customfield_html_video',
         'column_def' => 'vclob',
     );

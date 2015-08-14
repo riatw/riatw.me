@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -10,12 +10,22 @@ use strict;
 use MT::Util qw( format_ts offset_time_list relative_date remove_html);
 
 sub save {
-    my $app  = shift;
-    my $q    = $app->param;
-    my $type = $q->param('_type');
+    my $app             = shift;
+    my $q               = $app->param;
+    my $type            = $q->param('_type');
+    my $id              = $q->param('id');
+    my @types_for_event = ($type);
+
+    my $class = $app->model($type)
+        or return $app->errtrans( "Invalid type [_1]", $type );
 
     return $app->errtrans("Invalid request.")
         unless $type;
+
+    if ( $id && $type eq 'website' ) {
+        $type = 'blog';
+        unshift @types_for_event, $type;
+    }
 
     # being a general-purpose method, lets look for a mode handler
     # that is specifically for editing this type. if we find it,
@@ -26,10 +36,11 @@ sub save {
         return $app->forward($save_mode);
     }
 
-    return $app->errtrans("Invalid request.")
-        if is_disabled_mode( $app, 'save', $type );
+    for my $t (@types_for_event) {
+        return $app->errtrans("Invalid request.")
+            if is_disabled_mode( $app, 'save', $t );
+    }
 
-    my $id = $q->param('id');
     $q->param( 'allow_pings', 0 )
         if ( $type eq 'category' ) && !defined( $q->param('allow_pings') );
 
@@ -46,9 +57,12 @@ sub save {
                 if !$perms && $id;
         }
 
-        $app->run_callbacks( 'cms_save_permission_filter.' . $type,
-            $app, $id )
-            || return $app->permission_denied();
+        for my $t (@types_for_event) {
+            return $app->permission_denied()
+                unless $app->run_callbacks(
+                'cms_save_permission_filter.' . $t,
+                $app, $id );
+        }
     }
 
     my $param = {};
@@ -71,8 +85,11 @@ sub save {
         }
     }
 
-    my $filter_result
-        = $app->run_callbacks( 'cms_save_filter.' . $type, $app );
+    my $filter_result = 1;
+    for my $t (@types_for_event) {
+        $filter_result
+            &&= $app->run_callbacks( 'cms_save_filter.' . $t, $app );
+    }
 
     if ( !$filter_result ) {
         my %param = (%$param);
@@ -111,8 +128,6 @@ sub save {
         }
     }
 
-    my $class = $app->model($type)
-        or return $app->errtrans( "Invalid type [_1]", $type );
     my ($obj);
     if ($id) {
         $obj = $class->load($id)
@@ -139,6 +154,18 @@ sub save {
             =~ m!^(?:/|[a-zA-Z]:\\|\\\\[a-zA-Z0-9\.]+)! )
         {
             return $app->errtrans("Invalid request.");
+        }
+
+        if (   $app->param('use_absolute')
+            && $app->param('site_path_absolute')
+            && $app->config->BaseSitePath )
+        {
+            my $l_path = $app->config->BaseSitePath;
+            my $s_path = $app->param('site_path_absolute');
+            unless ( is_within_base_sitepath( $app, $s_path ) ) {
+                return $app->errtrans(
+                    "The blog root directory must be within [_1].", $l_path );
+            }
         }
 
         unless ( $obj->id ) {
@@ -195,17 +222,9 @@ sub save {
         if ( $values{site_path} and $app->config->BaseSitePath ) {
             my $l_path = $app->config->BaseSitePath;
             my $s_path = $values{site_path};
-
-            # making sure that we have a '/' in the end of the paths
-            $l_path = File::Spec->catdir( $l_path, "PATH" );
-            $l_path =~ s/PATH$//;
-            $l_path = quotemeta($l_path);
-            $s_path = File::Spec->catdir( $s_path, "PATH" );
-            $s_path =~ s/PATH$//;
-
-            if ( $s_path !~ m/^$l_path/i ) {
+            unless ( is_within_base_sitepath( $app, $s_path ) ) {
                 return $app->errtrans(
-                    "The website root directory must be within [_1]",
+                    "The website root directory must be within [_1].",
                     $l_path );
             }
         }
@@ -291,11 +310,6 @@ sub save {
                 if ( $q->param('file_extension') || '' ) ne '';
         }
 
-        unless ( $values{site_url} =~ m!/$! ) {
-            my $url = $values{site_url};
-            $values{site_url} = $url;
-        }
-
         my $cfg_screen = $app->param('cfg_screen') || '';
 
         if ( $cfg_screen eq 'cfg_prefs' ) {
@@ -339,10 +353,12 @@ sub save {
         $obj->modified_by( $author->id ) if $obj->id;
     }
 
-    unless (
-        $app->run_callbacks( 'cms_pre_save.' . $type, $app, $obj, $original )
-        )
-    {
+    $filter_result = 1;
+    for my $t (@types_for_event) {
+        $filter_result &&= $app->run_callbacks( 'cms_pre_save.' . $t,
+            $app, $obj, $original );
+    }
+    unless ($filter_result) {
         if ( 'blog' eq $type ) {
             my $meth = $q->param('cfg_screen');
             if ( $meth && $app->handlers_for_mode($meth) ) {
@@ -369,8 +385,11 @@ sub save {
         $app->translate( "Saving object failed: [_1]", $obj->errstr ) );
 
     # Now post-process it.
-    $app->run_callbacks( 'cms_post_save.' . $type, $app, $obj, $original )
-        or return $app->error( $app->errstr() );
+    for my $t (@types_for_event) {
+        return $app->error( $app->errstr() )
+            unless $app->run_callbacks( 'cms_post_save.' . $t,
+            $app, $obj, $original );
+    }
 
     # Save NWC settings and revision settings
     my $screen = $q->param('cfg_screen') || '';
@@ -473,6 +492,8 @@ sub save {
                 $q->param( 'type',            'index-' . $obj->id );
                 $q->param( 'tmpl_id',         $obj->id );
                 $q->param( 'single_template', 1 );
+                $app->add_return_arg( 'saved'     => 1 );
+                $app->add_return_arg( 'published' => 1 );
                 return $app->forward('start_rebuild');
             }
             else {
@@ -568,11 +589,21 @@ sub run_web_services_save_config_callbacks {
 sub edit {
     my $app = shift;
 
-    my $q    = $app->param;
-    my $type = $q->param('_type');
+    my $q               = $app->param;
+    my $type            = $q->param('_type');
+    my $id              = $q->param('id');
+    my @types_for_event = ($type);
 
     return $app->errtrans("Invalid request.")
         unless $type;
+
+    my $class = $app->model($type)
+        or return $app->errtrans( "Invalid type [_1]", $type );
+
+    if ( $id && $type eq 'website' ) {
+        $type = 'blog';
+        unshift @types_for_event, $type;
+    }
 
     # being a general-purpose method, lets look for a mode handler
     # that is specifically for editing this type. if we find it,
@@ -583,12 +614,13 @@ sub edit {
         return $app->forward( $edit_mode, @_ );
     }
 
-    return $app->errtrans("Invalid request.")
-        if is_disabled_mode( $app, 'edit', $type );
+    for my $t (@types_for_event) {
+        return $app->errtrans("Invalid request.")
+            if is_disabled_mode( $app, 'edit', $t );
+    }
 
     my %param = eval { $_[0] ? %{ $_[0] } : (); };
     die Carp::longmess if $@;
-    my $class = $app->model($type) or return;
     my $blog_id = $q->param('blog_id');
 
     if ( defined($blog_id) && $blog_id ) {
@@ -625,7 +657,6 @@ sub edit {
 
     $param{autosave_frequency} = $app->config->AutoSaveFrequency;
 
-    my $id     = $q->param('id');
     my $perms  = $app->permissions;
     my $author = $app->user;
     my $cfg    = $app->config;
@@ -657,13 +688,19 @@ sub edit {
         }
     );
 
-    $app->run_callbacks( 'cms_object_scope_filter.' . $type, $app, $id )
-        || return $app->return_to_dashboard( redirect => 1 );
+    for my $t (@types_for_event) {
+        return $app->return_to_dashboard( redirect => 1 )
+            unless $app->run_callbacks( 'cms_object_scope_filter.' . $t,
+            $app, $id );
+    }
 
     if ( !$author->is_superuser ) {
-        $app->run_callbacks( 'cms_view_permission_filter.' . $type,
-            $app, $id, $obj_promise )
-            || return $app->permission_denied();
+        for my $t (@types_for_event) {
+            return $app->permission_denied()
+                unless $app->run_callbacks(
+                'cms_view_permission_filter.' . $t,
+                $app, $id, $obj_promise );
+        }
     }
     my $obj;
     my $blog;
@@ -775,10 +812,15 @@ sub edit {
         $limit =~ s/PATH$//;
         $param{'sitepath_limited_trail'} = $limit;
         $param{'sitepath_limited'}       = $cfg->BaseSitePath;
+        $param{'can_use_absolute'}       = !$cfg->BaseSitePath
+            || ( $blog && $blog->is_site_path_absolute );
     }
 
-    my $res = $app->run_callbacks( 'cms_edit.' . $type, $app, $id, $obj,
-        \%param );
+    my $res = 1;
+    for my $t (@types_for_event) {
+        $res &&= $app->run_callbacks( 'cms_edit.' . $t, $app, $id, $obj,
+            \%param );
+    }
     if ( !$res ) {
         return $app->error( $app->callback_errstr() );
     }
@@ -1509,7 +1551,7 @@ sub filtered_list {
     if ( !defined $count_result ) {
         return $app->error(
             MT->translate(
-                "An error occured while counting objects: [_1]",
+                "An error occurred while counting objects: [_1]",
                 $filter->errstr
             )
         );
@@ -1528,7 +1570,7 @@ sub filtered_list {
         if ( !defined $objs ) {
             return $app->error(
                 MT->translate(
-                    "An error occured while loading objects: [_1]",
+                    "An error occurred while loading objects: [_1]",
                     $filter->errstr
                 )
             );
@@ -1766,16 +1808,33 @@ sub delete {
 
                 if ($iter) {
                     my @ot;
-                    while ( my $obj = $iter->() ) {
-                        push @ot, $obj->id;
+                    while ( my $ot = $iter->() ) {
+                        push @ot, $ot->id;
                     }
                     foreach (@ot) {
-                        my $obj = $ot_class->load($_);
-                        next unless $obj;
-                        $obj->remove
+                        my $ot = $ot_class->load($_);
+                        next unless $ot;
+                        $ot->remove
                             or return $app->errtrans(
                             'Removing tag failed: [_1]',
-                            $obj->errstr );
+                            $ot->errstr );
+
+                        # Clear cache
+                        my $linked_class = $app->model( $ot->object_datasource );
+                        my $linked = $linked_class->load( $ot->object_id );
+                        next unless $linked;
+
+                        $linked->{__tags} = [];
+                        delete $linked->{__save_tags};
+                        MT::Tag->clear_cache(
+                            datasource => $linked->datasource,
+                            ( $linked->blog_id ? ( blog_id => $linked->blog_id ) : () )
+                        );
+
+                        require MT::Memcached;
+                        if ( MT::Memcached->is_available ) {
+                            MT::Memcached->instance->delete( $linked->tag_cache_key );
+                        }
                     }
                 }
 
@@ -1785,49 +1844,10 @@ sub delete {
             }
         }
         elsif ( $type eq 'category' ) {
-            if ( $app->config('DeleteFilesAtRebuild') ) {
-                require MT::Blog;
-                require MT::Entry;
-                require MT::Placement;
-                my $blog = MT::Blog->load($blog_id)
-                    or return $app->error(
-                    $app->translate( 'Cannot load blog #[_1].', $blog_id ) );
-                my $at = $blog->archive_type;
-                if ( $at && $at ne 'None' ) {
-                    my @at = split /,/, $at;
-                    for my $target (@at) {
-                        my $archiver = $app->publisher->archiver($target);
-                        next unless $archiver;
-                        if ( $archiver->category_based ) {
-                            if ( $archiver->date_based ) {
-                                my @entries = MT::Entry->load(
-                                    { status => MT::Entry::RELEASE() },
-                                    {   join => MT::Placement->join_on(
-                                            'entry_id',
-                                            { category_id => $id },
-                                            { unique      => 1 }
-                                        )
-                                    }
-                                );
-                                for (@entries) {
-                                    $app->publisher
-                                        ->remove_entry_archive_file(
-                                        Category    => $obj,
-                                        ArchiveType => $target,
-                                        Entry       => $_
-                                        );
-                                }
-                            }
-                            else {
-                                $app->publisher->remove_entry_archive_file(
-                                    Category    => $obj,
-                                    ArchiveType => $target
-                                );
-                            }
-                        }
-                    }
-                }
-            }
+            require MT::CMS::Category;
+            MT::CMS::Category::pre_delete( $app, $obj )
+                or return $app->trans_error( 'Cannot load blog #[_1].',
+                $blog_id );
         }
         elsif ( $type eq 'page' ) {
             if ( $app->config('DeleteFilesAtRebuild') ) {
@@ -2207,6 +2227,20 @@ sub is_disabled_mode {
         }
     }
     return $res;
+}
+
+sub is_within_base_sitepath {
+    my ( $app, $s_path ) = @_;
+    my $l_path = $app->config->BaseSitePath;
+
+    # making sure that we have a '/' in the end of the paths
+    $l_path = File::Spec->catdir( $l_path, "PATH" );
+    $l_path =~ s/PATH$//;
+    $l_path = quotemeta($l_path);
+    $s_path = File::Spec->catdir( $s_path, "PATH" );
+    $s_path =~ s/PATH$//;
+
+    return $s_path =~ m/^$l_path/i;
 }
 
 1;

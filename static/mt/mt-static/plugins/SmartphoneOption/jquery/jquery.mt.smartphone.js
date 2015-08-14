@@ -101,7 +101,7 @@ $.fn.selectable = function(options) {
             target: 'tr',
             toggleClass: 'selected',
             emulateSelected: touchable()? newSelected: null,
-            touchEndResult: false
+            touchEndResult: true 
         });
     }
 
@@ -350,7 +350,7 @@ $.fn.mtAutoResizeTextArea = function(options) {
                 deltaHeight = newHeight - lastHeight;
 
             if(deltaHeight > 0 && newHeight > originalHeight) {
-                window.scrollBy(0, heightDistance);
+                window.scrollBy(0, deltaHeight);
                 $textarea.height(newHeight + 'px');
             }
 

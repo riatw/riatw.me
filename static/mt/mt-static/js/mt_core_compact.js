@@ -1,4 +1,4 @@
-/* Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved
+/* Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved
  * This file is combined from multiple sources.  Consult the source files for their
  * respective licenses and copyrights.
  */defined=function(x){return x!==undefined;};exists=function(x){return(x===undefined||x===null)?false:true;};truth=function(x){return(x&&x!="0")?true:false;};finite=function(x){return isFinite(x)?x:0;};finiteInt=function(x,b){return finite(parseInt(x,b));};finiteFloat=function(x){return finite(parseFloat(x));};max=function(){var a=arguments;var n=a[0];for(var i=1;i<a.length;i++)
@@ -405,7 +405,7 @@ for(var i=start;i<=end;i++){if(this.selectLimit&&(this.selected.length+sel.lengt
 if(this.selected.indexOf(this.items[i].item_id)==-1&&!this.unselectable[this.items[i].item_id])
 sel.push(this.items[i].item_id);}
 this.setSelection(sel);return;}else if(!this.singleSelect&&(event.ctrlKey||event.metaKey)){if(this.selected.indexOf(item_id)!=-1&&!this.unselectable[item_id]){this.lastselected=item_id;this.unsetSelection([item_id]);return;}}else{if(this.selected.length==1&&this.selected[0]==item_id){this.lastselected=item_id;if(this.toggleSelect)
-this.unsetSelection([item_id]);return;}else{if(!this.toggleSelect&&!this.disableUnSelect)
+this.unsetSelection([item_id]);return;}else{if(!this.toggleSelect)
 this.resetSelection();}}
 if(defined(this.unselectable[item_id]))
 return;this.lastselected=item_id;if(this.toggleSelect){if(this.selected.indexOf(item_id)!=-1){log("unselecting "+item_id);this.unsetSelection([item_id]);return;}}

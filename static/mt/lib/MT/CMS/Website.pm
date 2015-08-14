@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -19,6 +19,17 @@ sub edit {
 
     return $app->return_to_dashboard( redirect => 1 )
         if $blog && !$id;
+
+    # The inflow from management screen of Websites
+    # is redirected to dashboard.
+    if ( $app->mode eq 'view' && $blog && $blog_id ) {
+        return $app->redirect(
+            $app->uri(
+                mode => 'dashboard',
+                args => { blog_id => $blog_id },
+            )
+        );
+    }
 
     return $app->permission_denied()
         if !$id && !$app->user->can_create_website();
@@ -334,6 +345,28 @@ sub edit {
     1;
 }
 
+sub pre_save {
+    my $eh = shift;
+    my ( $app, $obj ) = @_;
+
+    if ( !$obj->id ) {
+        my $site_path = $obj->site_path;
+        my $fmgr      = $obj->file_mgr;
+        unless ( $fmgr->exists($site_path) ) {
+            my @dirs = File::Spec->splitdir($site_path);
+            pop @dirs;
+            $site_path = File::Spec->catdir(@dirs);
+        }
+        return $app->errtrans(
+            "The '[_1]' provided below is not writable by the web server. Change the directory ownership or permissions and try again.",
+            $app->translate('Website Root')
+            )
+            unless $fmgr->exists($site_path) && $fmgr->can_write($site_path);
+    }
+
+    return 1;
+}
+
 sub post_save {
     MT::CMS::Blog::post_save(@_);
 }
@@ -400,7 +433,8 @@ sub can_save {
 
         my $author = $app->user;
         return $author->permissions( $id->id )->can_do('edit_blog_config')
-            || ( $app->param('cfg_screen')
+            || ( $app->isa('MT::App::CMS')
+            && $app->param('cfg_screen')
             && $app->param('cfg_screen') eq 'cfg_publish_profile' );
     }
     else {
@@ -435,11 +469,9 @@ sub dialog_select_website {
     my $terms = {};
     my $args  = {};
     if ($favorites) {
-        my $auth = $app->user or return;
-        if ( my @favs = @{ $auth->favorite_websites || [] } ) {
-            @favs = @favs[ 0 .. 4 ] if scalar @favs > 5;
-            $terms = { id => { not => \@favs }, };
-        }
+
+        # Do not exclude top 5 favorite websites from
+        #   select website dialog list. bugid:112372
         $confirm_js = 'saveFavorite';
     }
     if (   !$user->is_superuser

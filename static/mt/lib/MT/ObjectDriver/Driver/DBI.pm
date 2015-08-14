@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -30,20 +30,35 @@ sub init {
 }
 
 sub init_db {
+
     my $driver = shift;
     my $dbh;
+
+    require MT;
+    my $mt        = MT->instance;
+    my $cfg       = $mt->config;
+    my $retry_max = $cfg->DBMaxRetries || 0;
+    my $retry_int = $cfg->DBRetryInterval || 0;
+    my $retry     = 0;
+
+RETRY_CONN:
     eval { $dbh = $driver->SUPER::init_db(@_); };
 
     if ( my $err = $@ ) {
-        require MT;
-        my $mt  = MT->instance;
-        my $cfg = $mt->config;
-
         require MT::I18N;
         my $from = MT::I18N::guess_encoding($err) || 'utf-8';
         my $to   = $cfg->PublishCharset           || 'utf-8';
+        $err = Encode::encode_utf8($err) if Encode::is_utf8($err);
         Encode::from_to( $err, $from, $to );
-        Carp::croak($err);
+
+        if ( $retry++ < $retry_max ) {
+            warn $err if $cfg->DebugMode;
+            sleep $retry_int;
+            goto RETRY_CONN;
+        }
+        else {
+            Carp::croak($err);
+        }
     }
     return $dbh;
 }
@@ -399,7 +414,7 @@ sub _decorate_column_name {
 
 sub prepare_statement {
     my $driver = shift;
-    my ( $class, $terms, $orig_args ) = @_;
+    my ( $class, $terms, $orig_args, $recursive ) = @_;
     my $args = defined $orig_args ? {%$orig_args} : {};
 
     my @joins = (
@@ -598,7 +613,7 @@ sub prepare_statement {
         }
 
         my $join_stmt
-            = $driver->prepare_statement( $j_class, $j_terms, $j_args )
+            = $driver->prepare_statement( $j_class, $j_terms, $j_args, 1 )
             ;    # recursive
 
         $j_args->{unique} = $j_unique if $j_unique;
@@ -746,6 +761,36 @@ sub prepare_statement {
         }
         my $op = $args->{direction} eq 'descend' ? '<' : '>';
         $stmt->add_where( $col, { value => $start_val, op => $op } );
+    }
+
+    ## Always sort by primary keys.
+    my @pk = @{ $class->primary_key_tuple() || [] };
+    if (   @pk
+        && !$recursive
+        && !$orig_args->{group} )
+    {
+        my @column_id = map { $dbd->db_column_name( $tbl, $_, $alias ) } @pk;
+        if ( my $order = $stmt->order() ) {
+            if ( ref($order) eq 'HASH' ) {
+                $order = [$order];
+            }
+            if ( ref($order) eq 'ARRAY' ) {
+                my @order_id;
+                foreach my $column_id (@column_id) {
+                    if ( !( grep { $_->{column} eq $column_id } @$order ) ) {
+                        push @order_id,
+                            { column => $column_id, desc => 'ASC' };
+                    }
+                }
+                if (@order_id) {
+                    $stmt->order( [ @$order, @order_id ] );
+                }
+            }
+        }
+        else {
+            $stmt->order(
+                [ map { +{ column => $_, desc => 'ASC' } } @column_id ] );
+        }
     }
 
     ## Return with this reference, because we might have wrapped $stmt in

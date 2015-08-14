@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -267,8 +267,12 @@ sub core_tags {
                 '$Core::MT::Template::Tags::Folder::_hdlr_folder_prevnext',
             SubFolders =>
                 '$Core::MT::Template::Tags::Folder::_hdlr_sub_folders',
+            'HasNoSubFolders?' =>
+                '$Core::MT::Template::Tags::Folder::_hdlr_has_no_sub_folders',
             ParentFolders =>
                 '$Core::MT::Template::Tags::Folder::_hdlr_parent_folders',
+            'HasNoParentFolder?' =>
+                '$Core::MT::Template::Tags::Folder::_hdlr_has_no_parent_folder',
             ParentFolder =>
                 '$Core::MT::Template::Tags::Folder::_hdlr_parent_folder',
             TopLevelFolders =>
@@ -363,7 +367,6 @@ sub core_tags {
             SearchScript => \&MT::Template::Tags::System::_hdlr_search_script,
             XMLRPCScript => \&MT::Template::Tags::System::_hdlr_xmlrpc_script,
             AtomScript   => \&MT::Template::Tags::System::_hdlr_atom_script,
-            NotifyScript => \&MT::Template::Tags::System::_hdlr_notify_script,
             CGIHost      => \&MT::Template::Tags::System::_hdlr_cgi_host,
             CGIPath      => \&MT::Template::Tags::System::_hdlr_cgi_path,
             AdminCGIPath =>
@@ -926,6 +929,12 @@ sub core_tags {
             SearchTemplateID     => sub {0},
             SearchTemplateBlogID => sub {0},
 
+            ## DataAPI
+            DataAPIScript =>
+                \&MT::Template::Tags::System::_hdlr_dataapi_script,
+            DataAPIVersion =>
+                \&MT::Template::Tags::System::_hdlr_dataapi_version,
+
             ## Misc
             FeedbackScore =>
                 '$Core::MT::Template::Tags::Misc::_hdlr_feedback_score',
@@ -1130,7 +1139,7 @@ sub build_date {
             =~ /(\d\d\d\d)[^\d]?(\d\d)[^\d]?(\d\d)[^\d]?(\d\d)[^\d]?(\d\d)[^\d]?(\d\d)/;
         $mo--;
         my $server_offset = ( $blog && $blog->server_offset )
-            || MT->config->TimeOffset;
+            || MT->current_time_offset;
         if ( ( localtime( timelocal( $s, $m, $h, $d, $mo, $y ) ) )[8] ) {
             $server_offset += 1;
         }
@@ -1150,7 +1159,7 @@ sub build_date {
         my $tz = 'Z';
         unless ( $args->{utc} ) {
             my $so = ( $blog && $blog->server_offset )
-                || MT->config->TimeOffset;
+                || MT->current_time_offset;
             my $partial_hour_offset = 60 * abs( $so - int($so) );
             if ( $format eq 'rfc822' ) {
                 $tz = sprintf( "%s%02d%02d",
@@ -1505,6 +1514,7 @@ sub _hdlr_if {
     my $var = $args->{name} || $args->{var};
     my $value;
     if ( defined $var ) {
+        $ctx->{__stash}{vars}{__cond_tag__} = undef;
 
         # pick off any {...} or [...] from the name.
         my ( $index, $key );
@@ -3451,7 +3461,8 @@ sub _hdlr_app_listing {
     my ( $ctx, $args, $cond ) = @_;
 
     my $type = $args->{type} || $ctx->var('object_type');
-    my $class = MT->model($type) if $type;
+    my $class;
+    $class = MT->model($type) if $type;
     my $loop = $args->{loop} || 'object_loop';
     my $loop_obj = $ctx->var($loop);
 
@@ -5167,22 +5178,6 @@ sub _hdlr_atom_script {
 
 ###########################################################################
 
-=head2 NotifyScript
-
-Returns the value of the C<NotifyScript> configuration setting. The
-default for this setting if unassigned is "mt-add-notify.cgi".
-
-=for tags configuration
-
-=cut
-
-sub _hdlr_notify_script {
-    my ($ctx) = @_;
-    return $ctx->{config}->NotifyScript;
-}
-
-###########################################################################
-
 =head2 CGIHost
 
 Returns the domain host from the configuration directive CGIPath. If CGIPath
@@ -5851,7 +5846,8 @@ being built.
 
 sub _hdlr_build_template_id {
     my ( $ctx, $args, $cond ) = @_;
-    my $tmpl = $ctx->stash('template');
+    my $tmpl = MT->instance->request('build_template')
+        || $ctx->stash('template');
     if ( $tmpl && $tmpl->id ) {
         return $tmpl->id;
     }
@@ -6034,6 +6030,41 @@ sub _hdlr_password_validation_rules {
         if grep { $_ eq 'symbol' } @constrains;
 
     return $msg;
+}
+
+###########################################################################
+
+=head2 DataAPIScript
+
+Returns the value of the C<DataAPIScript> configuration setting. The
+default for this setting if unassigned is "mt-data-api.cgi".
+
+=for tags configuration
+
+=cut
+
+sub _hdlr_dataapi_script {
+    my ($ctx) = @_;
+    return $ctx->{config}->DataAPIScript;
+}
+
+###########################################################################
+
+=head2 DataAPIVersion
+
+Returns the default version number of Data API.
+
+=for tags templating
+
+=for tags dataapi
+
+=cut
+
+sub _hdlr_dataapi_version {
+    my ($ctx) = @_;
+
+    require MT::App::DataAPI;
+    return MT::App::DataAPI::DEFAULT_VERSION();
 }
 
 1;

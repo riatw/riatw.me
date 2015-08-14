@@ -1,5 +1,5 @@
 /*
- * Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+ * Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
  * This code cannot be redistributed without permission from www.sixapart.com.
  * For more information, consult your Movable Type license.
  *
@@ -93,10 +93,19 @@ $.mtUseSubdomain = function(options) {
         }
     });
     $checkboxes.click(function() {
+        var $subdomain, $subdomain_input;
+
         if (this.checked) {
-            $(this).prop('checked',true).parents('.field-content').find('.subdomain').show();
+            $subdomain =
+                $(this).prop('checked',true).parents('.field-content').find('.subdomain').show();
         } else {
-            $(this).prop('checked',false).parents('.field-content').find('.subdomain').hide();
+            $subdomain =
+                $(this).prop('checked',false).parents('.field-content').find('.subdomain').hide();
+        }
+
+        $subdomain_input = $subdomain.find('input');
+        if ($subdomain_input.val() && $subdomain_input.data('mtValidator')) {
+            $subdomain_input.mtValid({ focus: false });
         }
     });
 };
@@ -809,8 +818,10 @@ $.fn.mtCheckboxOption = function() {
  *   jQuery('.msg').mtToggleField();
  *   jQuery('.msg').mtToggleField({hide_clicked: true});
  *
+ * to set open callback:
+ *   jQuery('.msg').mtToggleField({}, function(){ // do anything});
  */
-$.fn.mtToggleField = function(options) {
+$.fn.mtToggleField = function(options, openCallback) {
     var defaults = {
         click_class: 'detail-link',
         detail_class: 'detail',
@@ -825,6 +836,9 @@ $.fn.mtToggleField = function(options) {
         $field.find('.'+opts.click_class)
             .mousedown(function(event) {
                 $field.toggleClass('active').find('.'+opts.detail_class).toggle();
+                if ($field.hasClass('active') && openCallback) {
+                    openCallback();
+                }
                 return false;
             })
             .click(function(event) {
@@ -983,7 +997,7 @@ $.mtValidator('simple2', {
             );
     },
     showError: function( $target, $error_block ) {
-        var id = $target.parents().find('div.field-content').first().parent().attr('id');
+        var id = $target.parents('div.field-content').first().parent().attr('id');
         var ins = true;
         if ( $('div#'+id+'-msg-block ul').length == 0 ) {
             var $block = $('<div/>')
@@ -1022,6 +1036,33 @@ $.mtValidator('simple2', {
             $error_block.find('label').text(msg);
             this.showError( $target, $error_block );
         }
+    }
+});
+jQuery.mtValidator('url_path_subdomain', {
+    wrapError: function ( $target, msg ) {
+        return jQuery('<div />').append(
+            jQuery('<label/>')
+                .attr('for', $target.attr('id') )
+                .addClass('validate-error msg-error')
+                .text(msg)
+            );
+    },
+    showError: function ( $target, $error_block ) {
+        var $container = $target.closest('.content-path');
+        if ($container.find('label.msg-error').length) {
+            $error_block.hide();
+        }
+        $container.append($error_block);
+    },
+    removeError: function( $target, $error_block ) {
+        $error_block.remove();
+        $target.closest('.content-path')
+            .find('label.msg-error:hidden:first')
+            .closest('div')
+            .show();
+    },
+    updateError: function( $target, $error_block, msg ) {
+        $error_block.find('label.msg-error').text(msg);
     }
 });
 $.mtValidator('default', {

@@ -1,5 +1,5 @@
 /*
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -1530,7 +1530,8 @@ MT.App = new Class( App, {
         if ( this.cpeList )
             this.cpeList.forEach( function( cpe ) { cpe.onSubmit() } );
 
-        form.submitted = true;
+        if ( form.getAttribute( "mt:once" ) )
+            form.submitted = true;
         this.stopAutoSave();
     },
 
@@ -2614,6 +2615,7 @@ MT.App.CategorySelector = new Class( Component, {
             this.list.setOption( "singleSelect", true );
             this.list.setOption( "toggleSelect", false );
         }
+        this.list.setOption( "disableUnSelect", true );
 
         this.parentID = 0;
         var cats = MT.App.categoryList;
@@ -3000,3 +3002,71 @@ function removeAssetFromList(assetId) {
     }
     document.getElementById("include_asset_ids").value = NewAssetList;
 }
+
+function isIE11() {
+  return /Trident\/7/.test(navigator.userAgent);
+}
+
+function createSessionHistoryFallback(url) {
+  if (isIE11()) {
+    history.pushState(null, null, url);
+  }
+}
+
+function backSessionHistoryFallback() {
+  if (isIE11()) {
+    window.addEventListener('popstate', function () {
+      location.replace(location.href);
+    });
+  }
+}
+
+if (typeof MT.Validator === 'undefined') {
+    MT.Validator = {};
+}
+
+extend(MT.Validator, {
+    urlSubdomain: function(subdomain) {
+        return subdomain.match(/^[a-z0-9]([a-z0-9-\.]*[a-z0-9])?$/);
+    },
+
+    urlPath: function(path) {
+        if (path.indexOf(' ') != -1) {
+            return false;
+        }
+        return path.match(/^[^\s<>\#%"\,\{\}\\|\\\^\[\]`]*$/);
+    },
+
+    url: function(url) {
+        if (url.indexOf(' ') != -1) {
+            return false;
+        }
+        return url.match(/^https?:\/\/[a-z0-9-\.]+\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/);
+    },
+
+    path: function(path, isBlog) {
+        var str = path.replace(/[ "%<>\[\\\]\^`{\|}~]/g, ""); //"
+        str = encodeURI(str);
+        if (str.indexOf('%') != -1) {
+            return false;
+        }
+        if (str.match(/\.\./)) {
+            return false;
+        }
+
+        if (isBlog) {
+            if ( path.match(/^\//) || path.match(/^[a-zA-Z]:\\/)  || path.match(/^\\\\[a-zA-Z0-9\.]+/ ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    absolutePath: function(path) {
+        if ( path.match(/^\//) || path.match(/^[a-zA-Z]:\\/)  || path.match(/^\\\\[a-zA-Z0-9\.]+/ ) ) {
+            return true;
+        }
+        return false;
+    }
+});

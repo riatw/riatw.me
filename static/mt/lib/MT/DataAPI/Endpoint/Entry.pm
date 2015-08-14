@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -97,6 +97,7 @@ sub build_post_save_sub {
             require MT::Entry;
             if ( $entry->status == MT::Entry::RELEASE() && $list ) {
                 MT::CMS::Entry::do_send_pings(
+                    $app,
                     $blog->id,
                     $entry->id,
                     $orig_entry->status,
@@ -126,8 +127,8 @@ sub list {
 sub create {
     my ( $app, $endpoint ) = @_;
 
-    my ($blog) = context_objects(@_)
-        or return;
+    my ($blog) = context_objects(@_);
+    return unless $blog && $blog->id;
 
     my $author = $app->user;
 

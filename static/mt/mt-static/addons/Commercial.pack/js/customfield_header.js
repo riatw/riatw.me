@@ -1,5 +1,5 @@
 /*
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -17,6 +17,8 @@ MT.App.FieldCatCombinator = new Class( Component, {
 // CustomFields by Category Selection
         var cats = MT.App.categoryList;
         var customFields = window.customFields;
+        if (app.categorySelector.opening === true)
+            return;
         // assuming ids does not have multiple ids
         for ( var idx in cats ) {
             if ( !cats.hasOwnProperty( idx ) )
@@ -56,6 +58,8 @@ MT.App.FieldCatCombinator = new Class( Component, {
 // CustomFields by Category Selection
         var cats = MT.App.categoryList;
         var customFields = window.customFields;
+        if (app.categorySelector.opening === true)
+            return;
         // assuming ids does not have multiple ids
         for ( var idx in cats ) {
             if ( !cats.hasOwnProperty( idx ) )

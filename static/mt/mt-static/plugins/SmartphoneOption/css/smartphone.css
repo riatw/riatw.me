@@ -588,7 +588,6 @@ ul.tabs a {
 #footer #utility-nav {
   background-color: #2b2b2b;
   margin: 0px 0px 8px 0px;
-  padding: 8px;
   display: table !important;
   position: static;
   width: 100%;
@@ -596,6 +595,7 @@ ul.tabs a {
 }
 
 #footer #utility-nav-list {
+  padding: 8px;
   margin: 0;
 }
 
@@ -701,7 +701,7 @@ ul.tabs a {
   display: none;
   position: absolute;
   margin: 0px;
-  top: 84px;
+  top: 42px;
   left: 0px;
   right: auto;
   width: 260px;

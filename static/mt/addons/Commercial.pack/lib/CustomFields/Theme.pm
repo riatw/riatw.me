@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2006-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2006-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -75,7 +75,8 @@ sub validator {
                 push @terms, '-or' if scalar @terms;
                 push @terms, { $col_key => $val, blog_id => $blog_id };
             }
-            my $dupe = MT->model('field')->load( \@terms );
+            my $dupe;
+            eval { $dupe = MT->model('field')->load( \@terms ); };
             if ($dupe) {
                 return $element->error(
                     MT->translate(

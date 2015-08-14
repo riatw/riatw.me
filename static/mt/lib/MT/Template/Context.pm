@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -124,7 +124,7 @@ sub init_handlers {
                     my $modifier = lc $orig_mod;
                     next
                         if exists $f->{$modifier}
-                            && ( $mod->{plugin}{id} || '' ) eq 'core';
+                        && ( $mod->{plugin}{id} || '' ) eq 'core';
                     $f->{$modifier} = $mod->{$orig_mod};
                 }
             }
@@ -356,7 +356,7 @@ sub set_blog_load_context {
     $col ||= 'blog_id';
 
     # Grab specified blog IDs
-    my $blog_ids 
+    my $blog_ids
         = $attr->{blog_ids}
         || $attr->{include_blogs}
         || $attr->{site_ids}
@@ -419,7 +419,7 @@ sub set_blog_load_context {
         push @$blog_ids, $website->id if $attr->{include_with_website};
         $blog_ids = -1
             unless scalar @$blog_ids
-        ; # We should use non-existing blog id when calculated blog_ids is empty
+            ; # We should use non-existing blog id when calculated blog_ids is empty
         $terms->{$col} = $blog_ids;
 
         # Blogs are specified in include_blogs so set the terms
@@ -430,7 +430,8 @@ sub set_blog_load_context {
     }
 
     # Filtered by acl;
-    my $allow = delete $attr->{allow_blogs} if $attr->{allow_blogs};
+    my $allow;
+    $allow = delete $attr->{allow_blogs} if $attr->{allow_blogs};
     if ($allow) {
         if ( !$terms->{$col} ) {
             $terms->{$col} = $allow;
@@ -726,6 +727,9 @@ sub compile_tag_filter {
 
 sub compile_role_filter {
     my ( $ctx, $role_expr, $roles ) = @_;
+
+    # Sort in descending order by length
+    @$roles = sort { length( $b->name ) <=> length( $a->name ) } @$roles;
 
     my %roles_used;
     foreach my $role (@$roles) {

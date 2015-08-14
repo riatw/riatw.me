@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -13,6 +13,8 @@ use File::Basename;
 use File::Spec;
 
 @MT::BackupRestore::BackupFileHandler::ISA = qw(XML::SAX::Base);
+
+my $is_mswin32 = $^O eq 'MSWin32' ? 1 : 0;
 
 sub new {
     my $class   = shift;
@@ -117,6 +119,30 @@ sub start_element {
                 my %column_data
                     = map { $attrs->{$_}->{LocalName} => $attrs->{$_}->{Value} }
                     keys(%$attrs);
+
+                # Replace directory separators properly.
+                if (   $class =~ /^MT::Asset/
+                    || $class eq 'MT::Blog'
+                    || $class eq 'MT::Website' )
+                {
+                    my $key
+                        = $class =~ /^MT::Asset/
+                        ? 'file_path'
+                        : 'upload_path';
+                    my ($separator)
+                        = ( $column_data{$key} =~ m!^%\w(/|\\)! );
+                    if ( $separator eq '/' && $is_mswin32 ) {
+
+                        # *nix => Windows
+                        $column_data{$key} =~ s!/!\\!g;
+                    }
+                    elsif ( $separator eq '\\' && !$is_mswin32 ) {
+
+                        # Windows => *nix
+                        $column_data{$key} =~ s!\\!/!g;
+                    }
+                }
+
                 my $obj;
                 if ( 'author' eq $name ) {
                     $obj = $class->load( { name => $column_data{name} } );
@@ -333,7 +359,11 @@ sub start_element {
                             next
                                 if ( 'vclob' eq $metacolumns{$metacol} )
                                 || ( 'vblob' eq $metacolumns{$metacol} );
-                            $obj->$metacol( $column_data{$metacol} );
+                            $obj->$metacol(
+                                $metacolumns{$metacol} =~ /^vchar/
+                                ? _decode( $column_data{$metacol} )
+                                : $column_data{$metacol}
+                            );
                         }
 
                         # Restore modulesets
@@ -408,6 +438,15 @@ sub end_element {
                 if ( 'blob' eq $defs->{$column_name}->{type} ) {
                     $text = MIME::Base64::decode_base64($text);
                     if ( substr( $text, 0, 4 ) eq 'SERG' ) {
+                        my $ser_ver
+                            = MT::Serialize->serializer_version($text);
+                        if ( $ser_ver == 3 ) {
+                            my $conf_ver = lc MT->config->Serializer;
+                            if ( ( $conf_ver ne 'storable' ) && ( $conf_ver ne 'mts' ) ) {
+                                $self->{critical} = 1;
+                                die MT->translate('Invalid serializer version was specified.');
+                            }
+                        }
                         $text = MT::Serialize->unserialize($text);
                         $obj->$column_name($$text);
                     }
@@ -423,6 +462,15 @@ sub end_element {
                 if ( my $type = $metacolumns->{$column_name} ) {
                     if ( 'vblob' eq $type ) {
                         $text = MIME::Base64::decode_base64($text);
+                        my $ser_ver
+                            = MT::Serialize->serializer_version($text);
+                        if ( $ser_ver == 3 ) {
+                            my $conf_ver = lc MT->config->Serializer;
+                            if ( ( $conf_ver ne 'storable' ) && ( $conf_ver ne 'mts' ) ) {
+                                $self->{critical} = 1;
+                                die MT->translate('Invalid serializer version was specified.');
+                            }
+                        }
                         $text = MT::Serialize->unserialize($text);
                         $obj->$column_name($$text);
                     }

@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2007-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2007-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -49,7 +49,7 @@ sub load_system_filters {
                     if $blog->is_blog && !( grep { $_ eq 'blog' } @$context );
                 next
                     if !$blog->is_blog
-                        && !( grep { $_ eq 'website' } @$context );
+                    && !( grep { $_ eq 'website' } @$context );
             }
             else {
                 next unless grep { $_ eq 'system' } @$context;
@@ -186,7 +186,7 @@ sub load_customfield_types {
                 if ( my $blog_id = $tmpl_param->{blog_id} ) {
                     $blog = MT->model('blog')->load($blog_id);
                 }
-                my $ts 
+                my $ts
                     = $tmpl_param->{value}
                     || $tmpl_param->{field_value}
                     || '';
@@ -304,8 +304,9 @@ sub load_customfield_types {
     foreach my $a_type (@asset_types) {
         my $asset_type = $a_type;
         ($asset_type) = $a_type =~ /^asset\.(\w+)/;
-        next unless $asset_type;
-        $customfield_types->{$asset_type} = {
+        my $mt_version = MT->config->MTVersion;
+        next if !$asset_type && $mt_version >= 5;
+        my $cf_type = {
             label => sub { MT::Asset->class_handler($a_type)->class_label },
             field_html        => 'asset-chooser.tmpl',
             field_html_params => sub {
@@ -319,6 +320,8 @@ sub load_customfield_types {
             context    => [ 'website', 'blog' ],
             sanitize   => \&MT::Util::sanitize_asset,
         };
+        $customfield_types->{$asset_type} = $cf_type if $asset_type;
+        $customfield_types->{$a_type}     = $cf_type if $mt_version < 5;
         $order += 100;
     }
 
@@ -377,7 +380,7 @@ sub edit_field {
                     if $blog->is_blog && !( grep { $_ eq 'blog' } @$context );
                 next
                     if !$blog->is_blog
-                        && !( grep { $_ eq 'website' } @$context );
+                    && !( grep { $_ eq 'website' } @$context );
             }
             else {
                 next unless grep { $_ eq 'system' } @$context;
@@ -420,7 +423,7 @@ sub edit_field {
                     if $blog->is_blog && !( grep { $_ eq 'blog' } @$context );
                 next
                     if !$blog->is_blog
-                        && !( grep { $_ eq 'website' } @$context );
+                    && !( grep { $_ eq 'website' } @$context );
             }
             else {
                 next unless grep { $_ eq 'system' } @$context;
@@ -594,8 +597,8 @@ sub save_cfg_customfields {
     my $perms = $app->permissions;
     return $app->permission_denied()
         unless $app->user->is_superuser()
-            || (   $perms
-                && $perms->can_administer_blog );
+        || ( $perms
+        && $perms->can_administer_blog );
 
     my $blog_id = scalar $q->param('blog_id')
         or return $app->errtrans("Invalid request.");
@@ -901,8 +904,22 @@ sub CMSPreSave_field {
 # basenames in the key => value
 
 sub CMSPostSave_field {
-    my ( $cb, $app, $field ) = @_;
+    my ( $cb, $app, $field, $orig_obj ) = @_;
     my $q = $app->param;
+
+    if ( !$orig_obj->id ) {
+        $app->log(
+            {   message => $app->translate(
+                    "[_1] '[_2]' (ID:[_3]) added by user '[_4]'",
+                    $field->class_label, $field->name,
+                    $field->id,          $app->user->name
+                ),
+                level    => MT::Log::INFO(),
+                class    => 'field',
+                category => 'new',
+            }
+        );
+    }
 
     my $changed = 0;
 
@@ -926,7 +943,8 @@ sub CMSPostSave_field {
     foreach my $p (@p) {
         next unless $p =~ /^selected_fields_(\d+)/;
         my $cat_id          = $1;
-        my $original_fields = $q->param("selected_fields_$cat_id");
+        my $cat             = $cat_class->load($cat_id) or next;
+        my $original_fields = $cat->show_fields();
         my %fields          = map { $_ => 1 } split /,/, $original_fields;
         if ( $q->param("show_field_$cat_id") ) {
             $fields{ $field->id } = 1;
@@ -934,7 +952,6 @@ sub CMSPostSave_field {
         else {
             delete $fields{ $field->id };
         }
-        my $cat = $cat_class->load($cat_id) or next;
         $cat->show_fields( join( ',', keys(%fields) ) );
         $cat->save;
     }
@@ -1134,10 +1151,10 @@ COMPONENT: for my $component (@components) {
             "You must select other type if object is the comment.")
         )
         if $q->param('obj_type') eq 'comment'
-            && (   $q->param('type') eq 'audio'
-                || $q->param('type') eq 'image'
-                || $q->param('type') eq 'video'
-                || $q->param('type') eq 'file' );
+        && ( $q->param('type') eq 'audio'
+        || $q->param('type') eq 'image'
+        || $q->param('type') eq 'video'
+        || $q->param('type') eq 'file' );
 
     1;
 }
@@ -1412,7 +1429,7 @@ sub param_edit_entry_post_types {
 
     # handle any conditional exclusions
     my $object_type = $app->param('_type');
-    my $type 
+    my $type
         = ( $e ? $e->meta('field.post_type') : undef )
         || $app->param('customfield_post_type')
         || $object_type;
@@ -1945,7 +1962,7 @@ sub pre_remove_objectasset {
     foreach my $field (@fields) {
         my $meta_column = 'field.' . $field->basename;
         my $meta_data   = $obj->$meta_column();
-        my ($asset_id) = $meta_data =~ m/\smt:asset-id="(\d+)"/i;
+        my ($asset_id)  = $meta_data =~ m/\smt:asset-id="(\d+)"/i;
         if ( $oa->asset_id == $asset_id ) {
             $obj->$meta_column('');
             $updated++;
@@ -2117,6 +2134,22 @@ sub can_delete {
     my $blog_id = $obj ? $obj->blog_id : ( $app->blog ? $app->blog->id : 0 );
 
     return $author->permissions($blog_id)->can_do('edit_custom_fields');
+}
+
+sub CMSDelete_field {
+    my ( $eh, $app, $obj ) = @_;
+
+    $app->log(
+        {   message => $app->translate(
+                "[_1] '[_2]' (ID:[_3]) deleted by '[_4]'",
+                $obj->class_label, $obj->name, $obj->id, $app->user->name
+            ),
+            level    => MT::Log::INFO(),
+            class    => 'field',
+            category => 'delete'
+        }
+    );
+
 }
 
 1;

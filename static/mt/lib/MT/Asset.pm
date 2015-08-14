@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -377,6 +377,17 @@ sub list_props {
                 { label => MT->translate('Disabled'), value => 'disabled', },
             ],
         },
+        content => {
+            base    => '__virtual.content',
+            fields  => [qw( label )],
+            display => 'none',
+        },
+        created_by => {
+            auto            => 1,
+            col             => 'created_by',
+            display         => 'none',
+            filter_editable => 0,
+        },
     };
 }
 
@@ -469,7 +480,7 @@ sub file_path {
                 my $root
                     = !$blog
                     || $1 eq 's' ? MT->instance->support_directory_path
-                    : $1  eq 'r' ? $blog->site_path
+                    : $1 eq 'r'  ? $blog->site_path
                     :              $blog->archive_path;
                 $root =~ s!(/|\\)$!!;
                 $path =~ s!^\%[ras]!$root!;
@@ -495,10 +506,10 @@ sub url {
                 my $root
                     = !$blog
                     || $1 eq 's' ? MT->instance->support_directory_url
-                    : $1  eq 'r' ? $blog->site_url
+                    : $1 eq 'r'  ? $blog->site_url
                     :              $blog->archive_url;
                 $root =~ s!/$!!;
-                $url  =~ s!^\%[ras]!$root!;
+                $url =~ s!^\%[ras]!$root!;
             }
             return $url;
         },
@@ -617,8 +628,8 @@ sub blog {
     my $blog_id = $asset->blog_id or return undef;
     return $asset->{__blog}
         if $blog_id
-            && $asset->{__blog}
-            && ( $asset->{__blog}->id == $blog_id );
+        && $asset->{__blog}
+        && ( $asset->{__blog}->id == $blog_id );
     require MT::Blog;
     return $asset->{__blog} = MT::Blog->load($blog_id)
         or return $asset->error("Failed to load blog for file");
@@ -840,7 +851,20 @@ sub _make_cache_path {
     if ( !-d $real_cache_path ) {
         require MT::FileMgr;
         my $fmgr = $blog ? $blog->file_mgr : MT::FileMgr->new('Local');
-        $fmgr->mkpath($real_cache_path) or return undef;
+        unless ( $fmgr->mkpath($real_cache_path) ) {
+            my $app = MT->instance;
+            $app->log(
+                {   message => $app->translate(
+                        "Could not create asset cache path: [_1]",
+                        $fmgr->errstr
+                    ),
+                    level    => MT::Log::ERROR(),
+                    class    => 'asset',
+                    category => 'cache',
+                }
+            );
+            return undef;
+        }
     }
 
     my $asset_cache_path

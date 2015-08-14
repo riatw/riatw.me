@@ -1,4 +1,4 @@
-# Movable Type (r) (C) 2001-2013 Six Apart, Ltd. All Rights Reserved.
+# Movable Type (r) (C) 2001-2015 Six Apart, Ltd. All Rights Reserved.
 # This code cannot be redistributed without permission from www.sixapart.com.
 # For more information, consult your Movable Type license.
 #
@@ -33,14 +33,14 @@ our $plugins_installed;
 BEGIN {
     $plugins_installed = 0;
 
-    ( $VERSION, $SCHEMA_VERSION ) = ( '6.0', '6.0008' );
+    ( $VERSION, $SCHEMA_VERSION ) = ( '6.1', '6.0009' );
     (   $PRODUCT_NAME, $PRODUCT_CODE,   $PRODUCT_VERSION,
         $VERSION_ID,   $RELEASE_NUMBER, $PORTAL_URL,
         )
         = (
         'Movable Type Pro',   'MT',
-        '6.0.1',              '6.0.1',
-        '1', 'http://www.sixapart.com/movabletype/'
+        '6.1.2',                '6.1.2',
+        '2', 'http://www.sixapart.com/movabletype/'
         );
 
   # To allow MT to run straight from svn, if no build process (pre-processing)
@@ -56,7 +56,7 @@ BEGIN {
     }
 
     if ( $RELEASE_NUMBER eq '__RELEASE' . '_NUMBER__' ) {
-        $RELEASE_NUMBER = 1;
+        $RELEASE_NUMBER = 2;
     }
 
     $DebugMode = 0;
@@ -124,7 +124,7 @@ SLUG
 }
 
 sub build_id {
-    my $build_id = '6.0.1';
+    my $build_id = '6.1.2';
     $build_id = '' if $build_id eq '__BUILD_' . 'ID__';
     return $build_id;
 }
@@ -173,17 +173,8 @@ sub run_app {
     # When running under FastCGI, the initial invocation of the
     # script has a bare environment. We can use this to test
     # for FastCGI.
-    my $not_fast_cgi = 0;
-    $not_fast_cgi ||= exists $ENV{$_}
-        for qw(HTTP_HOST GATEWAY_INTERFACE SCRIPT_FILENAME SCRIPT_URL);
-    my $fast_cgi
-        = defined $param->{FastCGI}
-        ? $param->{FastCGI}
-        : ( not $not_fast_cgi );
-    if ($fast_cgi) {
-        eval { require CGI::Fast; };
-        $fast_cgi = 0 if $@;
-    }
+    require MT::Util;
+    my $fast_cgi = MT::Util::check_fast_cgi( $param->{FastCGI} );
 
     # ready to run now... run inside an eval block so we can gracefully
     # die if something bad happens
@@ -858,12 +849,11 @@ sub init_config {
         $mt->{app_dir} = $ENV{PWD} || "";
         $mt->{app_dir} = dirname($0)
             if !$mt->{app_dir}
-                || !File::Spec->file_name_is_absolute( $mt->{app_dir} );
+            || !File::Spec->file_name_is_absolute( $mt->{app_dir} );
         $mt->{app_dir} = dirname( $ENV{SCRIPT_FILENAME} )
             if $ENV{SCRIPT_FILENAME}
-                && ( !$mt->{app_dir}
-                    || (!File::Spec->file_name_is_absolute( $mt->{app_dir} ) )
-                );
+            && ( !$mt->{app_dir}
+            || ( !File::Spec->file_name_is_absolute( $mt->{app_dir} ) ) );
         $mt->{app_dir} ||= $mt->{mt_dir};
         $mt->{app_dir} = File::Spec->rel2abs( $mt->{app_dir} );
     }
@@ -906,7 +896,7 @@ sub init_config {
     if ( my $local_lib = $cfg->LocalLib ) {
         $local_lib = [$local_lib] if !ref $local_lib;
         eval "use local::lib qw( @{$local_lib} )";
-        return $mt->trans_error( 'Bad LocalLib config ([_1]): ',
+        return $mt->trans_error( 'Bad LocalLib config ([_1]): [_2]',
             join( ', ', @$local_lib ), $@, )
             if $@;
     }
@@ -1022,6 +1012,9 @@ sub init_config {
             elsif ( $ENV{FAST_CGI} ) {
                 print $PERFLOG "# App Mode: FastCGI\n";
             }
+            elsif ( $ENV{'psgi.input'} ) {
+                print $PERFLOG "# App Mode: PSGI\n";
+            }
             else {
                 print $PERFLOG "# App Mode: CGI\n";
             }
@@ -1047,6 +1040,14 @@ sub get_timer {
         if ( MT->config('PerformanceLogging') ) {
             my $uri;
             if ( $mt->isa('MT::App') ) {
+                local @$mt{qw(__path __mt_path)};
+                delete @$mt{qw(__path __mt_path)};
+
+                local $mt->{is_admin}
+                    = exists( $mt->{is_admin} )
+                    ? $mt->{is_admin}
+                    : $mt->isa('MT::App::CMS');
+
                 $uri = $mt->uri( args => { $mt->param_hash } );
             }
             require MT::Util::ReqTimer;
@@ -1159,8 +1160,8 @@ sub init_paths {
         if !$APP_DIR || !File::Spec->file_name_is_absolute($APP_DIR);
     $APP_DIR = dirname( $ENV{SCRIPT_FILENAME} )
         if $ENV{SCRIPT_FILENAME}
-            && ( !$APP_DIR
-                || ( !File::Spec->file_name_is_absolute($APP_DIR) ) );
+        && ( !$APP_DIR
+        || ( !File::Spec->file_name_is_absolute($APP_DIR) ) );
     $APP_DIR ||= $MT_DIR;
     $APP_DIR = File::Spec->rel2abs($APP_DIR);
 
@@ -1242,6 +1243,68 @@ sub init {
     require MT::Log;
 
     $mt->run_callbacks( 'post_init', $mt, \%param );
+
+    if ( $^O eq 'MSWin32' ) {
+
+# bugid:111222
+# Disable IPv6 in Net::LDAP because LDAP authentication does not work on Windows.
+        if ( $mt->config->AuthenticationModule eq 'LDAP'
+            || UNIVERSAL::isa( $mt, 'MT::App::Wizard' ) )
+        {
+            eval <<'__END_OF_EVAL__';
+            {
+                package Net::LDAP;
+                use constant::override substitute => { CAN_IPV6 => 0 };
+            }
+            require Net::LDAP;
+__END_OF_EVAL__
+        }
+
+        require MT::Util;
+        if ( MT::Util::check_fast_cgi() ) {
+
+            eval {
+
+             # bugid:111075
+             # If using both Windows and FastCGI, load Net::SSLeay module here
+             # for avoiding module load error in Facebook plugin setting.
+                require Net::SSLeay;
+
+                # bugid: 111212
+                # Make Net::SSLeay::RAND_poll run only once
+                # for avoiding a timeout in Contents Sync Settings.
+                Net::SSLeay::RAND_poll();
+                no warnings 'redefine';
+                *Net::SSLeay::RAND_poll = sub () {1};
+            };
+
+# bugid:111140
+# Shorten the time of process which uses OpenSSL when using Azure and FastCGI.
+# This hack makes the starting time of FastCGI process long.
+            eval { require IO::Socket::SSL };
+
+            eval {
+                require Net::HTTPS;
+                Net::HTTPS->new(
+                    Host            => 'https://dummy',
+                    SSL_verify_mode => 0,                 # SSL_VERIFY_NONE
+                );
+            };
+
+            if ( $mt->config->SMTPAuth eq 'starttls' ) {
+                eval { require Net::SMTP::TLS; Net::SMTP::TLS->new };
+            }
+        }
+    }
+
+    # Force MT to use IPv4 when using SSL and old IO::Socket::INET6 module,
+    # because an error may occur.
+    if ( eval { require IO::Socket::INET6; 1 }
+        && $IO::Socket::INET6::VERSION <= 2.57 )
+    {
+        eval 'use IO::Socket::SSL qw( inet4 )';
+    }
+
     return $mt;
 }
 
@@ -1370,7 +1433,7 @@ sub init_plugins {
             "You cannot register multiple plugin objects from a single script. $plugin_sig"
             )
             if exists( $Plugins{$plugin_sig} )
-                && ( exists $Plugins{$plugin_sig}{object} );
+            && ( exists $Plugins{$plugin_sig}{object} );
 
         $Components{ lc $id } = $plugin if $id;
         $Plugins{$plugin_sig}{object} = $plugin;
@@ -1827,7 +1890,8 @@ sub ping_and_save {
             if ( !$res->{good} ) {
                 $still_ping{ $res->{url} } = 1;
             }
-            push @$pinged, $res->{url}
+            push @$pinged,
+                $res->{url}
                 . (
                 $res->{good}
                 ? ''
@@ -2610,7 +2674,8 @@ sub new_ua {
 
     if ( defined $proxy ) {
         $ua->proxy( http => $proxy );
-        my @domains = split( /,\s*/, $no_proxy ) if $no_proxy;
+        my @domains;
+        @domains = split( /,\s*/, $no_proxy ) if $no_proxy;
         $ua->no_proxy(@domains) if @domains;
     }
     if ( defined $sec_proxy ) {
@@ -2713,7 +2778,8 @@ sub init_commenter_authenticators {
     my $auths = $self->registry("commenter_authenticators") || {};
     $Commenter_Auth = {%$auths};
     my $app = $self->app;
-    my $blog = $app->blog if $app->isa('MT::App');
+    my $blog;
+    $blog = $app->blog if $app->isa('MT::App');
     foreach my $auth ( keys %$auths ) {
         if ( my $c = $auths->{$auth}->{condition} ) {
             $c = $self->handler_to_coderef($c);
@@ -2864,7 +2930,8 @@ sub core_commenter_authenticators {
             login_form        => 'comment/auth_typepad.tmpl',
             login_form_params => sub {
                 my ( $key, $blog_id, $entry_id, $static ) = @_;
-                my $entry = MT::Entry->load($entry_id) if $entry_id;
+                my $entry;
+                $entry = MT::Entry->load($entry_id) if $entry_id;
 
                 ## TypeKey URL
                 require MT::Template::Context;
@@ -2964,7 +3031,7 @@ sub init_captcha_providers {
     foreach my $provider ( keys %$providers ) {
         delete $providers->{$provider}
             if exists( $providers->{$provider}->{condition} )
-                && !( $providers->{$provider}->{condition}->() );
+            && !( $providers->{$provider}->{condition}->() );
     }
     %Captcha_Providers = %$providers;
     $Captcha_Providers{$_}{key} ||= $_ for keys %Captcha_Providers;
@@ -3038,8 +3105,8 @@ sub handler_to_coderef {
         if ($delayed) {
             if ($method) {
                 return sub {
-                    eval "# line " 
-                        . __LINE__ . " " 
+                    eval "# line "
+                        . __LINE__ . " "
                         . __FILE__
                         . "\nrequire $hdlr_pkg;"
                         or Carp::confess(
@@ -3053,8 +3120,8 @@ sub handler_to_coderef {
             }
             else {
                 return sub {
-                    eval "# line " 
-                        . __LINE__ . " " 
+                    eval "# line "
+                        . __LINE__ . " "
                         . __FILE__
                         . "\nrequire $hdlr_pkg;"
                         or Carp::confess(
@@ -3071,8 +3138,8 @@ sub handler_to_coderef {
             }
         }
         else {
-            eval "# line " 
-                . __LINE__ . " " 
+            eval "# line "
+                . __LINE__ . " "
                 . __FILE__
                 . "\nrequire $hdlr_pkg;"
                 or Carp::confess(
@@ -3148,6 +3215,11 @@ sub refresh_cache {
     return unless $cache_driver;
 
     $cache_driver->flush_all();
+}
+
+sub current_time_offset {
+    my $self = shift;
+    $self->request('time_offset') || $self->config->TimeOffset;
 }
 
 sub DESTROY { }
@@ -4256,7 +4328,7 @@ Movable Type.
 
 =head1 AUTHOR & COPYRIGHT
 
-Except where otherwise noted, MT is Copyright 2001-2013 Six Apart.
+Except where otherwise noted, MT is Copyright 2001-2015 Six Apart.
 All rights reserved.
 
 =cut
