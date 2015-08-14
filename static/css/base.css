@@ -1674,10 +1674,12 @@ Common Style
     width: 33.3%;
     margin-top: 20px;
     padding: 10px;
+    font-size: 88%;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    letter-spacing: normal; }
+    letter-spacing: normal;
+    vertical-align: top; }
     @media screen and (min-width: 0px) and (max-width: 568px) {
       .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3), .m-list-widget .widget-item:nth-child(4) {
         display: block;

@@ -187,8 +187,10 @@
 			width: 33.3%;
 			margin-top: 20px;
 			padding: 10px;
+			font-size: fz(18,16);
 			@include box-sizing(border-box);
 			letter-spacing: normal;
+			vertical-align: top;
 
 			@media #{$breakS} {
 				display: block;
