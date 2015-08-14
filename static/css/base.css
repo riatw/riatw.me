@@ -2,8 +2,8 @@
 /* old #fcfcfc */
 /*---------------------------- reset ----------------------------*/
 html {
-  color: #333333;
-  background: white;
+  color: #333;
+  background: #fff;
   overflow-y: scroll; }
 
 body {
@@ -72,13 +72,13 @@ a {
   overflow: hidden;
   outline: none; }
   a:link {
-    color: #ff5a0b;
+    color: #ff5a0c;
     text-decoration: none; }
   a:visited {
-    color: #ff5a0b;
+    color: #ff5a0c;
     text-decoration: none; }
   a:hover, a:active {
-    color: #ff5a0b;
+    color: #ff5a0c;
     text-decoration: none; }
 
 /*---------------------------------------------
@@ -1198,8 +1198,12 @@ Common Style
 	- 固定幅・中央揃えのボックス
 -----------------------------------------------------------------*/
 .m-box-fixed {
-  max-width: 1080px;
+  max-width: 750px;
   margin: 0 auto; }
+  @media screen and (min-width: 0px) and (max-width: 568px) {
+    .m-box-fixed {
+      width: auto;
+      margin: 0 10px; } }
 
 /*
 	module:　m-section
@@ -1251,29 +1255,16 @@ Common Style
     content: "";
     display: block;
     clear: both; }
-  .m-box-col2 .col2-left {
-    float: left;
-    width: 75%;
-    padding-right: 70px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box; }
-    @media screen and (min-width: 0px) and (max-width: 568px) {
-      .m-box-col2 .col2-left {
-        float: none;
-        width: auto;
-        padding-right: 0; } }
-  .m-box-col2 .col2-right {
-    float: right;
-    width: 25%;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box; }
-    @media screen and (min-width: 0px) and (max-width: 568px) {
-      .m-box-col2 .col2-right {
-        float: none;
-        width: auto;
-        margin-top: 40px; } }
+  @media screen and (min-width: 0px) and (max-width: 568px) {
+    .m-box-col2 .col2-left {
+      float: none;
+      width: auto;
+      padding-right: 0; } }
+  @media screen and (min-width: 0px) and (max-width: 568px) {
+    .m-box-col2 .col2-right {
+      float: none;
+      width: auto;
+      margin-top: 40px; } }
 
 .m-box-social {
   margin-top: 70px; }
@@ -1285,18 +1276,21 @@ Common Style
     font-weight: bold;
     text-align: center; }
   .m-box-social .social-button {
-    display: table;
-    width: 100%;
     margin: 0 -5px 0 -5px;
-    table-layout: fixed; }
+    letter-spacing: -0.35em; }
     @media screen and (min-width: 0px) and (max-width: 568px) {
       .m-box-social .social-button {
         margin: 0;
         text-align: center;
         letter-spacing: -0.4em; } }
     .m-box-social .social-button > li {
-      display: table-cell;
-      padding: 0 5px; }
+      display: inline-block;
+      width: 20%;
+      padding: 0 5px;
+      letter-spacing: normal;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box; }
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-box-social .social-button > li {
           display: inline-block;
@@ -1308,6 +1302,11 @@ Common Style
         padding: 20px 0;
         color: #fff;
         text-align: center; }
+        .m-box-social .social-button > li a:hover {
+          -moz-transition: all 0.3s;
+          -o-transition: all 0.3s;
+          -webkit-transition: all 0.3s;
+          transition: all 0.3s; }
         .m-box-social .social-button > li a span {
           position: relative;
           margin-right: 10px;
@@ -1315,22 +1314,32 @@ Common Style
           vertical-align: middle; }
     .m-box-social .social-button .button-twitter a {
       background: #39a9f1; }
+      .m-box-social .social-button .button-twitter a:hover {
+        background: #1093e7; }
       .m-box-social .social-button .button-twitter a span {
         top: -1px; }
     .m-box-social .social-button .button-facebook a {
       background: #335795; }
+      .m-box-social .social-button .button-facebook a:hover {
+        background: #26416f; }
       .m-box-social .social-button .button-facebook a span {
         top: -3px; }
     .m-box-social .social-button .button-google a {
       background: #d34836; }
+      .m-box-social .social-button .button-google a:hover {
+        background: #b03626; }
       .m-box-social .social-button .button-google a span {
         top: -1px; }
     .m-box-social .social-button .button-hatena a {
       background: #2c6ebd; }
+      .m-box-social .social-button .button-hatena a:hover {
+        background: #225694; }
       .m-box-social .social-button .button-hatena a span {
         top: -2px; }
     .m-box-social .social-button .button-pocket a {
       background: #EE4256; }
+      .m-box-social .social-button .button-pocket a:hover {
+        background: #e8152d; }
       .m-box-social .social-button .button-pocket a span {
         top: -2px; }
 
@@ -1351,30 +1360,39 @@ Common Style
   vertical-align: middle; }
 .m-box-entry .entry-meta .meta-title {
   margin-top: 15px;
-  color: #ff5a0b;
-  font-size: 166%;
+  color: #ff5a0c;
+  font-size: 155%;
   font-weight: bold; }
   @media screen and (min-width: 0px) and (max-width: 568px) {
     .m-box-entry .entry-meta .meta-title {
       margin-top: 10px;
       font-size: 133%; } }
 .m-box-entry .entry-body {
-  margin-top: 50px; }
+  margin-top: 40px; }
   @media screen and (min-width: 0px) and (max-width: 568px) {
     .m-box-entry .entry-body {
-      margin-top: 25px; } }
+      margin-top: 20px; } }
   .m-box-entry .entry-body h3 {
     margin: 60px 0 30px 0;
-    font-size: 188%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
+    font-size: 166%;
     font-weight: bold; }
+    .m-box-entry .entry-body h3 + blockquote {
+      margin-bottom: 70px; }
+      @media screen and (min-width: 0px) and (max-width: 568px) {
+        .m-box-entry .entry-body h3 + blockquote {
+          margin-bottom: 40px; } }
     @media screen and (min-width: 0px) and (max-width: 568px) {
       .m-box-entry .entry-body h3 {
         margin-top: 30px;
         margin-bottom: 20px;
-        font-size: 166%; } }
+        font-size: 144%; } }
   .m-box-entry .entry-body h4 {
-    margin: 40px 0 20px 0;
-    font-size: 155%;
+    margin: 45px 0 20px 0;
+    padding-left: 20px;
+    border-left: 5px solid #000;
+    font-size: 144%;
     font-weight: bold; }
     @media screen and (min-width: 0px) and (max-width: 568px) {
       .m-box-entry .entry-body h4 {
@@ -1416,9 +1434,29 @@ Common Style
     margin-bottom: 1.8em;
     line-height: 2.2; }
   .m-box-entry .entry-body blockquote {
-    margin: 0 0 0 5px;
-    padding: 0 0 0 1em;
-    border-left: 5px solid #ccc; }
+    position: relative;
+    margin: 0 0 0 0;
+    padding: 20px 45px 20px 55px;
+    background: #eee;
+    font-size: 88%; }
+    .m-box-entry .entry-body blockquote > :first-child {
+      margin-top: 0 !important; }
+    @media screen and (min-width: 0px) and (max-width: 568px) {
+      .m-box-entry .entry-body blockquote {
+        padding: 20px; } }
+    .m-box-entry .entry-body blockquote:before {
+      content: "“";
+      position: absolute;
+      left: 10px;
+      top: 5px;
+      color: #ccc;
+      font-family: Arial;
+      font-size: 444%;
+      font-weight: bold;
+      line-height: 1; }
+      @media screen and (min-width: 0px) and (max-width: 568px) {
+        .m-box-entry .entry-body blockquote:before {
+          display: none; } }
   .m-box-entry .entry-body strong {
     font-weight: bold; }
 
@@ -1440,7 +1478,6 @@ Common Style
   src: url("../fonts/icomoon.eot?#iefix-olu86y") format("embedded-opentype"), url("../fonts/icomoon.woff?-olu86y") format("woff"), url("../fonts/icomoon.ttf?-olu86y") format("truetype"), url("../fonts/icomoon.svg?-olu86y#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
-
 [class^="m-icon-"], [class*=" m-icon-"] {
   font-family: 'icomoon';
   speak: none;
@@ -1582,7 +1619,7 @@ Common Style
     .m-list-pager {
       margin-top: 35px; } }
   .m-list-pager .pager-num {
-    margin: 0 10px;
+    margin: 0 5px;
     vertical-align: middle;
     line-height: 1; }
     @media screen and (min-width: 0px) and (max-width: 568px) {
@@ -1591,57 +1628,86 @@ Common Style
     .m-list-pager .pager-num a {
       display: block;
       padding: 15px;
-      border: 2px solid #ff5a0b;
-      background: #ff5a0b;
+      background: #ff5a0c;
       color: #fff;
       font-size: 88%; }
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-list-pager .pager-num a {
           padding: 10px; } }
       .m-list-pager .pager-num a:hover {
-        background: #f14d00; }
+        -moz-transition: all 0.3s;
+        -o-transition: all 0.3s;
+        -webkit-transition: all 0.3s;
+        transition: all 0.3s;
+        background: #d84500; }
     .m-list-pager .pager-num span {
       display: block;
       padding: 15px;
-      border: 2px solid #ff5a0b;
+      border: 2px solid #ff5a0c;
       background: #fff;
       font-size: 88%;
-      -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
       box-sizing: border-box; }
+      @media screen and (min-width: 0px) and (max-width: 568px) {
+        .m-list-pager .pager-num span {
+          padding: 10px; } }
 
-.m-list-widget .widget-item {
-  margin-top: 40px; }
+.m-list-widget {
+  margin: 70px -10px 0 -10px;
+  letter-spacing: -0.35em;
+  overflow: hidden; }
   @media screen and (min-width: 0px) and (max-width: 568px) {
-    .m-list-widget .widget-item {
-      margin-top: 25px; } }
+    .m-list-widget {
+      margin: 35px 0 0 0; } }
+  .m-list-widget .widget-item:nth-child(1) {
+    margin: 0 10px;
+    letter-spacing: normal; }
+    .m-list-widget .widget-item:nth-child(1) dl {
+      padding: 20px;
+      background: #eee; }
+    @media screen and (min-width: 0px) and (max-width: 568px) {
+      .m-list-widget .widget-item:nth-child(1) {
+        margin: 0; } }
+  .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3), .m-list-widget .widget-item:nth-child(4) {
+    display: inline-block;
+    width: 33.3%;
+    margin-top: 20px;
+    padding: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    letter-spacing: normal; }
+    @media screen and (min-width: 0px) and (max-width: 568px) {
+      .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3), .m-list-widget .widget-item:nth-child(4) {
+        display: block;
+        width: auto;
+        padding: 0; } }
   .m-list-widget .widget-item:first-child {
     margin-top: 0 !important; }
   .m-list-widget .widget-item .widget-title {
-    padding-top: 15px;
-    border-top: 1px solid #666;
     font-size: 111%;
     font-weight: bold; }
   .m-list-widget .widget-item .widget-content {
     margin-top: 15px; }
-.m-list-widget .widget-author .author-pic {
-  display: table-cell;
-  padding-right: 10px;
-  vertical-align: middle; }
-.m-list-widget .widget-author .author-name {
-  display: table-cell;
-  font-size: 88%;
-  vertical-align: middle; }
-.m-list-widget .widget-author .author-description {
-  margin-top: 10px;
-  font-size: 88%;
-  line-height: 1.8; }
-.m-list-widget .widget-category ul {
-  margin-left: 5px;
-  padding-left: 15px;
-  color: #333;
-  list-style: disc;
-  line-height: 1.8; }
+  .m-list-widget .widget-author .author-pic {
+    display: table-cell;
+    padding-right: 10px;
+    vertical-align: middle; }
+  .m-list-widget .widget-author .author-name {
+    display: table-cell;
+    font-size: 88%;
+    vertical-align: middle; }
+  .m-list-widget .widget-author .author-description {
+    margin-top: 10px;
+    font-size: 88%;
+    line-height: 1.8; }
+  .m-list-widget .widget-category ul {
+    margin-left: 5px;
+    padding-left: 15px;
+    color: #333;
+    list-style: disc;
+    line-height: 1.8; }
 
 /*
 	module:　m-table-common
@@ -2030,7 +2096,7 @@ Common Style
 .syntaxhighlighter {
   background-color: white !important; }
   .syntaxhighlighter .line.alt1 {
-    background-color: whitesmoke !important; }
+    background-color: #f5f5f5 !important; }
   .syntaxhighlighter .line.alt2 {
     background-color: white !important; }
   .syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
@@ -2051,21 +2117,21 @@ Common Style
   .syntaxhighlighter.collapsed {
     overflow: visible !important; }
     .syntaxhighlighter.collapsed .toolbar {
-      color: blue !important;
-      background: white !important;
+      color: #00f !important;
+      background: #fff !important;
       border: 1px solid #ff6b25 !important; }
       .syntaxhighlighter.collapsed .toolbar a {
-        color: blue !important; }
+        color: #00f !important; }
         .syntaxhighlighter.collapsed .toolbar a:hover {
-          color: red !important; }
+          color: #f00 !important; }
   .syntaxhighlighter .toolbar {
-    color: white !important;
+    color: #fff !important;
     background: #ff6b25 !important;
     border: none !important; }
     .syntaxhighlighter .toolbar a {
-      color: white !important; }
+      color: #fff !important; }
       .syntaxhighlighter .toolbar a:hover {
-        color: black !important; }
+        color: #000 !important; }
   .syntaxhighlighter .plain, .syntaxhighlighter .plain a {
     color: black !important; }
   .syntaxhighlighter .comments, .syntaxhighlighter .comments a {
@@ -2081,7 +2147,7 @@ Common Style
   .syntaxhighlighter .value {
     color: #009900 !important; }
   .syntaxhighlighter .functions {
-    color: deeppink !important; }
+    color: #ff1493 !important; }
   .syntaxhighlighter .constants {
     color: #0066cc !important; }
   .syntaxhighlighter .script {
@@ -2091,7 +2157,7 @@ Common Style
   .syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
     color: gray !important; }
   .syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
-    color: deeppink !important; }
+    color: #ff1493 !important; }
   .syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
     color: red !important; }
 
@@ -2101,7 +2167,7 @@ Common Style
 .syntaxhighlighter {
   background-color: white !important; }
   .syntaxhighlighter .line.alt1 {
-    background-color: whitesmoke !important; }
+    background-color: #f5f5f5 !important; }
   .syntaxhighlighter .line.alt2 {
     background-color: white !important; }
   .syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
@@ -2122,21 +2188,21 @@ Common Style
   .syntaxhighlighter.collapsed {
     overflow: visible !important; }
     .syntaxhighlighter.collapsed .toolbar {
-      color: blue !important;
-      background: white !important;
+      color: #00f !important;
+      background: #fff !important;
       border: 1px solid #ff6b25 !important; }
       .syntaxhighlighter.collapsed .toolbar a {
-        color: blue !important; }
+        color: #00f !important; }
         .syntaxhighlighter.collapsed .toolbar a:hover {
-          color: red !important; }
+          color: #f00 !important; }
   .syntaxhighlighter .toolbar {
-    color: white !important;
+    color: #fff !important;
     background: #ff6b25 !important;
     border: none !important; }
     .syntaxhighlighter .toolbar a {
-      color: white !important; }
+      color: #fff !important; }
       .syntaxhighlighter .toolbar a:hover {
-        color: black !important; }
+        color: #000 !important; }
   .syntaxhighlighter .plain, .syntaxhighlighter .plain a {
     color: black !important; }
   .syntaxhighlighter .comments, .syntaxhighlighter .comments a {
@@ -2152,7 +2218,7 @@ Common Style
   .syntaxhighlighter .value {
     color: #009900 !important; }
   .syntaxhighlighter .functions {
-    color: deeppink !important; }
+    color: #ff1493 !important; }
   .syntaxhighlighter .constants {
     color: #0066cc !important; }
   .syntaxhighlighter .script {
@@ -2162,7 +2228,7 @@ Common Style
   .syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
     color: gray !important; }
   .syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
-    color: deeppink !important; }
+    color: #ff1493 !important; }
   .syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
     color: red !important; }
 
@@ -2171,10 +2237,10 @@ Common Style
 
 /*---------------------------- layout ----------------------------*/
 html {
-  background: white; }
+  background: #fff; }
 
 body {
-  margin: 0 15px; }
+  margin: 0px; }
 
 /* header */
 #header {
@@ -2201,7 +2267,7 @@ body {
 
 /* footer */
 #footer {
-  padding: 90px 0; }
+  padding: 70px 0; }
   @media screen and (min-width: 0px) and (max-width: 568px) {
     #footer {
       padding: 40px 0; } }

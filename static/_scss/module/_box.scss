@@ -7,6 +7,11 @@
 .m-box-fixed {
 	max-width: $fixedWidth;
 	margin: 0 auto;
+
+	@media #{$breakS} {
+		width: auto;
+		margin: 0 10px;
+	}
 }
 
 /*
@@ -60,10 +65,10 @@
 	@include clearfix;
 
 	.col2-left {
-		float: left;
-		width: 75%;
-		padding-right: 70px;
-		@include box-sizing(border-box);
+		// float: left;
+		// width: 75%;
+		// padding-right: 70px;
+		// @include box-sizing(border-box);
 
 		@media #{$breakS} {
 			float: none;
@@ -73,9 +78,9 @@
 	}
 
 	.col2-right {
-		float: right;
-		width: 25%;
-		@include box-sizing(border-box);
+		// float: right;
+		// width: 25%;
+		// @include box-sizing(border-box);
 
 		@media #{$breakS} {
 			float: none;
@@ -98,10 +103,8 @@
 		text-align: center;
 	}
 	.social-button {
-		display: table;
-		width: 100%;
 		margin: 0 -5px 0 -5px;
-		table-layout: fixed;
+		letter-spacing: -0.35em;
 
 		@media #{$breakS} {
 			margin: 0;
@@ -110,8 +113,11 @@
 		}
 
 		> li {
-			display: table-cell;
+			display: inline-block;
+			width: 20%;
 			padding: 0 5px;
+			letter-spacing: normal;
+			@include box-sizing(border-box);
 
 			@media #{$breakS} {
 				display: inline-block;
@@ -126,6 +132,10 @@
 				color: #fff;
 				text-align: center;
 
+				&:hover {
+					@include transition(all 0.3s);
+				}
+
 				span {
 					position: relative;
 					margin-right: 10px;
@@ -137,12 +147,20 @@
 		.button-twitter a {
 			background: #39a9f1;
 
+			&:hover {
+				background: darken(#39a9f1, 10%);
+			}
+
 			span {
 				top: -1px;
 			}
 		}
 		.button-facebook a {
 			background: #335795;
+
+			&:hover {
+				background: darken(#335795, 10%);
+			}
 
 			span {
 				top: -3px;
@@ -151,6 +169,10 @@
 		.button-google a {
 			background: #d34836;
 
+			&:hover {
+				background: darken(#d34836, 10%);
+			}
+
 			span {
 				top: -1px;
 			}
@@ -158,12 +180,20 @@
 		.button-hatena a {
 			background: #2c6ebd;
 
+			&:hover {
+				background: darken(#2c6ebd, 10%);
+			}
+
 			span {
 				top: -2px;
 			}
 		}
 		.button-pocket a {
 			background: #EE4256;
+
+			&:hover {
+				background: darken(#EE4256, 10%);
+			}
 
 			span {
 				top: -2px;
@@ -194,7 +224,7 @@
 		.meta-title {
 			margin-top: 15px;
 			color: $siteMainColor;
-			font-size: fz(18,30);
+			font-size: fz(18,28);
 			font-weight: bold;
 
 			@media #{$breakS} {
@@ -204,26 +234,38 @@
 		}
 	}
 	.entry-body {
-		margin-top: 50px;
+		margin-top: 40px;
 
 		@media #{$breakS} {
-			margin-top: 25px;
+			margin-top: 20px;
 		}
 
 		h3 {
 			margin: 60px 0 30px 0;
-			font-size: fz(18,34);
+			padding-bottom: 10px;
+			border-bottom: 2px solid #000;
+			font-size: fz(18,30);
 			font-weight: bold;
+
+			& + blockquote {
+				margin-bottom: 70px;
+
+				@media #{$breakS} {
+					margin-bottom: 40px;
+				}
+			}
 
 			@media #{$breakS} {
 				margin-top: 30px;
 				margin-bottom: 20px;
-				font-size: fz(18,30);
+				font-size: fz(18,26);
 			}
 		}
 		h4 {
-			margin: 40px 0 20px 0;
-			font-size: fz(18,28);
+			margin: 45px 0 20px 0;
+			padding-left: 20px;
+			border-left: 5px solid #000;
+			font-size: fz(18,26);
 			font-weight: bold;
 
 			@media #{$breakS} {
@@ -281,9 +323,35 @@
 		}
 
 		blockquote {
-			margin: 0 0 0 5px;
-			padding: 0 0 0 1em;
-			border-left: 5px solid #ccc;
+			position: relative;
+			margin: 0 0 0 0;
+			padding: 20px 45px 20px 55px;
+			background: #eee;
+			font-size: fz(18,16);
+
+			> :first-child {
+				margin-top: 0 !important;
+			}
+
+			@media #{$breakS} {
+				padding: 20px;
+			}
+
+			&:before {
+				content: "“";
+				position: absolute;
+				left: 10px;
+				top: 5px;
+				color: #ccc;
+				font-family: Arial;
+				font-size: fz(18,80);
+				font-weight: bold;
+				line-height: 1;
+
+				@media #{$breakS} {
+					display: none;
+				}
+			}
 		}
 
 		strong {

@@ -118,7 +118,7 @@
 	}
 
 	.pager-num {
-		margin: 0 10px;
+		margin: 0 5px;
 		vertical-align: middle;
 		line-height: 1;
 
@@ -129,7 +129,6 @@
 		a {
 			display: block;
 			padding: 15px;
-			border: 2px solid $siteMainColor;
 			background: $siteMainColor;
 			color: #fff;
 			font-size: fz(18,16);
@@ -139,7 +138,8 @@
 			}
 
 			&:hover {
-				background: darken($siteMainColor, 5%);
+				@include transition(all 0.3s);
+				background: darken($siteMainColor, 10%);
 			}
 		}
 		span {
@@ -149,16 +149,59 @@
 			background: #fff;
 			font-size: fz(18,16);
 			@include box-sizing(border-box);
+
+			@media #{$breakS} {
+				padding: 10px;
+			}
 		}
 	}
 }
 
 .m-list-widget {
+	margin: 70px -10px 0 -10px;
+	letter-spacing: -0.35em;
+	overflow: hidden;
+
+	@media #{$breakS} {
+		margin: 35px 0 0 0;
+	}
+
 	.widget-item {
-		margin-top: 40px;
+		&:nth-child(1) {
+			margin: 0 10px;
+			letter-spacing: normal;
+
+			dl {
+				padding: 20px;
+				background: #eee;
+			}
+
+			@media #{$breakS} {
+				margin: 0;
+			}
+		}
+		&:nth-child(2),
+		&:nth-child(3),
+		&:nth-child(4) {
+			display: inline-block;
+			width: 33.3%;
+			margin-top: 20px;
+			padding: 10px;
+			@include box-sizing(border-box);
+			letter-spacing: normal;
+
+			@media #{$breakS} {
+				display: block;
+				width: auto;
+				padding: 0;
+			}
+
+		}
+
+		// margin-top: 40px;
 
 		@media #{$breakS} {
-			margin-top: 25px;
+			// margin-top: 25px;
 		}
 
 		&:first-child {
@@ -166,8 +209,6 @@
 		}
 
 		.widget-title {
-			padding-top: 15px;
-			border-top: 1px solid #666;
 			font-size: fz(18,20);
 			font-weight: bold;
 		}
