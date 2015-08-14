@@ -187,7 +187,6 @@
 			width: 33.3%;
 			margin-top: 20px;
 			padding: 10px;
-			font-size: fz(18,16);
 			@include box-sizing(border-box);
 			letter-spacing: normal;
 			vertical-align: top;
@@ -198,6 +197,13 @@
 				padding: 0;
 			}
 
+			.widget-content {
+				font-size: fz(18,16);
+
+				@media #{$breakS} {
+					font-size: fz(18,18);
+				}
+			}
 		}
 
 		// margin-top: 40px;
