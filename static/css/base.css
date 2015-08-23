@@ -1685,12 +1685,12 @@ Common Style
         .m-list-widget .widget-item:nth-child(2) .widget-content, .m-list-widget .widget-item:nth-child(3) .widget-content, .m-list-widget .widget-item:nth-child(4) .widget-content {
           font-size: 100%; } }
   .m-list-widget .widget-item:nth-child(2) dd ul {
-    margin-top: -20px;
+    margin-top: -10px;
     margin-left: 0;
     padding-left: 0; }
   .m-list-widget .widget-item:nth-child(2) dd ul li {
     display: inline-block;
-    margin: 20px 30px 0 0; }
+    margin: 10px 30px 0 0; }
   .m-list-widget .widget-item:first-child {
     margin-top: 0 !important; }
   .m-list-widget .widget-item .widget-title {
