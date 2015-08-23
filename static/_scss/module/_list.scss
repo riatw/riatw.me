@@ -183,13 +183,9 @@
 		&:nth-child(2),
 		&:nth-child(3),
 		&:nth-child(4) {
-			display: inline-block;
-			width: 33.3%;
 			margin-top: 20px;
 			padding: 0 20px;
-			@include box-sizing(border-box);
 			letter-spacing: normal;
-			vertical-align: top;
 
 			@media #{$breakS} {
 				display: block;
@@ -205,9 +201,14 @@
 				}
 			}
 		}
-		&:nth-child(2),
-		&:nth-child(3) {
-			border-right: 1px solid #eee;
+		&:nth-child(2) dd ul {
+			margin-top: -20px;
+			margin-left: 0;
+			padding-left: 0;
+		}
+		&:nth-child(2) dd ul li {
+			display: inline-block;
+			margin: 20px 30px 0 0;
 		}
 
 		// margin-top: 40px;

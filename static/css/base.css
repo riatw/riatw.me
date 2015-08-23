@@ -2,8 +2,8 @@
 /* old #fcfcfc */
 /*---------------------------- reset ----------------------------*/
 html {
-  color: #333;
-  background: #fff;
+  color: #333333;
+  background: white;
   overflow-y: scroll; }
 
 body {
@@ -72,13 +72,13 @@ a {
   overflow: hidden;
   outline: none; }
   a:link {
-    color: #ff5a0c;
+    color: #ff5a0b;
     text-decoration: none; }
   a:visited {
-    color: #ff5a0c;
+    color: #ff5a0b;
     text-decoration: none; }
   a:hover, a:active {
-    color: #ff5a0c;
+    color: #ff5a0b;
     text-decoration: none; }
 
 /*---------------------------------------------
@@ -1288,8 +1288,8 @@ Common Style
       width: 20%;
       padding: 0 5px;
       letter-spacing: normal;
-      -moz-box-sizing: border-box;
       -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
       box-sizing: border-box; }
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-box-social .social-button > li {
@@ -1303,9 +1303,9 @@ Common Style
         color: #fff;
         text-align: center; }
         .m-box-social .social-button > li a:hover {
+          -webkit-transition: all 0.3s;
           -moz-transition: all 0.3s;
           -o-transition: all 0.3s;
-          -webkit-transition: all 0.3s;
           transition: all 0.3s; }
         .m-box-social .social-button > li a span {
           position: relative;
@@ -1360,7 +1360,7 @@ Common Style
   vertical-align: middle; }
 .m-box-entry .entry-meta .meta-title {
   margin-top: 15px;
-  color: #ff5a0c;
+  color: #ff5a0b;
   font-size: 155%;
   font-weight: bold; }
   @media screen and (min-width: 0px) and (max-width: 568px) {
@@ -1478,6 +1478,7 @@ Common Style
   src: url("../fonts/icomoon.eot?#iefix-olu86y") format("embedded-opentype"), url("../fonts/icomoon.woff?-olu86y") format("woff"), url("../fonts/icomoon.ttf?-olu86y") format("truetype"), url("../fonts/icomoon.svg?-olu86y#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
+
 [class^="m-icon-"], [class*=" m-icon-"] {
   font-family: 'icomoon';
   speak: none;
@@ -1628,26 +1629,26 @@ Common Style
     .m-list-pager .pager-num a {
       display: block;
       padding: 15px;
-      background: #ff5a0c;
+      background: #ff5a0b;
       color: #fff;
       font-size: 88%; }
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-list-pager .pager-num a {
           padding: 10px; } }
       .m-list-pager .pager-num a:hover {
+        -webkit-transition: all 0.3s;
         -moz-transition: all 0.3s;
         -o-transition: all 0.3s;
-        -webkit-transition: all 0.3s;
         transition: all 0.3s;
-        background: #d84500; }
+        background: #d74500; }
     .m-list-pager .pager-num span {
       display: block;
       padding: 15px;
-      border: 2px solid #ff5a0c;
+      border: 2px solid #ff5a0b;
       background: #fff;
       font-size: 88%;
-      -moz-box-sizing: border-box;
       -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
       box-sizing: border-box; }
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-list-pager .pager-num span {
@@ -1670,15 +1671,9 @@ Common Style
       .m-list-widget .widget-item:nth-child(1) {
         margin: 0; } }
   .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3), .m-list-widget .widget-item:nth-child(4) {
-    display: inline-block;
-    width: 33.3%;
     margin-top: 20px;
     padding: 0 20px;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    letter-spacing: normal;
-    vertical-align: top; }
+    letter-spacing: normal; }
     @media screen and (min-width: 0px) and (max-width: 568px) {
       .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3), .m-list-widget .widget-item:nth-child(4) {
         display: block;
@@ -1689,8 +1684,13 @@ Common Style
       @media screen and (min-width: 0px) and (max-width: 568px) {
         .m-list-widget .widget-item:nth-child(2) .widget-content, .m-list-widget .widget-item:nth-child(3) .widget-content, .m-list-widget .widget-item:nth-child(4) .widget-content {
           font-size: 100%; } }
-  .m-list-widget .widget-item:nth-child(2), .m-list-widget .widget-item:nth-child(3) {
-    border-right: 1px solid #eee; }
+  .m-list-widget .widget-item:nth-child(2) dd ul {
+    margin-top: -20px;
+    margin-left: 0;
+    padding-left: 0; }
+  .m-list-widget .widget-item:nth-child(2) dd ul li {
+    display: inline-block;
+    margin: 20px 30px 0 0; }
   .m-list-widget .widget-item:first-child {
     margin-top: 0 !important; }
   .m-list-widget .widget-item .widget-title {
@@ -2104,7 +2104,7 @@ Common Style
 .syntaxhighlighter {
   background-color: white !important; }
   .syntaxhighlighter .line.alt1 {
-    background-color: #f5f5f5 !important; }
+    background-color: whitesmoke !important; }
   .syntaxhighlighter .line.alt2 {
     background-color: white !important; }
   .syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
@@ -2125,21 +2125,21 @@ Common Style
   .syntaxhighlighter.collapsed {
     overflow: visible !important; }
     .syntaxhighlighter.collapsed .toolbar {
-      color: #00f !important;
-      background: #fff !important;
+      color: blue !important;
+      background: white !important;
       border: 1px solid #ff6b25 !important; }
       .syntaxhighlighter.collapsed .toolbar a {
-        color: #00f !important; }
+        color: blue !important; }
         .syntaxhighlighter.collapsed .toolbar a:hover {
-          color: #f00 !important; }
+          color: red !important; }
   .syntaxhighlighter .toolbar {
-    color: #fff !important;
+    color: white !important;
     background: #ff6b25 !important;
     border: none !important; }
     .syntaxhighlighter .toolbar a {
-      color: #fff !important; }
+      color: white !important; }
       .syntaxhighlighter .toolbar a:hover {
-        color: #000 !important; }
+        color: black !important; }
   .syntaxhighlighter .plain, .syntaxhighlighter .plain a {
     color: black !important; }
   .syntaxhighlighter .comments, .syntaxhighlighter .comments a {
@@ -2155,7 +2155,7 @@ Common Style
   .syntaxhighlighter .value {
     color: #009900 !important; }
   .syntaxhighlighter .functions {
-    color: #ff1493 !important; }
+    color: deeppink !important; }
   .syntaxhighlighter .constants {
     color: #0066cc !important; }
   .syntaxhighlighter .script {
@@ -2165,7 +2165,7 @@ Common Style
   .syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
     color: gray !important; }
   .syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
-    color: #ff1493 !important; }
+    color: deeppink !important; }
   .syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
     color: red !important; }
 
@@ -2175,7 +2175,7 @@ Common Style
 .syntaxhighlighter {
   background-color: white !important; }
   .syntaxhighlighter .line.alt1 {
-    background-color: #f5f5f5 !important; }
+    background-color: whitesmoke !important; }
   .syntaxhighlighter .line.alt2 {
     background-color: white !important; }
   .syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
@@ -2196,21 +2196,21 @@ Common Style
   .syntaxhighlighter.collapsed {
     overflow: visible !important; }
     .syntaxhighlighter.collapsed .toolbar {
-      color: #00f !important;
-      background: #fff !important;
+      color: blue !important;
+      background: white !important;
       border: 1px solid #ff6b25 !important; }
       .syntaxhighlighter.collapsed .toolbar a {
-        color: #00f !important; }
+        color: blue !important; }
         .syntaxhighlighter.collapsed .toolbar a:hover {
-          color: #f00 !important; }
+          color: red !important; }
   .syntaxhighlighter .toolbar {
-    color: #fff !important;
+    color: white !important;
     background: #ff6b25 !important;
     border: none !important; }
     .syntaxhighlighter .toolbar a {
-      color: #fff !important; }
+      color: white !important; }
       .syntaxhighlighter .toolbar a:hover {
-        color: #000 !important; }
+        color: black !important; }
   .syntaxhighlighter .plain, .syntaxhighlighter .plain a {
     color: black !important; }
   .syntaxhighlighter .comments, .syntaxhighlighter .comments a {
@@ -2226,7 +2226,7 @@ Common Style
   .syntaxhighlighter .value {
     color: #009900 !important; }
   .syntaxhighlighter .functions {
-    color: #ff1493 !important; }
+    color: deeppink !important; }
   .syntaxhighlighter .constants {
     color: #0066cc !important; }
   .syntaxhighlighter .script {
@@ -2236,7 +2236,7 @@ Common Style
   .syntaxhighlighter .color1, .syntaxhighlighter .color1 a {
     color: gray !important; }
   .syntaxhighlighter .color2, .syntaxhighlighter .color2 a {
-    color: #ff1493 !important; }
+    color: deeppink !important; }
   .syntaxhighlighter .color3, .syntaxhighlighter .color3 a {
     color: red !important; }
 
@@ -2245,7 +2245,7 @@ Common Style
 
 /*---------------------------- layout ----------------------------*/
 html {
-  background: #fff; }
+  background: white; }
 
 body {
   margin: 0px; }

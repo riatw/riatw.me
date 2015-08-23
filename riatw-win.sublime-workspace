@@ -1,0 +1,217 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 86.0,
+		"last_filter": "install",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 216.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/core",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/module"
+	],
+	"file_history":
+	[
+		"/C/Users/suzuki/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/index_static.html",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/detail_static.html",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/base.scss",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/module/_box.scss",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/core/_setting.scss",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/module/_list.scss",
+		"/C/Users/suzuki/Dropbox/sites/riatw.me/static/_scss/core/_mixin.scss",
+		"/C/Users/suzuki/AppData/Roaming/Sublime Text 3/Packages/Compass/build.cmd",
+		"/C/Users/suzuki/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/suzuki/AppData/Roaming/Sublime Text 3/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/include/header/pageTitle.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/top.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/include/module/template/Entry_Headline/topHeadline.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/include/module/template/Entry_Body/body.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/index.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/parts.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/include/module/siteparts/banner.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/themes/site2015/include/module/entry/summaryImageMain.html",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/private/config.system.yaml",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/config.server.php",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/.htaccess",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/index.php",
+		"/C/Users/suzuki/Dropbox/sites/html/ablogcms/htaccess.txt",
+		"/C/Users/suzuki/vagrant/Vagrantfile",
+		"/D/Users/riatw/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 43.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"10",
+			"10px",
+			"<li class=\"entries-item\">\n									<dl>\n										<dd class=\"item-meta\">\n											<span class=\"meta-category\">\n												Movable Type\n											</span>\n											<span class=\"meta-date\">\n												2014.01.01\n											</span>\n										</dd>\n										<dt class=\"item-title\"><a href=\"http://riatw.me/blog/wcan_2014_summer_3.html\">WCAN 2014 Summer メモ：セッション3. 今、Webクリエーターに必要な５ MOST！</a></dt>\n										<dd class=\"item-excerpt\">\n											一般的にはテスト環境=本番環境のために問題は起きないのですが、以下のようなケースでブログIDがずれる場合があります。 本番環境に複数サイトが同居する場合 バックアップ&リストアでブログ・サイトを移...\n										</dd>\n									</dl>\n								</li>",
+			"blockqu",
+			"5%",
+			"transition",
+			"social-button",
+			"bottom",
+			"\n02",
+			"goto_definition",
+			"80"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 35.0
+	},
+	"input":
+	{
+		"height": 44.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 178.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "riatw-win.sublime-project",
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
