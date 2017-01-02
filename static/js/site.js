@@ -66,3 +66,197 @@ $(function () {
 
 });
 
+$(function () {
+// localStorage DataModel
+// 	userid: "ano_001",
+// 	pageviews: [
+// 		{
+			// url: "xxxx",
+// 			count: 0,
+// 			lastmod: 2015/10/11
+// 		}
+// 	]
+
+// TODO
+// - 変数の命名見直し
+// - リファクタ
+// - show / hideのコード共通化
+// - 接頭語見直し asc　Considerate
+
+	function searchArray(array, value) {
+		for ( var i = 0; i < array.length; i++ ){
+			if ( array[i].url == value ) {
+				return i + 1;
+			}
+		}
+
+		return false;
+	}
+
+	// logging
+	var href = location.pathname;
+	var storage = localStorage.getItem("_asc");
+
+	if ( storage == null ) {
+		storage = {
+			username: Date.now(),
+			pageviews: [
+
+			],
+			lastmod: Date.now()
+		}
+	}
+	else {
+		storage = JSON.parse(storage);
+	}
+
+	if ( searchArray(storage.pageviews, href) ) {
+		var idx = searchArray(storage.pageviews, href) - 1;
+		storage.pageviews[idx].count = storage.pageviews[idx].count + 1;
+		storage.lastmod = Date.now();
+	}
+	else {
+		storage.pageviews.push({
+			url: href,
+			count: 1,
+			lastmod: Date.now()
+		})
+	}
+
+	storage.lastmod = Date.now();
+
+	localStorage.setItem("_asc", JSON.stringify(storage));
+
+	// asc-show
+	$("[data-asc-show]").each(function() {
+		var $this = $(this);
+		var conditions = $this.data("asc-show");
+		var flag = 0;
+
+		//条件の数分だけ繰り返す
+		for ( var i = 0; i < conditions.length; i++ ) {
+			var condition = conditions[i];
+			var regex = new RegExp(condition.regex);
+			var count = condition.count;
+			var localcount = 0;
+
+			//条件を満たしたかどうか
+			for ( var j = 0; j < storage.pageviews.length; j++ ) {
+				var pageview = storage.pageviews[j];
+
+				if ( regex.test( pageview.url ) ) {
+					localcount = localcount + pageview.count;
+				}
+			}
+
+			if ( localcount >= count ) {
+				flag++;
+			}
+		}
+
+		if ( flag == conditions.length ) {
+			$this.show();
+		}
+		else {
+			$this.remove();
+		}
+	});
+
+	// asc-hide
+	$("[data-asc-hide]").each(function() {
+		var $this = $(this);
+		var conditions = $this.data("asc-hide");
+		var flag = 0;
+
+		//条件の数分だけ繰り返す
+		for ( var i = 0; i < conditions.length; i++ ) {
+			var condition = conditions[i];
+			var regex = new RegExp(condition.regex);
+			var count = condition.count;
+			var localcount = 0;
+
+			//条件を満たしたかどうか
+			for ( var j = 0; j < storage.pageviews.length; j++ ) {
+				var pageview = storage.pageviews[j];
+
+				if ( regex.test( pageview.url ) ) {
+					localcount = localcount + pageview.count;
+				}
+			}
+
+			if ( localcount >= count ) {
+				flag++;
+			}
+		}
+
+		if ( flag == conditions.length ) {
+			$this.remove();
+		}
+		else {
+			$this.show();
+		}
+	});
+
+	// 目次
+	var array = [];
+	//array
+		// - id
+		// - text
+		// - child - id / - text
+
+	var start = 0;
+	var end = 0;
+	var all = $(".entry-body").children();
+	var contentHTML = $(".entry-body");
+	var target = $("<ul />").addClass("entry-outline");
+
+	var h4Count = 0;
+
+	contentHTML.find("h3").each(function(i){
+		var array_temp = new Object;
+		array_temp.child = [];
+
+		end = $(this).nextAll("h3").eq("0").index();
+
+		if ( end == -1 ) {
+			end = all.length;
+		}
+
+		var count = all.slice(start,end).filter("h4").length - 1;
+		array_temp.id = "h3-" + (i+1);
+		$(this).attr("id","h3-" + (i+1));
+
+		array_temp.text = $(this).text();
+
+		all.slice(start,end).filter("h4").each(function(i){
+			var array_temp2 = new Object;
+			h4Count++;
+			array_temp2.id = "h4-" + h4Count;
+			array_temp2.text = $(this).text();
+
+			$(this).attr("id","h4-" + h4Count);
+
+			array_temp.child.push(array_temp2);
+		});
+
+		start = end;
+
+		array.push(array_temp);
+	});
+
+	for ( var i=0; i < array.length; i++ ){
+		var tmpl = '<li><a href="#{{id}}">{{text}}</a></li>'
+		tmpl = tmpl.replace("{{id}}", array[i].id);
+		tmpl = tmpl.replace("{{text}}", array[i].text);
+
+		target.append(tmpl);
+	}
+
+	console.log(array);
+
+	if ( array.length > 0 ) {
+		$(".entry-body").before(target);
+		defObj.func.smoothScroll ();
+	}
+});
+

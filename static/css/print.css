@@ -2,20 +2,24 @@
 Print Style
 ---------------------------------------------*/
 html {
-  background: none; }
+	background : none;
+}
 
 body {
-  padding: 0;
-  background: none; }
+	padding : 0;
+	background : none;
+}
 
 /*---------------------------------------------
 for IE6
 ---------------------------------------------*/
 * html body {
-  zoom: 67%; }
+	zoom : 67%;
+}
 
 /*---------------------------------------------
 for IE7
 ---------------------------------------------*/
 *:first-child + html body {
-  zoom: 67%; }
+	zoom : 67%;
+}

@@ -1,2 +1,12 @@
 .sass-cache/
 .DS_Store
+.csscomb.json
+.editorconfig
+gulpfile.js
+node_modules
+package.json
+static/mt
+static/cms
+!static/cms/plugins
+!static/cms/themes
+!static/cms/mt-static/plugins

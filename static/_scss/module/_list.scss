@@ -10,69 +10,46 @@
 // - ここに登録したスタイルは新規フェーズ後は原則変更しない
 // - ここにはサイト内で2回以上使用するパーツを定義する
 
-/*
-	module:　m-list-inline
-	- 横並びリスト
------------------------------------------------------------------*/
-.m-list-inline {
-	letter-spacing: -.40em;
-
-	li {
-		@include inline-block;
-		margin-right: 35px;
-		vertical-align: top;
-		letter-spacing: normal;
-
-		&.lastChild,
-		&:last-child {
-			margin-right: 0 !important;
-		}
-	}
-}
-
-/*
-	module: m-list-indent
-	- テキストの頭出し
------------------------------------------------------------------*/
-.m-list-indent {
-	li {
-		margin-left: 1em;
-		text-indent: -1em;
-	}
-}
-
-/*
-	module:　m-list-col2
-	- ulリストの2カラムパターン
------------------------------------------------------------------*/
-.m-list-col2 {
-	@include clearfix;
-
-	> li {
-		float: left;
-
-		&:last-child,
-		&.lastChild {
-			float: right;
-		}
-	}
-}
-
 .m-list-entries {
 	.entries-item {
+		position: relative;
 		margin-top: 50px;
-
-		@media #{$breakS} {
-			margin-top: 35px;
-		}
 
 		&:first-child {
 			margin-top: 0 !important;
 		}
 
+		a {
+			display: block;
+			color: inherit;
+			padding-bottom: 50px;
+
+			&:after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				margin: auto;
+				width: 50%;
+				height: 1px;
+				background: #ddd;
+			}
+
+			&:hover {
+				&:after {
+					width: 100%;
+					height: 2px;
+					background: $siteMainColor;
+					transition: all 0.3s;
+				}
+			}
+		}
+
 		.item-title {
-			margin-top: 15px;
-			font-size: fz(18,22);
+			margin-top: 17px;
+			color: $defaultLinkColor;
+			font-size: fz(18,24);
 			font-weight: bold;
 
 			@media #{$breakS} {
@@ -84,7 +61,7 @@
 				display: inline-block;
 				width: 120px;
 				padding: 3px 10px;
-				background: #333;
+				background: $defaultTxtColor;
 				color: #fff;
 				font-size: fz(18,12);
 				text-align: center;
@@ -93,32 +70,24 @@
 				display: inline-block;
 				margin-left: 10px;
 				padding-left: 10px;
-				border-left: 1px solid #ccc;
 				font-size: fz(18,16);
 				vertical-align: middle;
 			}
 		}
 		.item-excerpt {
 			margin-top: 10px;
-
-			@media #{$breakS} {
-				margin-top: 7px;
-			}
 		}
 	}
 }
 
 .m-list-pager {
+	position: relative;
 	@include inline-block-child;
-	margin-top: 70px;
+	margin-top: 4em;
 	text-align: center;
 
-	@media #{$breakS} {
-		margin-top: 35px;
-	}
-
 	.pager-num {
-		margin: 0 5px;
+		margin: 0 10px;
 		vertical-align: middle;
 		line-height: 1;
 
@@ -128,7 +97,7 @@
 
 		a {
 			display: block;
-			padding: 15px;
+			padding: 20px;
 			background: $siteMainColor;
 			color: #fff;
 			font-size: fz(18,16);
@@ -138,17 +107,17 @@
 			}
 
 			&:hover {
-				@include transition(all 0.3s);
-				background: darken($siteMainColor, 10%);
+				transition: all 0.3s;
+				background: lighten($siteMainColor, 10%);
 			}
 		}
 		span {
 			display: block;
-			padding: 15px;
-			border: 2px solid $siteMainColor;
+			padding: 23px;
+			border: 3px solid $siteMainColor;
 			background: #fff;
 			font-size: fz(18,16);
-			@include box-sizing(border-box);
+			// @include box-sizing(border-box);
 
 			@media #{$breakS} {
 				padding: 10px;
@@ -157,104 +126,3 @@
 	}
 }
 
-.m-list-widget {
-	margin: 70px -15px 0 -15px;
-	letter-spacing: -0.35em;
-	overflow: hidden;
-
-	@media #{$breakS} {
-		margin: 35px 0 0 0;
-	}
-
-	.widget-item {
-		&:nth-child(1) {
-			margin: 0 20px;
-			letter-spacing: normal;
-
-			dl {
-				padding: 20px;
-				background: #eee;
-			}
-
-			@media #{$breakS} {
-				margin: 0;
-			}
-		}
-		&:nth-child(2),
-		&:nth-child(3),
-		&:nth-child(4) {
-			margin-top: 20px;
-			padding: 0 20px;
-			letter-spacing: normal;
-
-			@media #{$breakS} {
-				display: block;
-				width: auto;
-				padding: 0;
-			}
-
-			.widget-content {
-				font-size: fz(18,16);
-
-				@media #{$breakS} {
-					font-size: fz(18,18);
-				}
-			}
-		}
-		&:nth-child(2) dd ul {
-			margin-top: -10px;
-			margin-left: 0;
-			padding-left: 0;
-		}
-		&:nth-child(2) dd ul li {
-			display: inline-block;
-			margin: 10px 30px 0 0;
-		}
-
-		// margin-top: 40px;
-
-		@media #{$breakS} {
-			// margin-top: 25px;
-		}
-
-		&:first-child {
-			margin-top: 0 !important;
-		}
-
-		.widget-title {
-			font-size: fz(18,20);
-			font-weight: bold;
-		}
-		.widget-content {
-			margin-top: 15px;
-		}
-	}
-
-	.widget-author {
-		.author-pic {
-			display: table-cell;
-			padding-right: 10px;
-			vertical-align: middle;
-		}
-		.author-name {
-			display: table-cell;
-			font-size: fz(18,16);
-			vertical-align: middle;
-		}
-		.author-description {
-			margin-top: 10px;
-			font-size: fz(18,16);
-			line-height: 1.8;
-		}
-	}
-
-	.widget-category {
-		ul {
-			margin-left: 5px;
-			padding-left: 15px;
-			color: #333;
-			list-style: disc;
-			line-height: 1.8;
-		}
-	}
-}

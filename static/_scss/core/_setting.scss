@@ -4,22 +4,20 @@
 //	reset.scss用のパラメーター		//
 //------------------------------//
 $defaultBgColor: 	#fff; /* old #fcfcfc */
-$defaultTxtColor: 	#333;
-
-$siteMainColor: darken(#FF6B25, 5%);
+$defaultTxtColor: 	#555;
+$defaultStrongTxtColor: 	#333;
+$siteMainColor: #F08200;
 
 $defaultLinkColor: $siteMainColor;
-$defaultLinkVisitedColor: $siteMainColor;
-$defaultLinkHoverColor: $siteMainColor;
-
-//#FF6B25
+$defaultLinkVisitedColor: $defaultLinkColor;
+$defaultLinkHoverColor: darken($siteMainColor,5%);
 
 $defaultTxtSize: 	18px;
-$defaultLineHeight: 1.6;
+$defaultLineHeight: 1.8;
 
 
 //---- Break Point ----
-$fixedWidth: 750px;
+$fixedWidth: 950px;
 
 $breakS: "screen and (min-width: 0px) and (max-width: 568px)";
 $breakM: "screen and (max-width: 960px)";

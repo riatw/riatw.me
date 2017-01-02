@@ -1,0 +1,40 @@
+<MTSetvars>
+	pagetitle=<mt:pagetitle>
+	meta_pagetitle=<mt:pagetitle>
+</MTSetvars>
+
+<MTInclude module="config" parent="1">
+
+<MTSetvarBlock name="getContents">
+	<div class="m-box-article">
+		<div class="m-box-entry">
+			<div class="entry-meta">
+				<p class="meta-data">
+					<span class="meta-category">
+						<MTIf tag="entrycategory">
+							<mt:categorylabel>
+						<MTELse>
+							分類なし
+						</MTIf>
+					</span>
+					<span class="meta-date">
+						<mt:entrydate format="%Y.%m.%d">
+					</span>
+				</p>
+				<h2 class="meta-title">
+					<mt:entrytitle>
+				</h2>
+			</div>
+
+			<div class="entry-body">
+				<mt:entrybody>
+			</div>
+		</div>
+	</div>
+</MTSetvarBlock>
+
+<MTUnless compass="2">
+	<mt:var name="getHeader">
+	<mt:var name="getContents">
+	<mt:var name="getFooter">
+</MTUnless>

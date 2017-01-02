@@ -8,8 +8,6 @@ html {
 }
 
 body {
-	@include font-family("meiryo");
-	font-size: $defaultTxtSize;
 	height: 100%;
 	text-align: left;
 	-webkit-text-size-adjust: none;

@@ -1,135 +1,109 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<meta http-equiv="Content-Script-Type" content="text/javascript" />
-	<title><mt:entrytitle> | ブログ | riatw.me</title>
-	<meta name="description" content="<mt:entrybody remove_html="1" strip_linefeeds="1" trim_to="100+...">" />
-	<meta name="keywords" content="Web,Movable+Type,MT,CMS,MTAppjQuery,HTML,CSS,Javascript,VPS" />
+<MTSetvars>
+	pagetitle=<mt:entrytitle> | Blog
+	meta_pagetitle=<mt:entrytitle> | Blog
+</MTSetvars>
 
-	<meta property="og:title" content="<mt:entrytitle> | riatw.me" />
-	<meta property="og:type" content="blog" />
-	<meta property="og:url" content="<mt:entrylink>" />
-	<meta property="og:image" content="" />
-	<meta property="og:site_name" content="riatw.me" />
+<MTInclude module="config" parent="1">
 
-	<meta name="viewport" content="width=device-width" />
-
-	<link rel="stylesheet" href="<mt:websiteurl>css/base.css" type="text/css" />
-	<link rel="stylesheet" href="<mt:websiteurl>css/print.css" type="text/css" media="print" />
-	<link rel="shortcut icon" href="<mt:websiteurl>favicon.ico" />
-
-</head>
-
-<body class="index">
-	<noscript>JavascriptがOFFのため正しく表示されない可能性があります。</noscript>
-
-	<!-- [ WRAP ] -->
-	<div id="wrap">
-		<!-- [ GLOBAL HEADER ] -->
-		<div id="header">
-			<h1 class="header-title"><a href="http://riatw.me"><img src="<mt:websiteurl>images/i_logo.png" alt="riatw.me"></a></h1>
-			<p class="header-catch">
-				GIVE YOU MORE SURPRISE WITH WEB TECHNOLOGY
-			</p>
-		</div>
-		<!-- [ /GLOBAL HEADER ] -->
-
-		<!-- [ CONTENT ] -->
-		<div id="content">
-			<div class="m-box-fixed">
-				<div class="m-box-col2">
-					<div class="col2-left">
-						<div class="m-box-article">
-							<div class="m-box-entry">
-								<div class="entry-meta">
-									<p class="meta-data">
-										<span class="meta-category">
-											<MTIf tag="entrycategory">
-												<mt:categorylabel>
-											<MTELse>
-												分類なし
-											</MTIf>
-										</span>
-										<span class="meta-date">
-											<mt:entrydate format="%Y.%m.%d">
-										</span>
-									</p>
-									<h2 class="meta-title">
-										<mt:entrytitle>
-									</h2>
-								</div>
-
-								<div class="entry-body">
-									<mt:entrybody>
-								</div>
-							</div>
-						</div>
-
-						<MTEntryPrevious><mt:setvar name="pager_flag" value="1"></MTEntryPrevious>
-						<MTEntryNext><mt:setvar name="pager_flag" value="1"></MTEntryNext>
-
-						<MTIf name="pager_flag">
-							<ul class="m-list-pager">
-								<MTEntryPrevious>
-									<li class="pager-num pager-prev">
-										<a href="<mt:entrylink>">&lt; PREV ENTRY</a>
-									</li>
-								</MTEntryPrevious>
-
-								<MTEntryNext>
-									<li class="pager-num pager-next">
-										<a href="<mt:entrylink>">NEXT ENTRY &gt;</a>
-									</li>
-								</MTEntryNext>
-							</ul>
+<MTSetvarBlock name="getContents">
+	<div class="m-box-article">
+		<div class="m-box-entry">
+			<div class="entry-meta">
+				<p class="meta-data">
+					<span class="meta-category">
+						<MTIf tag="entrycategory">
+							<mt:categorylabel>
+						<MTELse>
+							分類なし
 						</MTIf>
+					</span>
+					<span class="meta-date">
+						<mt:entrydate format="%Y.%m.%d">
+					</span>
+				</p>
+				<h2 class="meta-title">
+					<mt:entrytitle>
+				</h2>
+			</div>
 
-						<div class="m-box-social">
-							<p class="social-title">
-								この記事はいかがでしたか?　よろしければこの記事をご紹介ください。
-							</p>
-
-							<ul class="social-button">
-								<li class="button-twitter">
-									<a href="http://twitter.com/share?count=horizontal&amp;original_referer=<mt:entrylink>&amp;text=<mt:entrytitle encode_url="1">&amp;url=<mt:entrylink>&amp;via=riatw" target="_blank"><span class="m-icon-twitter"></span>Twitter</a>
-								</li>
-								<li class="button-facebook">
-									<a href="https://www.facebook.com/sharer/sharer.php?u=<mt:entrylink>" target="_blank"><span class="m-icon-facebook"></span>Facebook</a>
-								</li>
-								<li class="button-google">
-									<a href="https://plus.google.com/share?url=<mt:entrylink>" target="_blank"><span class="m-icon-google-plus"></span>Google+</a>
-								</li>
-								<li class="button-hatena">
-									<a href="http://b.hatena.ne.jp/add?mode=confirm&amp;url=<mt:entrylink>" target="_blank"><span class="m-icon-hatebu"></span>Hatena</a>
-								</li>
-								<li class="button-pocket">
-									<a href="http://getpocket.com/edit?url=<mt:entrylink>" target="_blank"><span class="m-icon-pocket"></span>Pocket</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-
-					<!--#include virtual="/_parts/sidebar.html" -->
-				</div>
+			<div class="entry-body">
+				<mt:entrybody>
 			</div>
 		</div>
-		<!-- [ /CONTENT ] -->
-
-		<!-- [ GLOBAL FOOTER ] -->
-		<div id="footer">
-			<div class="m-box-fixed">
-				<p class="copyright">&copy;2014 riatw.me</p>
-			</div>
-		</div>
-		<!-- [ /GLOBAL FOOTER ] -->
-
 	</div>
-	<!-- [ WRAP ] -->
 
-	<script type="text/javascript" src="<mt:websiteurl>js/vendor/jquery.js"></script>
-	<script type="text/javascript" src="<mt:websiteurl>js/common.js"></script>
-	<script type="text/javascript" src="<mt:websiteurl>js/site.js"></script>
-</body>
-</html>
+	<MTEntryPrevious><mt:setvar name="pager_flag" value="1"></MTEntryPrevious>
+	<MTEntryNext><mt:setvar name="pager_flag" value="1"></MTEntryNext>
+
+	<MTIf name="pager_flag">
+		<ul class="m-list-pager">
+			<MTEntryPrevious>
+				<li class="pager-num pager-prev">
+					<a href="<mt:entrylink>">&lt; PREV ENTRY</a>
+				</li>
+			</MTEntryPrevious>
+
+			<MTEntryNext>
+				<li class="pager-num pager-next">
+					<a href="<mt:entrylink>">NEXT ENTRY &gt;</a>
+				</li>
+			</MTEntryNext>
+		</ul>
+	</MTIf>
+
+<div class="m-box-comment mat50 pat20">
+<MTIgnore>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.6&appId=1797084013861273";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<div class="fb-comments" data-href="<mt:canonicalurl>" data-width="100%" data-numposts="5"></div>
+</MTIgnore>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.7&appId=1797084013861273";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<div class="fb-like" data-href="<mt:canonicalurl>" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="false"></div>
+
+</div>
+
+	<div class="m-box-social">
+		<p class="social-title">
+			この記事はいかがでしたか? よろしければこの記事をご紹介ください。
+		</p>
+
+		<ul class="social-button">
+			<li class="button-twitter">
+				<a href="http://twitter.com/share?count=horizontal&amp;original_referer=<mt:entrylink>&amp;text=<mt:entrytitle encode_url="1">&amp;url=<mt:entrylink>&amp;via=riatw" target="_blank"><span class="m-icon-twitter"></span>Twitter</a>
+			</li>
+			<li class="button-facebook">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=<mt:entrylink>" target="_blank"><span class="m-icon-facebook"></span>Facebook</a>
+			</li>
+			<li class="button-google">
+				<a href="https://plus.google.com/share?url=<mt:entrylink>" target="_blank"><span class="m-icon-google-plus"></span>Google+</a>
+			</li>
+			<li class="button-hatena">
+				<a href="http://b.hatena.ne.jp/add?mode=confirm&amp;url=<mt:entrylink>" target="_blank"><span class="m-icon-hatebu"></span>Hatena</a>
+			</li>
+			<li class="button-pocket">
+				<a href="http://getpocket.com/edit?url=<mt:entrylink>" target="_blank"><span class="m-icon-pocket"></span>Pocket</a>
+			</li>
+		</ul>
+	</div>
+</MTSetvarBlock>
+
+<MTUnless compass="2">
+	<mt:var name="getHeader">
+	<mt:var name="getContents">
+	<mt:var name="getFooter">
+</MTUnless>

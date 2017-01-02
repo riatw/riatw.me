@@ -10,6 +10,6 @@ $diP: "../images/";
 	@include inline-block;
 
 	&:hover img {
-		@include opacity(0.7);
+		opacity: 0.7;
 	}
 }

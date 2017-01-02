@@ -7,7 +7,7 @@ $line_highlighted_background:	#e0e0e0 !default;
 $line_highlighted_number:		black !default;
 
 $gutter_text:					#afafaf !default;
-$gutter_border_color:			#ff6b25 !default;
+$gutter_border_color:			$defaultLinkColor !default;
 $gutter_border:					3px solid $gutter_border_color !default;
 
 $toolbar_collapsed_a:			#00f !default;
