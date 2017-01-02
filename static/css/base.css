@@ -1804,7 +1804,7 @@ Common Style
 .m-box-entry .entry-body ol li ol {
 	padding-left : 17px;
 }
-.m-box-entry .entry-body ul + *, .m-box-entry .entry-body ol + * {
+.m-box-entry .entry-body ul + p, .m-box-entry .entry-body ol + p {
 	margin-top : 2em;
 }
 .m-box-entry .entry-body > div {
