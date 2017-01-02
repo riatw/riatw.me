@@ -1747,7 +1747,7 @@ Common Style
 	margin-top : 3em;
 }
 .m-box-entry .entry-body h3 {
-	margin : 3em 0 2em 0;
+	margin : 3em 0 1.5em 0;
 	padding : 0 0 0 20px;
 	border-left : 5px solid #f08200;
 	color : #333;
@@ -1803,6 +1803,9 @@ Common Style
 }
 .m-box-entry .entry-body ol li ol {
 	padding-left : 17px;
+}
+.m-box-entry .entry-body ul + *, .m-box-entry .entry-body ol + * {
+	margin-top : 2em;
 }
 .m-box-entry .entry-body > div {
 	margin-top : 1.8em;
