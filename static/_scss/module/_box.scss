@@ -141,8 +141,8 @@
 
 		.meta-category {
 			display: inline-block;
-			min-width: 120px;
-			padding: 1px 10px;
+			min-width: 150px;
+			padding: 3px 10px;
 			background: $defaultTxtColor;
 			color: #fff;
 			font-size: fz(18,14);
@@ -155,14 +155,20 @@
 			vertical-align: middle;
 		}
 		.meta-title {
-			margin-top: 1em;
+			margin-top: 0.5em;
 			color: $siteMainColor;
-			font-size: fz(18,28);
+			font-size: fz(18,34);
 			font-weight: bold;
+			line-height: 1.5;
+		}
+
+		.meta-title:first-child {
+			margin-top: 0;
 		}
 	}
 
 	.entry-outline {
+		margin-bottom: 3em;
 		padding: 30px;
 		background: #f5f5f5;
 		line-height: 1.8;
@@ -185,15 +191,14 @@
 	}
 
 	.entry-body {
-		margin-top: 3em;
-
 		h3 {
 			margin: 3em 0 1.5em 0;
-			padding: 0 0 0 20px;
+			padding: 0 0 0 15px;
 			border-left: 5px solid $siteMainColor;
 			color: $defaultStrongTxtColor;
 			font-size: fz(18,28);
 			font-weight: bold;
+			line-height: 1.5;
 
 			@media #{$breakS} {
 				margin-top: 30px;
@@ -203,11 +208,23 @@
 		}
 		h4 {
 			margin: 2em 0 1.5em 0;
-			padding: 5px 0px 5px 22px;
-			border-left: 3px solid $siteMainColor;
+			padding: 0 0 0 15px;
+			border-left: 5px solid $siteMainColor;
 			color: $defaultStrongTxtColor;
 			font-size: fz(18,24);
 			font-weight: bold;
+			line-height: 1.5;
+
+			@media #{$breakS} {
+				margin-top: 25px;
+			}
+		}
+		h5 {
+			margin: 1.5em 0 1em 0;
+			color: $defaultStrongTxtColor;
+			font-size: fz(18,20);
+			font-weight: bold;
+			line-height: 1.5;
 
 			@media #{$breakS} {
 				margin-top: 25px;
@@ -221,11 +238,6 @@
 
 		p {
 			margin-top: 1em;
-
-			@media #{$breakS} {
-				margin-top: 1em;
-				line-height: 2;
-			}
 		}
 
 		ul {
@@ -235,7 +247,11 @@
 			list-style: disc;
 
 			li {
+				margin-top: 0.5em;
+
 				ul {
+					margin-top: 0;
+
 					li {
 						list-style: square;
 					}
@@ -244,13 +260,16 @@
 		}
 
 		ol {
-			margin: 1em 0 0 10px;
+			margin: 1em 0 0 5px;
 			padding-left: 15px;
 			list-style: decimal;
 
 			li {
+				margin-top: 0.5em;
+
 				ol {
-					padding-left: 17px;
+					margin-top: 0;
+					padding-left: 13px;
 				}
 			}
 		}

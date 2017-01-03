@@ -32,16 +32,13 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', '游ゴシック  Medium', meiryo, sans-serif;
 	line-height: $defaultLineHeight;
 }
-#wrap {
-
-}
 
 /* header */
 #header {
 	padding: 80px 0;
 
 	@media #{$breakS} {
-		padding: 70px 0;
+		padding: 50px 0;
 	}
 
 	.header-title {
@@ -63,10 +60,10 @@ body {
 	}
 
 	.header-catch {
-		margin-top: 25px;
+		margin-top: 40px;
 		color: $defaultLinkColor;
 		font-family: Arial;
-		font-size: fz(18,12);
+		font-size: fz(18,14);
 		text-align: center;
 		letter-spacing: 0.1em;
 
@@ -153,7 +150,7 @@ body {
 		}
 	}
 
-	.copyright {
+	.footer-copyright {
 		margin-top: 4em;
 		color: #666;
 		font-family: Arial;
