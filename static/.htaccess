@@ -1,3 +1,6 @@
-#
-AddType text/html .shtml .html
-AddOutputFilter INCLUDES .shtml .html
+AddType application/x-httpd-php .php .html
+
+RewriteEngine on
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://riatw.me/$1 [R=301,L]
+

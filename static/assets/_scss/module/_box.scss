@@ -4,7 +4,7 @@
 	module:　m-box-fixed
 	- 固定幅・中央揃えのボックス
 -----------------------------------------------------------------*/
-.m-box-fixed {
+[data-fixed] {
 	max-width: $fixedWidth;
 	margin: 0 auto;
 
@@ -15,28 +15,31 @@
 }
 
 .m-box-social {
+	position: relative;
 	margin-top: 4em;
-	padding: 0 100px;
+	padding: 30px;
 
-	@media #{$breakS} {
-		margin-top: 50px;
-		padding: 0;
+	&:before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 45px;
+		bottom: 45px;
+		margin-bottom: -45px;
+		width: 100%;
+		border: 1px solid #eee;
+		z-index: -1;
 	}
 
 	.social-title {
-		margin-bottom: 20px;
-		font-weight: bold;
+		width: 12em;
+		margin: 0 auto 20px auto;
 		text-align: center;
+		background: #fff;
 	}
 	.social-button {
 		margin: 0 -5px 0 -5px;
 		letter-spacing: -0.35em;
-
-		@media #{$breakS} {
-			margin: 0;
-			text-align: center;
-			letter-spacing: -0.4em;
-		}
 
 		> li {
 			display: inline-block;
@@ -46,10 +49,9 @@
 			box-sizing: border-box;
 
 			@media #{$breakS} {
-				display: inline-block;
-				width: 45%;
+				display: block;
+				width: 100%;
 				margin-top: 10px;
-				letter-spacing: normal;
 			}
 
 			a {
@@ -129,48 +131,32 @@
 }
 
 .m-box-entry {
-	padding: 0 100px;
+	margin-top: -5px;
 
-	@media #{$breakS} {
-		padding: 0;
+	.entry-title {
+		font-size: fz(18,36);
 	}
-
 	.entry-meta {
-		margin-bottom: 3em;
+		margin-top: 0.2em;
 		margin-bottom: 3em;
 
-		.meta-category {
-			display: inline-block;
-			min-width: 150px;
-			padding: 3px 10px;
-			background: $defaultTxtColor;
-			color: #fff;
-			font-size: fz(18,14);
-			text-align: center;
-		}
 		.meta-date {
 			display: inline-block;
-			margin-left: 10px;
-			font-size: fz(18,16);
 			vertical-align: middle;
 		}
-		.meta-title {
-			margin-top: 0.5em;
-			color: $siteMainColor;
-			font-size: fz(18,34);
-			font-weight: bold;
-			line-height: 1.5;
-		}
-
-		.meta-title:first-child {
-			margin-top: 0;
+		.meta-category {
+			display: inline-block;
+			margin-left: 10px;
+			text-align: center;
+			vertical-align: middle;
 		}
 	}
 
 	.entry-outline {
 		margin-bottom: 3em;
 		padding: 30px;
-		background: #f5f5f5;
+		border: 1px solid #eee;
+		background: #fafafa;
 		line-height: 1.8;
 
 		li {
@@ -182,91 +168,52 @@
 			&:first-child {
 				margin-top: 0;
 			}
-
-			@media #{$breakS} {
-				margin-top: 1em;
-				line-height: 1.8;
-			}
 		}
 	}
 
 	.entry-body {
-		h3 {
-			margin: 3em 0 1.5em 0;
-			padding: 0 0 0 15px;
-			border-left: 5px solid $siteMainColor;
-			color: $defaultStrongTxtColor;
-			font-size: fz(18,28);
-			font-weight: bold;
-			line-height: 1.5;
+		line-height: 1.8;
 
-			@media #{$breakS} {
-				margin-top: 30px;
-				margin-bottom: 20px;
-				font-size: fz(18,26);
-			}
+		h2 {
+			margin: 1.5em 0 0.5em 0;
+			font-size: fz(18,30);
+			font-weight: bold;
+		}
+		h3 {
+			margin: 1.5em 0 0.5em 0;
+			font-size: fz(18,26);
+			font-weight: bold;
 		}
 		h4 {
-			margin: 2em 0 1.5em 0;
-			padding: 0 0 0 15px;
-			border-left: 5px solid $siteMainColor;
-			color: $defaultStrongTxtColor;
-			font-size: fz(18,24);
+			margin: 1.6em 0 1em 0;
+			font-size: fz(18,22);
 			font-weight: bold;
-			line-height: 1.5;
-
-			@media #{$breakS} {
-				margin-top: 25px;
-			}
-		}
-		h5 {
-			margin: 1.5em 0 1em 0;
-			color: $defaultStrongTxtColor;
-			font-size: fz(18,20);
-			font-weight: bold;
-			line-height: 1.5;
-
-			@media #{$breakS} {
-				margin-top: 25px;
-			}
-		}
-		h3 + blockquote,
-		h4 + blockquote {
-			margin-top: 25px;
-			margin-bottom: 60px;
 		}
 
 		p {
-			margin-top: 1em;
+			margin: 1em 0;
 		}
 
 		ul {
-			margin-top: 1em;
-			margin-left: 6px;
-			padding-left: 15px;
+			margin: 0 0 1em 1.5em;
 			list-style: disc;
 
 			li {
-				margin-top: 0.5em;
-
 				ul {
-					margin-top: 0;
+					margin-bottom: 0;
 
 					li {
-						list-style: square;
+						list-style-type: circle;
 					}
 				}
 			}
 		}
 
 		ol {
-			margin: 1em 0 0 5px;
-			padding-left: 15px;
+			margin: 0 0 1em 1.5em;
 			list-style: decimal;
 
 			li {
-				margin-top: 0.5em;
-
 				ol {
 					margin-top: 0;
 					padding-left: 13px;
@@ -274,54 +221,38 @@
 			}
 		}
 
-		ul + p,
-		ol + p {
-			margin-top: 2em;
-		}
-
-		> div {
-			margin-top: 1.8em;
-			margin-bottom: 1.8em;
-		}
-
 		blockquote {
 			position: relative;
-			margin: 1.8em 0 0 0;
-			padding: 25px 40px 25px 50px;
-			background: #eee;
+			margin: 1.5em 0 0 0;
+			padding: 50px 50px 35px 50px;
+			border: 1px solid #eee;
+			background: #fafafa;
 
 			> :first-child {
 				margin-top: 0 !important;
 			}
 
-			@media #{$breakS} {
-				padding: 20px;
-			}
-
 			&:before {
 				content: "“";
 				position: absolute;
-				left: 10px;
-				top: 5px;
-				color: #ccc;
+				left: 15px;
+				top: 10px;
+				color: #eee;
 				font-family: Arial;
 				font-size: fz(18,50);
 				font-weight: bold;
 				line-height: 1;
-
-				@media #{$breakS} {
-					display: none;
-				}
 			}
 		}
 
 		hr {
 			display: block;
-			height: 1px;
-			background: #ccc;
-			margin: 4em 0 2em 0;
+			width: 3em;
+			height: 2px;
 			padding: 0;
+			background: #eee;
 			border: none;
+			margin: 2.5em auto 2.5em auto;
 		}
 
 		strong {

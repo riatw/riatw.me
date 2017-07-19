@@ -1,0 +1,138 @@
+@charset "UTF-8";
+
+@import "core";
+
+//リセット
+@import "core/reset";
+
+//単機能スタイル
+@import "core/helper";
+
+//モジュール
+@import "module/_box.scss";
+@import "module/_form.scss";
+@import "module/_icon.scss";
+@import "module/_list.scss";
+@import "module/_table.scss";
+@import "module/_text.scss";
+@import "module/_button.scss";
+
+@import "vendor/syntaxhighlighter/_shCore.scss";
+@import "vendor/syntaxhighlighter/_shCoreDefault.scss";
+@import "vendor/syntaxhighlighter/_shThemeDefault.scss";
+
+/*---------------------------- layout ----------------------------*/
+html {
+	background: $defaultBgColor;
+}
+body {
+	margin: 0px;
+	font-size: $defaultTxtSize;
+	font-family: -apple-system,BlinkMacSystemFont,Avenir Next,Segoe UI,Arial,sans-serif;
+	line-height: $defaultLineHeight;
+
+	@media #{$breakS} {
+		font-size: $defaultTxtSize - 2px;
+	}
+}
+
+/* header */
+#header {
+	padding: 80px 0;
+
+	.header-title {
+		text-align: center;
+		line-height: 0;
+
+		a {
+			color: inherit;
+			text-decoration: none;
+
+			img {
+				width: 260px;
+
+				@media #{$breakS} {
+					width: 50%;
+				}
+			}
+		}
+	}
+	.header-nav {
+		margin-top: 50px;
+		text-align: center;
+
+		> li {
+			display: inline-block;
+			margin: 0 15px;
+			letter-spacing: -0.4em;
+
+			> a {
+				letter-spacing: normal;
+			}
+		}
+	}
+}
+
+/* footer */
+#footer {
+	margin-top: 100px;
+	padding: 50px 0;
+	border-top: 1px solid #eee;
+
+	.footer-widget {
+		.widget-item {
+			margin-top: 20px;
+			vertical-align: top;
+			letter-spacing: normal;
+			box-sizing: border-box;
+
+			.widget-title {
+				font-size: fz(18,22);
+				font-weight: bold;
+			}
+			.widget-content {
+				margin-top: 5px;
+
+				ul {
+					li {
+						line-height: 2.5;
+					}
+				}
+			}
+
+			&:first-child {
+				margin-top: 0;
+
+				.widget-content {
+					ul {
+
+						li {
+							display: inline-block;
+
+							@media #{$breakS} {
+								display: block;
+							}
+
+							&:before {
+								content: '';
+							}
+
+							a {
+								margin-right: 20px;
+
+								@media #{$breakS} {
+									margin-right: 0;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.footer-copyright {
+		margin-top: 30px;
+		font-size: fz(18,16);
+	}
+}

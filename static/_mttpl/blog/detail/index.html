@@ -1,59 +1,36 @@
 <MTSetvars>
-	pagetitle=<mt:entrytitle> | Blog
-	meta_pagetitle=<mt:entrytitle> | Blog
+	meta_title=<mt:entrytitle> | Blog | riatw.me
 </MTSetvars>
 
 <MTInclude module="config" parent="1">
+<MTInclude module="global-parts" parent="1">
 
 <MTSetvarBlock name="getContents">
-	<div class="m-box-article">
-		<div class="m-box-entry">
-			<div class="entry-meta">
-				<p class="meta-data">
-					<span class="meta-category">
-						<MTIf tag="entrycategory">
-							<mt:categorylabel>
-						<MTELse>
-							分類なし
-						</MTIf>
-					</span>
-					<span class="meta-date">
-						<mt:entrydate format="%Y.%m.%d">
-					</span>
-				</p>
-				<h2 class="meta-title">
-					<mt:entrytitle>
-				</h2>
-			</div>
+	<div class="m-box-entry">
+		<h2 class="entry-title">
+			<mt:entrytitle>
+		</h2>
+		<div class="entry-meta">
+			<span class="meta-date">
+				<mt:entrydate format="%Y.%m.%d">
+			</span>
+			<span class="meta-category">
+				<MTIf tag="entrycategory">
+					<mt:categorylabel>
+				<MTELse>
+					分類なし
+				</MTIf>
+			</span>
+		</div>
 
-			<div class="entry-body">
-				<mt:entrybody>
-			</div>
+		<div class="entry-body">
+			<mt:entrybody>
 		</div>
 	</div>
 
-	<MTEntryPrevious><mt:setvar name="pager_flag" value="1"></MTEntryPrevious>
-	<MTEntryNext><mt:setvar name="pager_flag" value="1"></MTEntryNext>
-
-	<MTIf name="pager_flag">
-		<ul class="m-list-pager">
-			<MTEntryPrevious>
-				<li class="pager-num pager-prev">
-					<a href="<mt:entrylink>">&lt; PREV ENTRY</a>
-				</li>
-			</MTEntryPrevious>
-
-			<MTEntryNext>
-				<li class="pager-num pager-next">
-					<a href="<mt:entrylink>">NEXT ENTRY &gt;</a>
-				</li>
-			</MTEntryNext>
-		</ul>
-	</MTIf>
-
 	<div class="m-box-social">
 		<p class="social-title">
-			この記事はいかがでしたか? よろしければこの記事をご紹介ください。
+			この記事を共有する
 		</p>
 
 		<ul class="social-button">

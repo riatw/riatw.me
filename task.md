@@ -1,2 +1,0 @@
-- arrowのmixinを入れる
-- feedbackインストール

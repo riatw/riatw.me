@@ -4,8 +4,7 @@
 //	reset.scss用のパラメーター		//
 //------------------------------//
 $defaultBgColor: 	#fff; /* old #fcfcfc */
-$defaultTxtColor: 	#555;
-$defaultStrongTxtColor: 	#333;
+$defaultTxtColor: 	#454545;
 $siteMainColor: #F08200;
 
 $defaultLinkColor: $siteMainColor;
@@ -17,7 +16,7 @@ $defaultLineHeight: 1.8;
 
 
 //---- Break Point ----
-$fixedWidth: 950px;
+$fixedWidth: 720px;
 
 $breakS: "screen and (min-width: 0px) and (max-width: 568px)";
 $breakM: "screen and (max-width: 960px)";

@@ -1,54 +1,39 @@
 <MTSetvars>
-	pagetitle=Blog
-	meta_pagetitle=Blog
+	meta_title=Blog | riatw.me
 </MTSetvars>
 
 <MTInclude module="config" parent="1">
+<MTInclude module="global-parts" parent="1">
 
 <MTSetvarBlock name="getContents">
-
-<MTIgnore>
-<style>
-[data-asc-show] { display: none; }
-</style>
-    <div data-asc-show='[{"regex": "/blog/movabletype.*", "count": 5 }]'>
-    テスト中です。
-    </div>
-</MTIgnore>
-
-	<div class="m-box-article">
-		<ul class="m-list-entries">
-			<MTPageContents count="20">
-				<MTEntries lastn="0">
-					<li class="entries-item">
-						<a href="<mt:entrylink>">
-							<dl>
-								<dd class="item-meta">
-									<span class="meta-category">
-										<MTIf tag="entrycategory">
-											<mt:categorylabel>
-										<MTELse>
-											分類なし
-										</MTIf>
-									</span>
-									<span class="meta-date">
-										<mt:entrydate format="%Y.%m.%d">
-									</span>
-								</dd>
-								<dt class="item-title">
-									<mt:entrytitle>
-								</dt>
-								<dd class="item-excerpt">
-									<mt:entrybody remove_html="1" trim_to="100+...">
-								</dd>
-							</dl>
-						</a>
-					</li>
-					<MTPageSeparator>
-				</mt:Entries>
-			</MTPageContents>
-		</ul>
-	</div>
+	<ul class="m-list-entries">
+		<MTPageContents count="20">
+			<MTEntries lastn="0">
+				<li class="entries-item">
+					<a href="<mt:entrylink>">
+						<dl>
+							<dt class="item-title">
+								<mt:entrytitle>
+							</dt>
+							<dd class="item-meta">
+								<span class="meta-date">
+									<mt:entrydate format="%Y.%m.%d">
+								</span>
+								<span class="meta-category">
+									<MTIf tag="entrycategory">
+										<mt:categorylabel>
+									<MTELse>
+										分類なし
+									</MTIf>
+								</span>
+							</dd>
+						</dl>
+					</a>
+				</li>
+				<MTPageSeparator>
+			</mt:Entries>
+		</MTPageContents>
+	</ul>
 
 	<ul class="m-list-pager">
 		<MTPagination>

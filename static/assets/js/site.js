@@ -212,19 +212,19 @@ $(function () {
 
 	var h4Count = 0;
 
-	contentHTML.find("h3").each(function(i){
+	contentHTML.find("h2").each(function(i){
 		var array_temp = new Object;
 		array_temp.child = [];
 
-		end = $(this).nextAll("h3").eq("0").index();
+		end = $(this).nextAll("h2").eq("0").index();
 
 		if ( end == -1 ) {
 			end = all.length;
 		}
 
 		var count = all.slice(start,end).filter("h4").length - 1;
-		array_temp.id = "h3-" + (i+1);
-		$(this).attr("id","h3-" + (i+1));
+		array_temp.id = "h2-" + (i+1);
+		$(this).attr("id","h2-" + (i+1));
 
 		array_temp.text = $(this).text();
 

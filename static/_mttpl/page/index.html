@@ -1,22 +1,26 @@
 <MTSetvars>
-	pagetitle=<mt:pagetitle>
-	meta_pagetitle=<mt:pagetitle>
+	meta_title=<MTPageFolder><mt:pagetitle> | </MTPageFolder>riatw.me
 </MTSetvars>
 
 <MTInclude module="config" parent="1">
+<MTInclude module="global-parts" parent="1">
 
 <MTSetvarBlock name="getContents">
-	<div class="m-box-article">
-		<div class="m-box-entry">
-			<div class="entry-meta">
-				<h2 class="meta-title">
-					<mt:entrytitle>
-				</h2>
-			</div>
+	<style>
+		.entry-title { margin-bottom: 2em; text-align: center; }
+		.entry-outline { display: none; }
+		.entry-body > :first-child { margin-top: 0 !important; }
+	</style>
 
-			<div class="entry-body">
-				<mt:entrybody>
-			</div>
+	<div class="m-box-entry">
+		<MTPageFolder>
+			<h1 class="entry-title">
+				<mt:entrytitle>
+			</h1>
+		</MTPageFolder>
+
+		<div class="entry-body">
+			<mt:entrybody>
 		</div>
 	</div>
 </MTSetvarBlock>
