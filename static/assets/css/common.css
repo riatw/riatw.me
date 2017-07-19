@@ -1953,6 +1953,7 @@ Common Style
 	background : #fff;
 	font-size : 88%;
 	box-sizing : border-box;
+	letter-spacing : normal;
 }
 
 .syntaxhighlighter a, .syntaxhighlighter div, .syntaxhighlighter code, .syntaxhighlighter table, .syntaxhighlighter table td, .syntaxhighlighter table tr, .syntaxhighlighter table tbody, .syntaxhighlighter table thead, .syntaxhighlighter table caption, .syntaxhighlighter textarea {

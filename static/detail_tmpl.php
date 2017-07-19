@@ -11,30 +11,16 @@
 
 		<meta name="viewport" content="width=device-width">
 
-		<link rel="stylesheet" href="/css/base.css" type="text/css">
+		<link rel="stylesheet" href="/assets/css/common.css">
 		<link rel="shortcut icon" href="/favicon.ico">
 	</head>
 
 	<body>
 		<noscript>JavascriptがOFFのため正しく表示されない可能性があります。</noscript>
 
-<!-- [ WRAP ] -->
+		<!-- [ WRAP ] -->
 		<div id="wrap">
-			<!-- [ GLOBAL HEADER ] -->
-			<div id="header">
-				<p class="header-title">
-					<a href="http://riatw.me">
-						<img src="/images/i_logo.png" alt="riatw.me">
-					</a>
-				</p>
-				<ul class="header-nav">
-					<li><a href="/works">works</a></li>
-					<li><a href="/products">products</a></li>
-					<li><a href="/blog">blog</a></li>
-					<li><a href="/contact">contact</a></li>
-				</ul>
-			</div>
-			<!-- [ /GLOBAL HEADER ] -->
+			<?php include($_SERVER['DOCUMENT_ROOT'] . "/assets/parts/header.html"); ?>
 
 			<!-- [ CONTENT ] -->
 			<div id="content">
@@ -171,132 +157,14 @@
 				</div>
 			</div>
 		</div>
-		<!-- [ /CONTENT ] --><div id="footer">
-				<div data-fixed>
-					<ul class="footer-widget">
-						<li class="widget-item">
-							<dl>
-								<dt class="widget-title">
-									Categories
-								</dt>
-								<dd class="widget-content">
-									<ul>
+		<!-- [ /CONTENT ] -->
 
-											<li>
-												<a href="http://riatw.me/blog/category/movable-type.html">Movable Type(33)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/javascript.html">Javascript(11)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/html-css.html">HTML+CSS(2)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/lamp.html">サーバ関係(7)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/web.html">Webその他(19)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/seminar.html">セミナー(46)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/idea.html">アイディア(4)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/looking-back.html">目標と振り返り(16)</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/category/note.html">雑記(51)</a>
-											</li>
-
-									</ul>
-								</dd>
-							</dl>
-						</li>
-
-						<li class="widget-item">
-							<dl>
-								<dt class="widget-title">
-									Recent Entries
-								</dt>
-								<dd class="widget-content">
-									<ul>
-										<li>
-											<a href="http://riatw.me/blog/now_things_2017.html">2017年の目標</a>
-										</li>
-
-										<li>
-											<a href="http://riatw.me/blog/looking_back_2016.html">2016年を終えて</a>
-										</li>
-
-										<li>
-											<a href="http://riatw.me/blog/css_architecture.html">なぜCSS設計が必要なのかをもう一度考えてみた</a>
-										</li>
-
-										<li>
-											<a href="http://riatw.me/blog/wcan_2016_winter.html">WCAN 2016 Winter に参加してきました！ #wcan</a>
-										</li>
-
-										<li>
-											<a href="http://riatw.me/blog/commitment_of_cms_vol1.html">CMS屋さんのこだわり（その1）</a>
-										</li>
-									</ul>
-								</dd>
-							</dl>
-						</li>
-
-						<li class="widget-item">
-							<dl>
-								<dt class="widget-title">
-									Pickup Entries
-								</dt>
-								<dd class="widget-content">
-									<ul>
-
-											<li>
-												<a href="http://riatw.me/blog/limit_of_richtext.html">Movable Typeの固定ページにおける1ページ=1リッチテキスト（WYSIWYG）の限界</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/vagrant_on_yosemite.html">OS X Yosemite環境のVagrantをポート80で運用する方法</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/mac_cleaninstall.html">VagrantのおかげでMac OS Xのクリーンインストールがとっても楽でした！</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/dynamicmtml_point.html">Movable Typeの可能性を広げるアドオン DynamicMTML 導入のポイント</a>
-											</li>
-
-											<li>
-												<a href="http://riatw.me/blog/challenge_movabletype.html">まずはオープンソースから！ 小さくはじめて、大きく育てるCMS「Movable Type」とは</a>
-											</li>
-
-									</ul>
-								</dd>
-							</dl>
-						</li>
-					</ul>
-
-					<p class="footer-copyright">&copy; riatw.me</p>
-				</div>
-			</div>
-			<!-- [ /GLOBAL FOOTER ] -->
+		<?php include($_SERVER['DOCUMENT_ROOT'] . "/assets/parts/footer.html"); ?>
 	</div>
 	<!-- [ WRAP ] -->
 
-	<script type="text/javascript" src="js/vendor/jquery.js"></script>
-	<script type="text/javascript" src="js/common.js"></script>
-	<script type="text/javascript" src="js/site.js"></script>
+	<script type="text/javascript" src="/assets/js/vendor/jquery.js"></script>
+	<script type="text/javascript" src="/assets/js/common.js"></script>
+	<script type="text/javascript" src="/assets/js/site.js"></script>
 </body>
 </html>
