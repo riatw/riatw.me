@@ -1918,20 +1918,15 @@ Common Style
 
 .m-list-pager {
 	position : relative;
-	letter-spacing : -0.40em;
 	margin-top : 90px;
 	text-align : center;
 }
-.m-list-pager > li {
-	display : inline-block;
-	*display : inline;
-	*zoom : 1;
-	letter-spacing : normal;
-}
 .m-list-pager .pager-num {
+	display : inline-block;
 	margin : 0 10px;
 	vertical-align : middle;
 	line-height : 1;
+	letter-spacing : -0.4em;
 }
 @media screen and (min-width: 0) and (max-width: 568px) {
 	.m-list-pager .pager-num {
@@ -1945,6 +1940,7 @@ Common Style
 	background : #f08200;
 	color : #fff;
 	font-size : 88%;
+	letter-spacing : normal;
 }
 .m-list-pager .pager-num a:hover {
 	transition : all 0.3s;
