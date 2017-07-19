@@ -1,0 +1,143 @@
+/*
+ $Id;
+*/
+
+/*
+ * Search replace
+ */
+
+#search-tabs {
+  display: none;
+}
+
+.ui-tabs .tab:first-child {
+  margin-left: 4px;
+}
+
+table.legacy thead,
+table.legacy tfoot {
+  display: none;
+}
+
+table.legacy tbody {
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+table.legacy tbody tr:first-child,
+table.legacy tbody tr:first-child td:first-child {
+  border-top-left-radius: 5px;
+}
+
+table.legacy tbody tr:first-child,
+table.legacy tbody tr:first-child td:last-child {
+  border-top-right-radius: 5px;
+}
+
+table.legacy tbody tr:nth-last-child(2),
+table.legacy tbody tr:nth-last-child(2) td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+table.legacy tbody tr:nth-last-child(2),
+table.legacy tbody tr:nth-last-child(2) td:last-child {
+  border-bottom-right-radius: 5px;
+}
+
+table.legacy tr td {
+  display: none;
+  min-width: 32px;
+}
+
+table.legacy#asset-listing-table td.asset-thumbnail {
+  display: table-cell;
+}
+
+table.legacy td.cb {
+  /*
+  display: table-cell;
+  */
+}
+
+table.legacy#entry-listing-table td.status,
+table.legacy#page-listing-table td.status,
+table.legacy#comment-listing-table td.si {
+  display: inline;
+  position: absolute;
+  /*
+  left: 52px;
+  */
+}
+
+table.legacy#blog-listing-table td.name,
+table.legacy#entry-listing-table td.title,
+table.legacy#page-listing-table td.title,
+table.legacy#comment-listing-table td.comment {
+  text-indent: 20px;
+  line-height: 1.5;
+  display: table-cell;
+  width: 100%;
+  padding-right: 16px;
+}
+
+table.legacy#blog-listing-table td.name {
+  text-indent: 0px;
+}
+
+table.legacy#asset-listing-table td.name {
+  display: table-cell;
+  width: 100%;
+}
+
+table.legacy#comment-listing-table td.comment .actions-link {
+  display: block;
+  margin-top: 8px;
+  color: transparent;
+  text-indent: 0px;
+}
+
+table.legacy#comment-listing-table td.comment .actions-link a {
+  padding: 4px 8px;
+  margin-right: 0px;
+}
+
+#from,
+#to {
+  max-width: 30%;
+}
+
+#search-bar .actions-bar {
+  margin-top: 8px;
+}
+
+#result-count {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+div.listing {
+  margin-top: 20px;
+}
+
+#search-bar .actions-bar .button {
+  display: block;
+  width: 100%;
+}
+
+.listing-form .actions-bar {
+  display: none;
+}
+
+#date-range {
+  line-height: 44px;
+}
+
+#date-range input,
+#date-range select {
+  margin: 0px 4px;
+}
+
+#date-range .wrap {
+  display: inline-block;
+  white-space: nowrap;
+}

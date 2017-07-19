@@ -1,0 +1,11 @@
+id: DataAPIEntryBodyRaw
+name: DataAPIEntryBodyRaw
+version: 1.0
+applications:
+    data_api:
+        resources:
+            entry:
+                fields:
+                    - name: body_raw
+                      alias: text
+                      from_object_default: bar

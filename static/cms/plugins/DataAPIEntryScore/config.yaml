@@ -1,0 +1,30 @@
+id: DataAPIEntryScore
+name: DataAPIEntryScore
+version: 1.0
+author_link: http://www.h-fj.com/blog/
+doc_link: http://www.h-fj.com/blog/mt6plgdoc/dataapiextension.php
+author_name: <__trans phrase="Hajime Fujimoto">
+description: <__trans phrase="Data API Extension to add score of entry">
+l10n_class: DataAPIEntryScore::L10N
+applications:
+  data_api:
+    endpoints:
+      - id: get_likes_for_entry
+        route: /sites/:site_id/entries/:entry_id/score/like
+        verb: GET
+        version: 1
+        handler: $DataAPIEntryScore::DataAPIEntryScore::EndPoint::Entry::get_likes_for_entry
+        requires_login: 0
+      - id: add_like_to_entry
+        route: /sites/:site_id/entries/:entry_id/score/like
+        verb: PUT
+        version: 1
+        handler: $DataAPIEntryScore::DataAPIEntryScore::EndPoint::Entry::add_like_to_entry
+      - id: remove_like_from_entry
+        route: /sites/:site_id/entries/:entry_id/score/like
+        verb: DELETE
+        version: 1
+        handler: $DataAPIEntryScore::DataAPIEntryScore::EndPoint::Entry::remove_like_from_entry
+tags:
+  block:
+    EntryLikedAuthors: $DataAPIEntryScore::DataAPIEntryScore::ContextHandlers::Tags::entry_liked_authors

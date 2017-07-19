@@ -1,0 +1,61 @@
+/*
+ $Id;
+*/
+
+/*
+ * Category/Folder list screen
+ */
+#area-action select,
+#area-action input[type=text] {
+  max-width: 38%;
+}
+
+#root {
+  padding: 8px;
+}
+
+.sortable-item {
+  padding-left: 44px;
+}
+
+.sortable-item .sort-tab {
+  width: 40px;
+  background-color: #f3f3f3;
+}
+
+.sortable-item .item-label, 
+.sortable-item .item-basename {
+  float: none;
+  display: block;
+  height: auto;
+  margin: 0 10px 0 5px;
+  line-height: normal;
+  overflow: hidden;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sortable-item .item-label a {
+  color: #2b2b2b;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sortable-item .item-basename {
+  color: #7b7c7d;
+  font-size: 90%;
+  font-weight: normal;
+}
+
+.sortable-item .with {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    margin-top: -11px;
+    font-size: 90%;
+}
+
+.sortable-item .count {
+  display: none !important;
+}

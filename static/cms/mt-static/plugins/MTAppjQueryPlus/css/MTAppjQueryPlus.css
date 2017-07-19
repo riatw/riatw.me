@@ -1,0 +1,373 @@
+@charset "UTF-8";
+/* ブログ記事編集画面の[表示オプション]を非表示にする */
+/*
+#display-options {
+    display: none;
+}
+*/
+
+/* クイックポストを隠す */
+#edit-entry #quickpost{
+	display:none;
+}
+
+/* 予約日投稿を隠す */
+#edit-entry #authored_on-field p.scheduled{
+	display:none;
+}
+
+/* パーマリンクを隠す */
+#edit-page #permalink-field{
+	display:none;
+}
+
+/* クイックポストを隠す */
+#edit-page #quickpost{
+	display:none;
+}
+
+/* 確認(プレビュー）ボタンを消す */
+#edit-page div.preview-action{
+	display:none;
+}
+
+/* 予約日投稿を隠す */
+#edit-page #authored_on-field p.scheduled{
+	display:none;
+}
+
+/* 更新状態を隠す
+#edit-page #entry-status-widget{
+	display:none;
+}
+ */
+
+#edit-page #category-field{
+	/* display:none; */
+}
+
+/* 変更メモを非表示
+#revision-note-field{
+	display:none;
+}
+ */
+
+/* プロフィールエリアを隠す */
+#this_is_you-1{
+	display:none;
+}
+
+/* クイックフィルターを隠す */
+#quickfilters{
+	display:none;
+}
+
+/* エントリー一覧画面のフィードのリンクを隠す */
+#list-entry #listing-footer{
+	display:none;
+}
+
+
+/* MTAppjQueryPlus用 */
+div.jqueryCalendar {
+	width		: 197px;
+}
+
+div.jqueryCalendar a {
+	outline		: 0;
+	text-decoration	: none;
+}
+
+div.jqueryCalendar ul.navi {
+	position	: relative;
+	width		: 187px;
+	height		: 28px;
+	margin		: 0;
+	padding		: 7px 5px 0;
+}
+
+div.jqueryCalendar ul.navi li {
+	display		: inline;
+	margin		: 0;
+	padding		: 0;
+	list-style	: none;
+}
+
+div.jqueryCalendar ul.navi li a {
+	background	: #FFF;
+}
+
+div.jqueryCalendar ul.navi li.prev a {
+	float		: left;
+}
+
+div.jqueryCalendar ul.navi li.prev a:hover {
+}
+
+div.jqueryCalendar ul.navi li.next a {
+	float		: right;
+}
+
+div.jqueryCalendar ul.navi li.next a:hover {
+	background-position	: -25px -38px;
+}
+
+div.jqueryCalendar div.main {
+	padding		: 0 0 5px;
+}
+
+div.jqueryCalendar div.caption {
+	position	: relative;
+	width		: 101px;
+	height		: 18px;
+	margin		: -30px auto 3px;
+	padding		: 2px;
+	font-size	: 13px;
+	line-height	: 18px;
+	text-align	: center;
+	vertical-align	: middle;
+}
+
+div.jqueryCalendar div.main table {
+	position	: relative;
+	margin		: 0 auto;
+	border-collapse	: collapse;
+	border-spacing	: 0;
+}
+
+div.jqueryCalendar div.main th,
+div.jqueryCalendar div.main td {
+	width		: 25px;
+	height		: 25px;
+	padding		: 0;
+	border		: 0;
+	border: 1px solid #ccc;
+	color		: #666;
+	line-height	: 25px;
+	text-align	: center;
+	vertical-align	: middle;
+}
+
+div.jqueryCalendar div.main th {
+	height		: 20px;
+	line-height	: 20px;
+	font-size	: 12px;
+}
+
+div.jqueryCalendar div.main td {
+	font-size	: 13px;
+}
+
+div.jqueryCalendar div.main table .sun {
+	color		: #C14F22;
+}
+
+div.jqueryCalendar div.main table .sat {
+	color		: #33F;
+}
+
+div.jqueryCalendar div.main table .sat {
+	color		: #33F;
+}
+
+div.jqueryCalendar div.main table .otherMonth {
+	color		: #CFCFCF;
+}
+
+div.jqueryCalendar div.main table .today {
+	font-weight:bold;
+}
+
+div.jqueryCalendar div.main td.event a,
+div.jqueryCalendar div.main td.event span {
+	display		: block;
+	width		: 25px;
+	height		: 25px;
+	color		: #FFF;
+}
+div.jqueryCalendar div.main td a{
+	display:block;
+}
+div.jqueryCalendar div.main td.selected{
+	background-color:#cfcfcf;
+	border:1px solid #aaa;
+}
+div.jqueryCalendar div.main td.event a:hover {
+	background-position	: -50px -25px;
+}
+
+div.jqueryCalendar div.todayLink {
+	padding		: 3px 0;
+	font-size	: 13px;
+	text-align	: center;
+	display:none;
+}
+
+#menu ul#cmssidebar li{
+	margin-bottom:0.5em;
+}
+
+
+#imageviewer{
+	display:none;
+	width: 575px;
+	z-index: 1000;
+	position:absolute;
+	background-color: #fff;
+	border: 1px solid #C0C6C9;
+	border-radius:5px;
+}
+
+/* 画像のセレクタ */
+#imageviewer ul.ctr{
+	text-align: right;
+	font-size: 12px;
+	padding:5px 3px;
+	background: -moz-linear-gradient(top, #F3F3F3 0%, #DCDDDD 100%);
+	background: -webkit-gradient(linear, left top, left bottom, from(#F3F3F3), to(#DCDDDD));
+	background: -moz-linear-gradient(top, #F3F3F3 0%, #DCDDDD 100%);
+}
+#imageviewer ul.ctr li{
+	padding:0px 10px;
+	border-right:1px solid #aaa;
+	display:inline;
+}
+#imageviewer ul.ctr li:last-child{
+	padding-right:5px;
+	border-right:0;
+}
+#imageviewer ul.ctr li input.tag{
+	width:120px;
+	border:1px solid #ccc;
+}
+#imageviewer ul.view{
+	height:210px;
+	overflow: auto;
+	margin-left:5px;
+	padding:5px 0;
+}
+	#imageviewer ul.view li{
+		text-align: center;
+		vertical-align: top;
+		border: 1px solid #CCC;
+		width: 100px;
+		height: 100px;
+		overflow: hidden;
+		margin-right: 5px;
+		margin-bottom: 10px;
+		display: inline-block;
+	}
+	#imageviewer ul.view li a{
+		display: table-cell;
+		vertical-align: middle;
+		height: 98px;
+		width: 98px;
+		text-align: center;
+	}
+	#imageviewer a{
+		color:#333;
+	}
+
+table.MTAppTableConverter{
+	width:100%;
+	border:none;
+}
+	table.MTAppTableConverter th{
+		text-align:left;
+		padding:5px 5px;
+	}
+	table.MTAppTableConverter td{
+		width:100%;
+		padding:5px 5px;
+		vertical-align:top;
+
+	}
+	table.MTAppTableConverter td input,
+	table.MTAppTableConverter td textarea {
+		border: 1px solid #C0C6C9;
+		border-radius: 5px;
+		-moz-border-radius: 5px;
+		margin:0;
+	}
+	table.MTAppTableConverter td input{
+		width:100%;
+	}
+	table.MTAppTableConverter td textarea{
+		height:5em;
+	}
+
+.MTAppMultiConverter li{
+	position:relative;
+	padding: 2px 10px 2px 10px;
+	border:1px solid #ccc;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+	.MTAppMultiConverter li.ui-state-highlight {
+		height: 2.2em;
+		border: dotted 2px #aaa;
+	}
+.MTAppMultiConverter li div{
+	display: block;
+	margin: 2px 0;
+	padding: 5px 0;
+}
+
+.MTAppMultiConverter label{
+}
+	.MTAppMultiConverter label input{
+		display:block;
+		border: 1px solid #C0C6C9;
+		border-radius: 5px;
+		margin:0;
+		width:80%;
+	}
+	.MTAppMultiConverter label textarea{
+		margin:1px 0 !important;
+		border: 1px solid #C0C6C9;
+		border-radius: 5px;
+		margin:0;
+		width: 99%;
+		height:5em;
+	}
+
+/* 削除ボタン */
+.MTAppMultiConverter .remove_btn{
+	position:absolute;
+	right:10px;
+	top:10px;
+	margin: 0;
+	padding: 0;
+}
+
+.MTAppMultiConverter li .clearfix{
+	overflow:hidden;
+	/zoom:1;
+	margin: 0 0 0 0;
+	padding: 0;
+}
+	.MTAppMultiConverter div.imgWrap{
+		float:left;
+		margin-right:20px;
+		width:100px;
+		height:100px;
+		overflow: auto;
+	}
+	.MTAppMultiConverter .clearfix div{
+		overflow:hidden;
+		/zoom:1;
+	}
+
+.MTAppMultiConverter div.inline input{
+	width:auto;
+	display:inline-block;
+	/display: inline;
+	/zoom: 1;
+	vertical-align: middle;
+}
+.MTAppMultiConverter .ma { margin: 10px; }
+.MTAppMultiConverter .mal { margin-left: 10px; }
+
+#edit-entry #category-selector-list div.list-item div div{
+	width:100% !important;
+}
